@@ -15,37 +15,41 @@
    Paleta: Navy · Teal · Slate
 ═══════════════════════════════════════════ */
 :root {
-  --navy:    #0F172A;
-  --navy2:   #1E293B;
-  --navy3:   #334155;
-  --slate:   #64748B;
-  --mist:    #94A3B8;
-  --bg:      #F1F5F9;
-  --bg2:     #E2E8F0;
-  --card:    #FFFFFF;
-  --card2:   #F8FAFC;
-  --ink:     #0F172A;
-  --ink2:    #475569;
-  --ink3:    #94A3B8;
-  --teal:    #0D9488;
-  --teal-l:  #CCFBF1;
-  --teal-d:  #065F56;
-  --amber:   #D97706;
-  --amber-l: #FEF3C7;
-  --red:     #DC2626;
-  --red-l:   #FEE2E2;
-  --green:   #059669;
-  --green-l: #D1FAE5;
-  --blue:    #2563EB;
-  --blue-l:  #DBEAFE;
-  --orange:  #EA580C;
-  --orange-l:#FFEDD5;
-  --violet:  #7C3AED;
-  --violet-l:#EDE9FE;
-  --borde:   #E2E8F0;
-  --sh:  0 1px 3px rgba(15,23,42,.06), 0 4px 16px rgba(15,23,42,.06);
-  --sh2: 0 4px 24px rgba(15,23,42,.12);
-  --r: 8px; --r2: 12px; --r3: 16px;
+  /* Paleta documento de trabajo — limpia, sin ruido visual */
+  --navy:    #1a2332;
+  --navy2:   #243044;
+  --navy3:   #3d5166;
+  --slate:   #5a6a7e;
+  --mist:    #8a9ab0;
+  --bg:      #f7f8fa;
+  --bg2:     #edf0f4;
+  --card:    #ffffff;
+  --card2:   #f9fafb;
+  --ink:     #111827;
+  --ink2:    #374151;
+  --ink3:    #6b7280;
+  /* Acento único: azul institucional */
+  --teal:    #1d6fa4;
+  --teal-l:  #e8f4fd;
+  --teal-d:  #145480;
+  /* Semáforo */
+  --amber:   #b45309;
+  --amber-l: #fef3c7;
+  --red:     #b91c1c;
+  --red-l:   #fee2e2;
+  --green:   #15803d;
+  --green-l: #dcfce7;
+  --blue:    #1d4ed8;
+  --blue-l:  #dbeafe;
+  --orange:  #c2410c;
+  --orange-l:#ffedd5;
+  --violet:  #6d28d9;
+  --violet-l:#ede9fe;
+  --borde:   #d1d5db;
+  /* Sin sombras profundas — solo borde */
+  --sh:  0 1px 2px rgba(0,0,0,.06);
+  --sh2: 0 2px 6px rgba(0,0,0,.1);
+  --r: 6px; --r2: 8px; --r3: 10px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased }
@@ -54,70 +58,57 @@ body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', system-
 ::-webkit-scrollbar-track { background: var(--bg2) }
 ::-webkit-scrollbar-thumb { background: var(--navy3); border-radius: 99px }
 
-/* ── HEADER ── */
+/* ── HEADER — compacto, institucional ── */
 header {
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #0F2535 100%);
-  border-bottom: 1px solid rgba(255,255,255,.06);
-  position: relative; overflow: hidden;
+  background: var(--navy);
+  border-bottom: 3px solid var(--teal);
 }
-header::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 50% at 20% 50%, rgba(13,148,136,.12), transparent),
-              radial-gradient(ellipse 60% 80% at 80% 20%, rgba(37,99,235,.08), transparent);
-}
-header::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(13,148,136,.4), transparent);
-}
+header::before, header::after { display: none }
 .hdr-inner {
   max-width: 1400px; margin: 0 auto;
-  padding: 2.25rem 2.5rem 2rem;
+  padding: 1.1rem 2.5rem;
   display: grid; grid-template-columns: 1fr auto;
   gap: 2rem; align-items: center;
-  position: relative; z-index: 1;
 }
-/* hdr-pill removed */
 h1 {
   font-family: 'Sora', sans-serif;
-  font-size: clamp(1.6rem, 3vw, 2.6rem);
-  font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -.04em;
+  font-size: 1.35rem;
+  font-weight: 700; color: #fff; line-height: 1.2; letter-spacing: -.01em;
 }
-h1 b { background: linear-gradient(135deg,#5EEAD4,#0D9488); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text }
-.hdr-desc { font-size: 13px; color: rgba(148,163,184,.8); margin-top: .5rem }
-.hdr-chips { display: flex; flex-direction: column; gap: 8px; align-items: flex-end }
+h1 b { color: #7dd3fc; font-weight: 800 }
+.hdr-desc { font-size: 11px; color: rgba(148,163,184,.7); margin-top: .25rem; letter-spacing: .02em }
+.hdr-chips { display: flex; gap: 12px; align-items: center }
 .hdr-chip {
-  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
-  border-radius: var(--r2); padding: .6rem 1.2rem;
-  text-align: right; min-width: 150px; backdrop-filter: blur(12px);
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--r); padding: .45rem 1rem;
+  text-align: right; min-width: 110px;
 }
-.hdr-chip-v { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 600; color: #fff; line-height: 1 }
-.hdr-chip-l { font-size: 9px; color: rgba(148,163,184,.55); text-transform: uppercase; letter-spacing: .1em; margin-top: 3px }
+.hdr-chip-v { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; color: #fff; line-height: 1 }
+.hdr-chip-l { font-size: 9px; color: rgba(148,163,184,.5); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px }
 
-/* ── NAV PRINCIPAL ── */
+/* ── NAV PRINCIPAL — tabs sobrios ── */
 nav.main-nav {
-  background: rgba(15,23,42,.97);
-  border-bottom: 1px solid rgba(255,255,255,.06);
+  background: var(--card);
+  border-bottom: 2px solid var(--borde);
   position: sticky; top: 0; z-index: 300;
-  backdrop-filter: blur(20px);
 }
-.nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 2.5rem; display: flex; overflow-x: auto; scrollbar-width: none }
+.nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 2.5rem; display: flex; overflow-x: auto; scrollbar-width: none; gap: 0 }
 .nav-inner::-webkit-scrollbar { display: none }
 .nav-btn {
-  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600;
-  letter-spacing: .06em; text-transform: uppercase;
-  padding: .875rem 1.2rem; color: rgba(148,163,184,.6);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: .03em;
+  padding: .7rem 1.1rem; color: var(--slate);
   border: none; background: none; cursor: pointer;
-  border-bottom: 2px solid transparent; margin-bottom: -1px;
-  white-space: nowrap; transition: color .15s, border-color .15s;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  white-space: nowrap;
 }
-.nav-btn:hover { color: rgba(226,232,240,.9) }
-.nav-btn.on { color: #fff; border-bottom-color: var(--teal) }
+.nav-btn:hover { color: var(--ink); background: var(--bg2) }
+.nav-btn.on { color: var(--teal); border-bottom-color: var(--teal); background: var(--teal-l) }
 
 /* ── BARRA AÑO ── */
 .year-bar {
-  background: var(--card); border-bottom: 1px solid var(--borde);
+  background: var(--bg2); border-bottom: 1px solid var(--borde);
   position: sticky; top: 43px; z-index: 200;
-  box-shadow: 0 1px 0 var(--borde);
 }
 .year-bar-inner {
   max-width: 1400px; margin: 0 auto; padding: .6rem 2.5rem;
@@ -131,7 +122,7 @@ nav.main-nav {
   cursor: pointer; transition: all .15s; position: relative;
 }
 .year-btn:hover { border-color: var(--teal); color: var(--teal) }
-.year-btn.on { background: var(--navy); color: #fff; border-color: var(--navy) }
+.year-btn.on { background: var(--teal); color: #fff; border-color: var(--teal) }
 .year-btn.pending { border-style: dashed; color: var(--mist) }
 .year-btn.partial { border-style: dashed; border-color: var(--amber); color: var(--amber) }
 .year-btn.pending::after { content: 'próximo'; position: absolute; top: -8px; right: -4px; background: var(--amber); color: #fff; font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 4px; letter-spacing: .04em; font-family: 'DM Sans',sans-serif }
@@ -146,35 +137,35 @@ nav.main-nav {
 .compare-select:focus { border-color: var(--teal) }
 
 /* ── WRAP ── */
-.wrap { max-width: 1400px; margin: 0 auto; padding: 2rem 2.5rem; display: none }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2.5rem; display: none }
 .wrap.on { display: block }
 
 /* ── SECTION HEAD ── */
-.sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: .5rem }
+.sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: .5rem; padding-bottom: .75rem; border-bottom: 1px solid var(--borde) }
 .sh-t {
-  font-size: 11px; font-weight: 700; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--slate);
-  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; letter-spacing: .02em;
+  text-transform: none; color: var(--ink);
+  display: flex; align-items: center; gap: 10px;
 }
-.sh-t::before { content: ''; width: 3px; height: 12px; background: var(--teal); border-radius: 99px; flex-shrink: 0 }
-.sh-n { font-size: 11px; color: var(--mist) }
+.sh-t::before { content: ''; width: 4px; height: 18px; background: var(--teal); border-radius: 2px; flex-shrink: 0 }
+.sh-n { font-size: 12px; color: var(--mist) }
 
 /* ── KPI GRID ── */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .875rem; margin-bottom: 2rem }
 .kpi {
   background: var(--card); border-radius: var(--r3);
   padding: 1.4rem 1.6rem; box-shadow: var(--sh);
-  border: 1px solid var(--borde); border-left: 3px solid var(--teal);
+  border: 1.5px solid var(--borde); border-left: 4px solid var(--teal);
   transition: transform .2s, box-shadow .2s;
 }
-.kpi:hover { transform: translateY(-2px); box-shadow: var(--sh2) }
+.kpi:hover { background: var(--card2) }
 .kpi.red   { border-left-color: var(--red) }
 .kpi.amber { border-left-color: var(--amber) }
 .kpi.green { border-left-color: var(--green) }
 .kpi.blue  { border-left-color: var(--blue) }
 .kpi.orange{ border-left-color: var(--orange) }
 .kpi.violet{ border-left-color: var(--violet) }
-.kpi-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mist); margin-bottom: .6rem }
+.kpi-label { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--slate); margin-bottom: .5rem }
 .kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 1.65rem; font-weight: 700; color: var(--ink); line-height: 1; letter-spacing: -.02em }
 .kpi-value.pending { color: var(--mist); font-size: 1.1rem; font-style: italic }
 .kpi-sub { font-size: 12px; color: var(--ink3); margin-top: .3rem }
@@ -223,7 +214,7 @@ nav.main-nav {
 
 /* ── ALERT ── */
 .alert {
-  border-radius: var(--r2); padding: .875rem 1.25rem;
+  border-radius: var(--r); padding: .75rem 1rem;
   font-size: 12.5px; line-height: 1.65; margin-bottom: 1.5rem;
   border-left: 3px solid;
 }
@@ -238,29 +229,29 @@ nav.main-nav {
 .table-wrap { overflow-x: auto; border-radius: var(--r3); box-shadow: var(--sh); border: 1px solid var(--borde); margin-bottom: 2rem }
 table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; background: var(--card) }
 thead th {
-  background: var(--navy); color: rgba(226,232,240,.85);
-  padding: 9px 10px; text-align: left;
-  font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 600;
-  letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: var(--navy); color: rgba(226,232,240,.92);
+  padding: 9px 12px; text-align: left;
+  font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
+  border-bottom: 1px solid rgba(255,255,255,.1);
 }
 thead th:first-child { border-radius: var(--r3) 0 0 0 }
 thead th:last-child  { border-radius: 0 var(--r3) 0 0 }
-thead th.yr-col { background: rgba(13,148,136,.25); color: #99F6E4 }
-thead th.yr-cmp { background: rgba(217,119,6,.2);   color: #FDE68A }
+thead th.yr-col { background: rgba(13,148,136,.30); color: #5EEAD4 }
+thead th.yr-cmp { background: rgba(234,88,12,.25);  color: #FED7AA }
 tbody tr { border-bottom: 1px solid var(--borde); transition: background .1s }
 tbody tr:hover { background: var(--teal-l) }
 tbody tr:nth-child(even) { background: var(--card2) }
 tbody tr:nth-child(even):hover { background: var(--teal-l) }
 tbody tr:last-child { border: none }
-td { padding: 11px 12px; vertical-align: middle; color: var(--ink) }
+td { padding: 10px 12px; vertical-align: middle; color: var(--ink); font-size: 13px }
 td.name   { font-weight: 600; font-size: 12px; color: var(--navy) }
 td.mono   { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--ink2) }
 td.mono-hi{ font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right; color: var(--navy); font-weight: 600 }
 td.pct    { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right }
 td.na     { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--mist); font-style: italic }
-td.yr-col { background: rgba(13,148,136,.06) }
-td.yr-cmp { background: rgba(217,119,6,.06) }
+td.yr-col { background: rgba(13,148,136,.08) }
+td.yr-cmp { background: rgba(234,88,12,.08) }
 .badge {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 9px; font-weight: 700; padding: 2px 8px;
@@ -280,7 +271,7 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px }
 .bar-label { font-size: 12px; color: var(--ink2); width: 175px; flex-shrink: 0; text-align: right; font-weight: 500 }
 .bar-track { flex: 1; background: var(--bg2); border-radius: 3px; height: 16px; overflow: hidden }
-.bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; transition: width .6s ease }
+.bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px }
 .bar-pct { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; color: #fff; white-space: nowrap }
 .bar-amount { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mist); width: 90px; text-align: right; flex-shrink: 0 }
 
@@ -420,11 +411,11 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 }
 
 /* ── COMPARATIVA GASTOS TABLA ── */
-.cmp-vn { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right }
-.cmp-vr { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; font-weight: 600 }
-.cmp-vr.ok  { color: var(--green) }
-.cmp-vr.warn{ color: var(--amber) }
-.cmp-vr.bad { color: var(--red) }
+.cmp-vn { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--ink2) }
+.cmp-vr { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right; font-weight: 700 }
+.cmp-vr.ok  { color: #059669 }
+.cmp-vr.warn{ color: #b45309 }
+.cmp-vr.bad { color: #dc2626 }
 
 /* ── TOOLTIP ── */
 .th-tip { position: relative; cursor: help }
@@ -468,7 +459,7 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 
 /* ── CALCULADORA NUEVA ── */
 .calc-card {
-  background: var(--card); border-radius: var(--r3);
+  background: var(--card); border-radius: var(--r2);
   border: 1px solid var(--borde); box-shadow: var(--sh);
   display: grid; grid-template-columns: 1fr auto 1fr;
   gap: 0; margin-bottom: 1.25rem; overflow: hidden;
@@ -607,13 +598,13 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
   display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;
 }
 .pie-card {
-  background: var(--card); border-radius: var(--r3);
-  border: 1px solid var(--borde); box-shadow: var(--sh);
+  background: var(--card); border-radius: var(--r2);
+  border: 1.5px solid var(--borde);
   padding: 1.25rem;
 }
 .pie-card-title {
-  font-family: 'Sora', sans-serif; font-size: .85rem; font-weight: 700;
-  color: var(--navy3); margin-bottom: 1rem;
+  font-size: .8rem; font-weight: 700;
+  color: var(--ink2); margin-bottom: .75rem; text-transform: uppercase; letter-spacing: .04em;
 }
 .pie-wrap {
   display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap;
@@ -683,7 +674,6 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <button class="nav-btn" onclick="setView('gastos',this)">Gastos</button>
     <button class="nav-btn" onclick="setView('secretarias',this)">Por secretaría</button>
     <button class="nav-btn" onclick="setView('personal',this)">Personal</button>
-    <button class="nav-btn" onclick="setView('graficos',this)">Gráficos</button>
     <button class="nav-btn" onclick="setView('calc',this)">Calculadora 2027</button>
     <button class="nav-btn" onclick="setView('metodologia',this)">Metodología</button>
   </div>
@@ -844,6 +834,23 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <div style="margin-bottom:1rem"><button class="export-btn" onclick="exportGastos()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Exportar a Excel</button></div>
   <div class="kpi-grid" id="kpi-gastos"></div>
     <div class="alert warn" id="gas-alerta"></div>
+  <!-- TORTA: Gastos por objeto -->
+  <div class="card-grid g2" style="margin-bottom:1.5rem">
+    <div class="pie-card">
+      <div class="pie-card-title" id="pie-objeto-title">Gastos por objeto</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-objeto"></canvas></div>
+        <div class="pie-legend" id="pie-objeto-legend"></div>
+      </div>
+    </div>
+    <div class="pie-card">
+      <div class="pie-card-title" id="pie-sec-title">Por secretaría (top 8)</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-secretarias"></canvas></div>
+        <div class="pie-legend" id="pie-sec-legend"></div>
+      </div>
+    </div>
+  </div>
     <div class="card-grid g2">
       <div class="card v3">
         <div class="card-title">Gastos por objeto · comparativa</div>
@@ -1083,59 +1090,6 @@ footer a:hover { color: rgba(94,234,212,.85) }
 
   <div class="alert info">
     <strong>Nota:</strong> Los archivos PDF están en poder del bloque. Para agregar links de descarga directa, subí los PDFs a un servicio de almacenamiento (Google Drive, Dropbox) y reemplazá el texto de cada ítem por un link. Escribime y lo implementamos.
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     GRÁFICOS DE TORTA
-═══════════════════════════════════════ -->
-<div class="wrap" id="v-graficos">
-  <div class="sh">
-    <span class="sh-t" id="graficos-titulo">Distribución del presupuesto · <span id="graficos-year"></span></span>
-    <span class="sh-n">Las tortas se actualizan al cambiar de año con el selector de arriba</span>
-  </div>
-
-  <!-- Fila 1: Gastos por objeto + Por secretaría -->
-  <div class="pie-section">
-    <div class="pie-card">
-      <div class="pie-card-title" id="pie-objeto-title">Gastos por objeto</div>
-      <div class="pie-wrap">
-        <div class="pie-canvas-wrap"><canvas id="pie-objeto"></canvas></div>
-        <div class="pie-legend" id="pie-objeto-legend"></div>
-      </div>
-    </div>
-    <div class="pie-card">
-      <div class="pie-card-title" id="pie-sec-title">Por secretaría (top 8)</div>
-      <div class="pie-wrap">
-        <div class="pie-canvas-wrap"><canvas id="pie-secretarias"></canvas></div>
-        <div class="pie-legend" id="pie-sec-legend"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Fila 2: Recursos por tipo + Comparativa años (barras) -->
-  <div class="pie-section">
-    <div class="pie-card">
-      <div class="pie-card-title" id="pie-rec-title">Recursos por tipo</div>
-      <div class="pie-wrap">
-        <div class="pie-canvas-wrap"><canvas id="pie-recursos"></canvas></div>
-        <div class="pie-legend" id="pie-rec-legend"></div>
-      </div>
-    </div>
-    <div class="pie-card">
-      <div class="pie-card-title" id="pie-origen-title">Recursos por procedencia</div>
-      <div class="pie-wrap">
-        <div class="pie-canvas-wrap"><canvas id="pie-origen"></canvas></div>
-        <div class="pie-legend" id="pie-origen-legend"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Nota al pie -->
-  <div class="alert muted" style="font-size:12px">
-    <strong>Nota metodológica:</strong> Los porcentajes se calculan sobre el total ejecutado/devengado del año seleccionado.
-    Para 2026 los datos son provisorios al 31/03/2026, anualizados (×4).
-    El % de cada ítem es comparable entre años aunque el monto absoluto cambie por inflación.
   </div>
 </div>
 
@@ -2072,11 +2026,16 @@ const DATA = {
           { label: 'Fortalecimiento Cementerio Municipal',         val:   321.31 },
         ]
       },
-      { label: 'Act. Centrales + Serv. Deuda (*)', val: 54658.00,
-        nota: '(*) Incluye pago deuda flotante 2025 — no representativo del gasto estructural',
+      { label: 'Act. Centrales (personal y gastos gles.)', val: 20939.24,
+        nota: 'Personal general + gastos comunes de todas las jurisdicciones',
         programas: [
-          { label: 'Actividades Centrales (personal y gastos gles.)', val: 20939.24 },
-          { label: 'Servicio de la Deuda (deuda flotante 2025 + propia)', val: 33718.76 },
+          { label: 'Actividades Centrales', val: 20939.24 },
+        ]
+      },
+      { label: 'Servicio de la Deuda', val: 33718.76,
+        nota: 'Incluye pago deuda flotante 2025 concentrado en Q1 — Q1×4',
+        programas: [
+          { label: 'Amortización deuda interna (flotante 2025 + propia)', val: 33718.76 },
         ]
       },
       { label: 'Capital Humano', val: 11725.08,
@@ -2273,18 +2232,23 @@ function renderResumen() {
   `).join('');
 
   // Cuenta AIF
+  const _ing = r.ingCorrientes || 1;
+  const _eje = r.ejecutado || r.gasCorrientes || 1;
   const rows = [
-    ['Ingresos corrientes', r.ingCorrientes, false],
-    ['Gastos corrientes', r.gasCorrientes, false],
-    ['Ahorro corriente', r.ahorroCorriente, true, 'var(--green)'],
-    ['Recursos de capital', r.recursosCapital, false],
-    ['Gastos de capital', r.gastosCapital, false],
-    ['Resultado financiero', r.superavitArt43, true, r.superavitArt43 >= 0 ? 'var(--teal)' : 'var(--red)'],
+    ['Ingresos corrientes',  r.ingCorrientes,   false, null,             null],
+    ['Gastos corrientes',    r.gasCorrientes,   false, null,             (r.gasCorrientes/_ing*100).toFixed(1)+'% de ing.'],
+    ['Ahorro corriente',     r.ahorroCorriente, true,  'var(--green)',   (r.ahorroCorriente/_ing*100).toFixed(1)+'% de ing.'],
+    ['Recursos de capital',  r.recursosCapital, false, null,             null],
+    ['Gastos de capital',    r.gastosCapital,   false, null,             (r.gastosCapital/_eje*100).toFixed(1)+'% del gasto'],
+    ['Resultado financiero', r.superavitArt43,  true,  r.superavitArt43 >= 0 ? 'var(--teal)' : 'var(--red)', null],
   ];
-  document.getElementById('cuenta-aif').innerHTML = rows.map(([lbl, val, bold, col]) => `
-    <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--borde);${bold ? 'border-top:1px solid var(--borde);margin-top:.25rem;padding-top:.5rem' : ''}">
+  document.getElementById('cuenta-aif').innerHTML = rows.map(([lbl, val, bold, col, pct]) => `
+    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:.4rem 0;border-bottom:1px solid var(--borde);${bold ? 'border-top:1px solid var(--borde);margin-top:.25rem;padding-top:.5rem' : ''}">
       <span style="font-size:12px;color:${col || 'var(--ink2)'};font-weight:${bold ? 700 : 400}">${lbl}</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:${bold ? '13' : '11'}px;color:${col || 'var(--ink2)'};font-weight:${bold ? 700 : 400}">$${fmt(val)} M</span>
+      <div style="display:flex;gap:.75rem;align-items:baseline">
+        ${pct && val ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}</span>` : ''}
+        <span style="font-family:'JetBrains Mono',monospace;font-size:${bold ? '13' : '11'}px;color:${col || 'var(--ink2)'};font-weight:${bold ? 700 : 400}">$${val ? fmt(val) : '—'} M</span>
+      </div>
     </div>
   `).join('');
 
@@ -2359,53 +2323,160 @@ function renderResumen() {
    ║  RENDER — RECURSOS                                   ║
    ╚══════════════════════════════════════════════════════╝ */
 function renderRecursos() {
-  const d = DATA[activeYear];
+  const d  = DATA[activeYear];
+  const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
+  const rc = dc?.recursos;
+  const ipc = dc?.ipc || 0;
   const isPending = (d.status === 'pending') || !d.recursos;
-  document.getElementById('rec-pending').style.display  = isPending ? 'flex' : 'none';
-  document.getElementById('rec-content').style.display  = isPending ? 'none' : 'block';
-  document.getElementById('rec-titulo').textContent     = `Recursos · ${activeYear}`;
+  document.getElementById('rec-pending').style.display = isPending ? 'flex' : 'none';
+  document.getElementById('rec-content').style.display = isPending ? 'none' : 'block';
+  document.getElementById('rec-titulo').textContent    = `Recursos · ${activeYear}`;
   if (isPending) { document.querySelectorAll('#rec-pending .po-year').forEach(e=>e.textContent=activeYear); return; }
 
   const r = d.recursos;
+  const showCmp = !!rc;
+
+  // ── Helper: variación con delta visual ──
+  const mkDelta = (val, valC) => {
+    if (!valC || !val) return '';
+    const vn = (val - valC) / valC * 100;
+    const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const cls = vn > 2 ? 'up' : vn < -2 ? 'down' : 'warn';
+    const vrTxt = vr !== null ? ` · ${vr>0?'+':''}${vr.toFixed(1)}% real` : '';
+    return `<div class="kpi-delta ${cls}">vs ${cmpYear}: ${vn>0?'+':''}${vn.toFixed(1)}% nom${vrTxt}</div>`;
+  };
+
+  // ── KPIs con comparativa ──
   const kpis = [
-    { cl:'amber', label:'Total devengado',          val:`$${fmt(r.totalDevengado)} M`,  sub:`Crédito vigente aprobado`,     delta:null },
-    { cl:'green', label:'Total percibido',           val:`$${fmt(r.totalPercibido)} M`,  sub:`Brecha dev/perc: $${fmt(r.totalDevengado - r.totalPercibido)} M`, delta:null },
-    { cl:'',      label:'Origen municipal (perc.)',  val:`$${fmt(r.origenMunicipal)} M`, sub:`${((r.origenMunicipal/r.totalPercibido)*100).toFixed(1)}% del total`, delta:{cl:'up',txt:'Tasas + canon + copart.'} },
-    { cl:'blue',  label:'Origen provincial (perc.)', val:`$${fmt(r.origenProvincial)} M`,sub:`${((r.origenProvincial/r.totalPercibido)*100).toFixed(1)}% del total`, delta:{cl:'info',txt:'Copart. + transf. afect.'} },
+    { cl:'amber', label:'Total percibido',
+      val:`$${fmt(r.totalPercibido)} M`,
+      sub: showCmp ? `vs ${cmpYear}: $${fmt(rc.totalPercibido)} M` : 'Recursos efectivamente cobrados',
+      delta: mkDelta(r.totalPercibido, rc?.totalPercibido) },
+    { cl:'green', label:'Origen municipal',
+      val:`$${fmt(r.origenMunicipal)} M`,
+      sub:`${((r.origenMunicipal/r.totalPercibido)*100).toFixed(1)}% del total`,
+      delta: mkDelta(r.origenMunicipal, rc?.origenMunicipal) },
+    { cl:'blue', label:'Origen provincial',
+      val:`$${fmt(r.origenProvincial)} M`,
+      sub:`${((r.origenProvincial/r.totalPercibido)*100).toFixed(1)}% del total`,
+      delta: mkDelta(r.origenProvincial, rc?.origenProvincial) },
+    { cl:'', label:'Origen nacional',
+      val:`$${fmt(r.origenNacional)} M`,
+      sub:`${((r.origenNacional/r.totalPercibido)*100).toFixed(2)}% del total`,
+      delta: mkDelta(r.origenNacional, rc?.origenNacional) },
   ];
   document.getElementById('kpi-recursos').innerHTML = kpis.map(k => `
     <div class="kpi ${k.cl}">
       <div class="kpi-label">${k.label}</div>
       <div class="kpi-value">${k.val}</div>
       <div class="kpi-sub">${k.sub}</div>
-      ${k.delta ? `<div class="kpi-delta ${k.delta.cl}">${k.delta.txt}</div>` : ''}
+      ${k.delta || ''}
     </div>
   `).join('');
 
-  renderSimpleBars('bars-rec-tipo', r.tipos, 'var(--teal)');
-  renderSimpleBars('bars-tasas',    r.tasas, 'var(--amber)');
+  // ── Barras por tipo CON comparativa ──
+  const maxTipo = Math.max(...r.tipos.map(t=>t.val), ...(rc?.tipos?.map(t=>t.val)||[0]));
+  const legend = showCmp ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px">
+    <span style="display:flex;align-items:center;gap:5px">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(13,148,136,.75)"></span><strong>${activeYear}</strong>
+    </span>
+    <span style="display:flex;align-items:center;gap:5px">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(234,88,12,.7)"></span><strong>${cmpYear}</strong>
+    </span>
+  </div>` : '';
 
-  // Tabla tributarios
-  const total = r.tributarios.reduce((s,i) => s + i.val, 0);
-  document.getElementById('tbody-trib').innerHTML = r.tributarios.map(t => `
-    <tr>
+  document.getElementById('bars-rec-tipo').innerHTML = legend + r.tipos.map((t, i) => {
+    const tc = rc?.tipos?.[i];
+    const vn = tc ? ((t.val-tc.val)/tc.val*100) : null;
+    const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const wa = t.val/maxTipo*100;
+    const wb = tc ? tc.val/maxTipo*100 : 0;
+    return `<div style="margin-bottom:11px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
+        <span style="font-size:12px;font-weight:500;color:var(--ink)">${t.label}</span>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-shrink:0">
+          ${tc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(234,88,12,.8)">$${fmt(tc.val)}M</span>` : ''}
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--navy)">$${fmt(t.val)}M</span>
+          ${vr !== null ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${vr>2?'#059669':vr>-10?'#b45309':'#dc2626'}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>` : ''}
+        </div>
+      </div>
+      <div style="height:13px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative;margin-bottom:${tc?'3':'0'}px">
+        <div style="position:absolute;top:0;left:0;width:${wa}%;height:100%;background:rgba(13,148,136,.75);border-radius:3px"></div>
+      </div>
+      ${tc ? `<div style="height:13px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
+        <div style="position:absolute;top:0;left:0;width:${wb}%;height:100%;background:rgba(234,88,12,.65);border-radius:3px"></div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  // ── Tasas CON comparativa ──
+  const maxTasa = Math.max(...r.tasas.map(t=>t.val), ...(rc?.tasas?.map(t=>t.val)||[0]));
+  document.getElementById('bars-tasas').innerHTML = (showCmp ? legend : '') + r.tasas.map((t, i) => {
+    const tc = rc?.tasas?.[i];
+    const vn = tc ? ((t.val-tc.val)/tc.val*100) : null;
+    const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const wa = t.val/maxTasa*100;
+    const wb = tc ? tc.val/maxTasa*100 : 0;
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+        <span style="font-size:11px;color:var(--ink2)">${t.label}</span>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          ${tc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(234,88,12,.75)">$${fmt(tc.val)}M</span>` : ''}
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--navy)">$${fmt(t.val)}M</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${(t.val/r.totalPercibido*100).toFixed(1)}%</span>
+          ${vr !== null ? `<span style="font-size:10px;font-weight:700;color:${vr>2?'#059669':vr>-10?'#b45309':'#dc2626'}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>` : ''}
+        </div>
+      </div>
+      <div style="height:11px;background:var(--bg2);border-radius:2px;overflow:hidden;position:relative;margin-bottom:${tc?'2':'0'}px">
+        <div style="position:absolute;top:0;left:0;width:${wa}%;height:100%;background:rgba(13,148,136,.7);border-radius:2px"></div>
+      </div>
+      ${tc ? `<div style="height:11px;background:var(--bg2);border-radius:2px;overflow:hidden;position:relative">
+        <div style="position:absolute;top:0;left:0;width:${wb}%;height:100%;background:rgba(234,88,12,.6);border-radius:2px"></div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  // ── Tabla tributarios CON comparativa ──
+  const total  = r.tributarios.reduce((s,i) => s + i.val, 0);
+  const totalC = rc ? rc.tributarios.reduce((s,i) => s + i.val, 0) : 0;
+
+  // Actualizar headers de la tabla tributarios
+  const thTrib = document.getElementById('th-trib-cmp');
+  if (thTrib) thTrib.style.display = showCmp ? '' : 'none';
+  const thVnTrib = document.getElementById('th-trib-vn');
+  if (thVnTrib) thVnTrib.style.display = showCmp ? '' : 'none';
+  if (thTrib) thTrib.textContent = cmpYear + ' ($M)';
+
+  document.getElementById('tbody-trib').innerHTML = r.tributarios.map((t, i) => {
+    const tc = rc?.tributarios?.[i];
+    const vn = tc ? ((t.val-tc.val)/tc.val*100) : null;
+    const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const vrCls = vr !== null ? (vr>2?'ok':vr>-10?'warn':'bad') : '';
+    return `<tr>
       <td class="name">${t.label}</td>
       <td class="mono-hi yr-col">$${fmt(t.val)} M</td>
       <td class="pct yr-col">${((t.val/total)*100).toFixed(1)}%</td>
+      ${showCmp ? `
+        <td class="mono yr-cmp">${tc ? '$'+fmt(tc.val)+' M' : '—'}</td>
+        <td class="cmp-vr yr-cmp ${vrCls}">${vr !== null ? (vr>0?'+':'')+ vr.toFixed(1)+'%r' : '—'}</td>
+      ` : ''}
       <td><span class="badge ${t.orig === 'Provincial' ? 'badge-warn' : 'badge-ok'}">${t.orig}</span></td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 
-  // Tabla fondos
-  document.getElementById('tbody-fondos').innerHTML = r.fondos.map(f => `
-    <tr>
-      <td class="name">${f.label}</td>
-      <td class="mono">$${fmt(f.si)} M</td>
-      <td class="mono yr-col">$${fmt(f.ing)} M</td>
-      <td class="mono">$${fmt(f.eg)} M</td>
-      <td class="mono-hi" style="color:${f.sc > 0 ? 'var(--green)' : 'var(--mist)'}">$${fmt(f.sc)} M</td>
-    </tr>
-  `).join('');
+  // ── Fondos (sin comparativa, solo 2024 los tiene) ──
+  const fondosEl = document.getElementById('tbody-fondos');
+  if (fondosEl) {
+    fondosEl.innerHTML = r.fondos.length ? r.fondos.map(f => `
+      <tr>
+        <td class="name">${f.label}</td>
+        <td class="mono">$${fmt(f.si)} M</td>
+        <td class="mono yr-col">$${fmt(f.ing)} M</td>
+        <td class="mono">$${fmt(f.eg)} M</td>
+        <td class="mono-hi" style="color:${f.sc > 0 ? 'var(--green)' : 'var(--mist)'}">$${fmt(f.sc)} M</td>
+      </tr>
+    `).join('') : '<tr><td colspan="5" class="na" style="text-align:center;padding:1rem">Sin datos de fondos para este año</td></tr>';
+  }
 }
 
 /* ╔══════════════════════════════════════════════════════╗
@@ -2467,8 +2538,9 @@ function renderGastos() {
         <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
           <span style="font-weight:500">${o.label}</span>
           <div style="display:flex;gap:.75rem;align-items:center">
-            ${oc ? `<span style="color:var(--mist);font-family:'JetBrains Mono',monospace;font-size:10px">$${fmt(oc.val)}M</span>` : ''}
+            ${oc ? `<span style="color:rgba(234,88,12,.75);font-family:'JetBrains Mono',monospace;font-size:10px">$${fmt(oc.val)}M · ${oc.pct}%</span>` : ''}
             <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">$${fmt(o.val)}M</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--mist)">${o.pct}%</span>
             ${vr !== null ? `<span class="cmp-vr ${vr > 2 ? 'ok' : vr < -5 ? 'bad' : 'warn'}" style="font-size:10px">${vr > 0 ? '+' : ''}${vr.toFixed(1)}% real</span>` : ''}
           </div>
         </div>
@@ -2481,17 +2553,35 @@ function renderGastos() {
   `;
 
   // ── PROGRAMAS ──
+  const totalPresupGas = g.total || g.programas.reduce((s,p)=>s+p.val,0);
   const maxP = Math.max(...g.programas.map(p=>p.val), ...(gc?.programas?.map(p=>p.val)||[0]));
-  document.getElementById('bars-programas').innerHTML = g.programas.map((p, i) => {
-    const pc = gc?.programas?.[i];
-    return `<div style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--ink2);margin-bottom:3px">
-        <span>${p.label}</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">$${fmt(p.val)}M</span>
+  const hasCmpProg = !!gc?.programas?.length;
+  document.getElementById('bars-programas').innerHTML = (hasCmpProg ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px">
+    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--navy)"></span><strong>${activeYear}</strong></span>
+    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(217,119,6,.6)"></span><strong>${cmpYear}</strong></span>
+    <span style="margin-left:auto;font-size:10px;color:var(--mist)">% = del presupuesto total</span>
+  </div>` : '<div style="font-size:10px;color:var(--mist);margin-bottom:.5rem;text-align:right">% = del presupuesto total</div>') +
+  g.programas.map((p, i) => {
+    const pc = gc?.programas?.find(x => x.label === p.label) || gc?.programas?.[i];
+    const pctTot  = (p.val / totalPresupGas * 100).toFixed(1);
+    const pctTotC = pc ? (pc.val / (gc.total||1) * 100).toFixed(1) : null;
+    const vn = pc ? ((p.val-pc.val)/pc.val*100) : null;
+    const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);margin-bottom:3px;gap:.5rem">
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;color:var(--ink)">${p.label}</span>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-shrink:0">
+          ${pc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(217,119,6,.8)">$${fmt(pc.val)}M <span style="color:var(--mist)">${pctTotC}%</span></span>` : ''}
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--navy)">$${fmt(p.val)}M</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--mist)">${pctTot}%</span>
+          ${vr !== null ? `<span style="font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;color:${vr>2?'#059669':vr>-10?'#b45309':'#dc2626'}">${vr>0?'+':''}${vr.toFixed(0)}%r</span>` : ''}
+        </div>
       </div>
-      <div style="background:var(--bg2);border-radius:3px;height:11px;overflow:hidden;position:relative">
-        ${pc ? `<div style="position:absolute;top:0;left:0;width:${pc.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(217,119,6,.35)"></div>` : ''}
-        <div style="position:absolute;top:0;left:0;width:${p.val/maxP*100}%;height:100%;border-radius:3px;background:var(--navy)"></div>
+      <div style="background:var(--bg2);border-radius:3px;height:12px;overflow:hidden;position:relative;margin-bottom:${pc?'2':'0'}px">
+        ${pc ? `<div style="position:absolute;top:0;left:0;width:${pc.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(217,119,6,.4)"></div>` : ''}
+        <div style="position:absolute;top:0;left:0;width:${p.val/maxP*100}%;height:100%;border-radius:3px;background:var(--navy);display:flex;align-items:center;padding-left:4px">
+          ${p.val/maxP*100 > 25 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.85);font-weight:700">${pctTot}%</span>` : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -2763,22 +2853,33 @@ function renderPersonal() {
     `Gasto en personal por componente · ${activeYear}${pc ? ' vs ' + cmpYear : ''}`;
 
   if (p.porSecretaria && p.porSecretaria.length) {
+    const totalPlanta = p.porSecretaria.reduce((s,x)=>s+x.val,0);
     const allVals = [...p.porSecretaria.map(s=>s.val), ...(pc?.porSecretaria?.map(s=>s.val)||[])];
     const maxS = Math.max(...allVals);
-    const legend = pc ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px;color:var(--ink3)">
-      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--blue);opacity:.7;margin-right:4px"></span>${activeYear}</span>
-      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(217,119,6,.6);margin-right:4px"></span>${cmpYear}</span>
-    </div>` : '';
+    const legend = pc ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px">
+      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(37,99,235,.65)"></span><strong>${activeYear}</strong></span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(234,88,12,.6)"></span><strong>${cmpYear}</strong></span>
+      <span style="margin-left:auto;font-size:10px;color:var(--mist)">% = de la planta total</span>
+    </div>` : '<div style="font-size:10px;color:var(--mist);text-align:right;margin-bottom:.5rem">% = de la planta total</div>';
     secEl.innerHTML = legend + p.porSecretaria.map(s => {
       const sc = pc?.porSecretaria?.find(c => c.label === s.label);
-      return `<div style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
-          <span>${s.label}</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">${s.val}${sc ? ` <span style="color:var(--mist);font-weight:400;font-size:10px">/ ${sc.val}</span>` : ''}</span>
+      const pct = (s.val / totalPlanta * 100).toFixed(1);
+      const vn  = sc ? ((s.val-sc.val)/sc.val*100) : null;
+      return `<div style="margin-bottom:9px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);margin-bottom:3px">
+          <span style="font-weight:500;color:var(--ink)">${s.label}</span>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            ${sc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(234,88,12,.8)">${sc.val}</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy)">${s.val}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
+            ${vn !== null ? `<span style="font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;color:${vn>2?'#059669':vn>-5?'#b45309':'#dc2626'}">${vn>0?'+':''}${vn.toFixed(0)}%</span>` : ''}
+          </div>
         </div>
-        <div style="background:var(--bg2);border-radius:2px;height:10px;overflow:hidden;position:relative">
-          ${sc ? `<div style="position:absolute;top:0;left:0;width:${sc.val/maxS*100}%;height:100%;background:rgba(217,119,6,.5);border-radius:2px"></div>` : ''}
-          <div style="position:absolute;top:0;left:0;width:${s.val/maxS*100}%;height:100%;background:rgba(37,99,235,.65);border-radius:2px"></div>
+        <div style="background:var(--bg2);border-radius:2px;height:11px;overflow:hidden;position:relative">
+          ${sc ? `<div style="position:absolute;top:0;left:0;width:${sc.val/maxS*100}%;height:100%;background:rgba(234,88,12,.5);border-radius:2px"></div>` : ''}
+          <div style="position:absolute;top:0;left:0;width:${s.val/maxS*100}%;height:100%;background:rgba(37,99,235,.65);border-radius:2px;display:flex;align-items:center;padding-left:4px">
+            ${s.val/maxS*100 > 20 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.9);font-weight:700">${pct}%</span>` : ''}
+          </div>
         </div>
       </div>`;
     }).join('');
@@ -2788,27 +2889,34 @@ function renderPersonal() {
 
   // ── Componentes del gasto ──
   if (p.componentes && p.componentes.length) {
+    const totalComp = p.componentes.reduce((s,c)=>s+c.val,0);
     const allC = [...p.componentes.map(c=>c.val), ...(pc?.componentes?.map(c=>c.val)||[])];
     const maxC = Math.max(...allC);
-    document.getElementById('bars-componentes').innerHTML = p.componentes.map(c => {
-      const cc = pc?.componentes?.find(x => x.label === c.label);
-      const vn = cc ? ((c.val-cc.val)/cc.val*100) : null;
-      const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
-      return `<div style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
-          <span>${c.label}</span>
-          <div style="display:flex;gap:.5rem;align-items:center">
-            ${cc ? `<span style="color:var(--mist);font-family:'JetBrains Mono',monospace;font-size:9px">$${fmt(cc.val)}M</span>` : ''}
-            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">$${fmt(c.val)}M</span>
-            ${vr !== null ? `<span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:${vr>2?'var(--green)':vr>-10?'var(--amber)':'var(--red)'}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>` : ''}
+    document.getElementById('bars-componentes').innerHTML =
+      '<div style="font-size:10px;color:var(--mist);text-align:right;margin-bottom:.5rem">% = del gasto total en personal</div>' +
+      p.componentes.map(c => {
+        const cc = pc?.componentes?.find(x => x.label === c.label);
+        const vn = cc ? ((c.val-cc.val)/cc.val*100) : null;
+        const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+        const pct = (c.val/totalComp*100).toFixed(1);
+        return `<div style="margin-bottom:9px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);margin-bottom:3px">
+            <span style="font-weight:500;color:var(--ink)">${c.label}</span>
+            <div style="display:flex;gap:.5rem;align-items:center">
+              ${cc ? `<span style="color:rgba(234,88,12,.75);font-family:'JetBrains Mono',monospace;font-size:10px">$${fmt(cc.val)}M</span>` : ''}
+              <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy)">$${fmt(c.val)}M</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--mist)">${pct}%</span>
+              ${vr !== null ? `<span style="font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700;color:${vr>2?'#059669':vr>-10?'#b45309':'#dc2626'}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>` : ''}
+            </div>
           </div>
-        </div>
-        <div style="background:var(--bg2);border-radius:2px;height:11px;overflow:hidden;position:relative">
-          ${cc ? `<div style="position:absolute;top:0;left:0;width:${cc.val/maxC*100}%;height:100%;background:rgba(217,119,6,.45);border-radius:2px"></div>` : ''}
-          <div style="position:absolute;top:0;left:0;width:${c.val/maxC*100}%;height:100%;background:rgba(217,119,6,.75);border-radius:2px"></div>
-        </div>
-      </div>`;
-    }).join('');
+          <div style="background:var(--bg2);border-radius:2px;height:12px;overflow:hidden;position:relative">
+            ${cc ? `<div style="position:absolute;top:0;left:0;width:${cc.val/maxC*100}%;height:100%;background:rgba(234,88,12,.45);border-radius:2px"></div>` : ''}
+            <div style="position:absolute;top:0;left:0;width:${c.val/maxC*100}%;height:100%;background:rgba(217,119,6,.75);border-radius:2px;display:flex;align-items:center;padding-left:4px">
+              ${c.val/maxC*100 > 20 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.9);font-weight:700">${pct}%</span>` : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
   } else {
     document.getElementById('bars-componentes').innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>';
   }
@@ -3094,7 +3202,6 @@ function setView(id, btn) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   renderCurrentView();
-  if (document.getElementById("v-graficos") && activeView === "graficos") renderTortas();
 }
 
 function setYear(yr, btn) {
@@ -3134,11 +3241,10 @@ function setCmp(val) {
 function renderCurrentView() {
   switch (activeView) {
     case 'resumen':     renderResumen(); break;
-    case 'recursos':    renderRecursos(); break;
-    case 'gastos':      renderGastos(); break;
-    case 'secretarias': renderSecretarias(); break;
+    case 'recursos':    renderRecursos(); renderTortas(); break;
+    case 'gastos':      renderGastos(); renderTortas(); break;
+    case 'secretarias': renderSecretarias(); renderTortas(); break;
     case 'personal':    renderPersonal(); break;
-    case 'graficos':    renderTortas(); break;
     case 'metodologia': renderMetodologia(); break;
     case 'documentos':  break;
   }
