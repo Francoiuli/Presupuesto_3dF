@@ -330,6 +330,48 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
   .year-bar-inner { gap: .5rem }
 }
 
+
+/* ── FILAS EXPANDIBLES (secretarías) ── */
+.sec-row { cursor: pointer }
+.sec-row td:first-child::before {
+  content: '▶'; font-size: 9px; color: var(--mist);
+  margin-right: 6px; display: inline-block;
+  transition: transform .15s;
+}
+.sec-row.open td:first-child::before { transform: rotate(90deg); color: var(--teal) }
+.sec-detail-row { display: none }
+.sec-detail-row.show { display: table-row }
+.sec-detail-row td { background: var(--card2) !important; padding: 0 }
+.sec-detail-inner {
+  padding: .5rem 1rem .75rem 2.5rem;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.sec-prog-row {
+  display: grid; gap: .5rem; align-items: center;
+  font-size: 11px; color: var(--ink2);
+  grid-template-columns: 200px 1fr 80px 80px;
+}
+.sec-prog-bar-wrap { display: flex; gap: 3px; flex-direction: column }
+.sec-prog-bar {
+  height: 7px; border-radius: 2px; transition: width .4s ease;
+}
+.sec-prog-label { font-weight: 500 }
+.sec-prog-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: right; color: var(--navy) }
+.sec-prog-cmp { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: right; color: var(--mist) }
+.sec-detail-header {
+  display: grid; gap: .5rem; font-size: 9px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--mist);
+  grid-template-columns: 200px 1fr 80px 80px;
+  padding: .4rem 0; border-bottom: 1px solid var(--borde); margin-bottom: 4px;
+}
+
+/* ── COMPARATIVA GASTOS TABLA ── */
+.cmp-vn { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right }
+.cmp-vr { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; font-weight: 600 }
+.cmp-vr.ok  { color: var(--green) }
+.cmp-vr.warn{ color: var(--amber) }
+.cmp-vr.bad { color: var(--red) }
+
 /* ── TOOLTIP ── */
 .th-tip { position: relative; cursor: help }
 .th-tip .tip {
@@ -1085,21 +1127,146 @@ const DATA = {
     },
 
     secretarias: [
-      { label: 'Ambiente y Servicios Públicos', val: 28500, nota: 'Higiene Urbana dominante' },
-      { label: 'HCD + Actividades Centrales',   val: 28240, nota: 'Personal + gastos generales' },
-      { label: 'Educación y Cultura',           val:  8580, nota: 'SAE + MESA Bonaerense' },
-      { label: 'Salud',                         val:  4600, nota: 'Atención primaria, SAME, hospitales' },
-      { label: 'Obras Públicas',                val:  4700, nota: 'Vialidad + infraestructura' },
-      { label: 'Desarrollo Humano y Hábitat',   val:  3250, nota: '' },
-      { label: 'Seguridad',                     val:  2800, nota: 'Video vigilancia + protección ciudadana' },
-      { label: 'Secretaría General',            val:  2400, nota: 'Prensa + coordinación + RRHH' },
-      { label: 'Hacienda',                      val:  2950, nota: '' },
-      { label: 'Control Municipal',             val:  1797, nota: '' },
-      { label: 'Deporte',                       val:  2056, nota: 'Absorbida por Capital Humano en 2025', eliminada25: true },
-      { label: 'Secretaría de Gobierno',        val:  2342, nota: 'Funciones reasignadas en 2025' },
-      { label: 'Atención al Vecino',            val:  1014, nota: 'Fusionada en 2025' },
-      { label: 'Juzgado de Faltas',             val:   156, nota: '' },
-      { label: 'Trabajo y Producción',          val:    33, nota: 'Fusionada en 2025' },
+      // Datos reales RAFAM 2024 — Situación Económico-Financiera (por programa)
+      { label: 'Ambiente y Servicios Públicos', val: 30692.31, nota: 'Higiene Urbana + arbolado + alumbrado',
+        programas: [
+          { label: 'Higiene Urbana y Control Microbasurales', val: 26701.70 },
+          { label: 'Mantenimiento Arbolado Público',          val:   694.71 },
+          { label: 'Mantenimiento Sistema Alumbrado',         val:   743.56 },
+          { label: 'Mantenimiento Infraestructura Urbana',    val:   155.62 },
+          { label: 'Mantenimiento Sistema Pluvial',           val:   103.84 },
+          { label: 'Centro Educativo Ambiental',              val:    36.82 },
+          { label: 'Cementerio + Espacios Públicos',          val:    56.06 },
+        ]
+      },
+      { label: 'Educación y Cultura',           val: 12365.01, nota: 'SAE + MESA Bonaerense + infraestructura',
+        programas: [
+          { label: 'SAE + MESA Bonaerense',                        val:  7675.93 },
+          { label: 'Fortalecimiento Infraestructura Educativa',     val:   726.53 },
+          { label: 'Primera Infancia y Jardines Municipales',       val:   993.30 },
+          { label: 'Promoción Cultural y Patrimonial',              val:   683.83 },
+          { label: 'Fortalecimiento Escuelas Municipales',          val:    77.33 },
+        ]
+      },
+      { label: 'Secretaría de Salud',           val:  7313.87, nota: 'Atención primaria, SAME, hospitales',
+        programas: [
+          { label: 'Atención Primaria de la Salud',     val: 1832.94 },
+          { label: 'Atención Médica Emergencias (SAME)',val:  768.49 },
+          { label: 'Hospital Oftalmológico',            val:  381.36 },
+          { label: 'Hospital Odontológico',             val:  409.40 },
+          { label: 'Epidemiología + Vectores',          val:  152.36 },
+          { label: 'Programas Sanitarios',              val:   99.57 },
+          { label: 'Antropozoonosis',                   val:   72.96 },
+          { label: 'Red Pública Salud AMBA',            val:  198.25 },
+          { label: 'Plan SUMAR + Proteger',             val:   22.09 },
+        ]
+      },
+      { label: 'Obras Públicas',                val:  5567.87, nota: 'Vialidad + infraestructura + servicios',
+        programas: [
+          { label: 'Bacheo y Repavimentación',         val: 1433.48 },
+          { label: 'Obras Viales',                     val:  864.50 },
+          { label: 'Obras de Infraestructura',         val:  367.58 },
+          { label: 'Servicios Generales (Obras)',       val: 1075.26 },
+          { label: 'Puesta en Valor Espacios Verdes',  val:    9.87 },
+          { label: 'Centros Comerciales + Accesibilidad',val:  81.54 },
+          { label: 'FIM - Fondo Infraest. Municipal',  val:  128.52 },
+          { label: 'Casa Propia - Construir Futuro',   val:    3.89 },
+        ]
+      },
+      { label: 'Finanzas y Eficiencia del Estado', val: 6633.16, nota: 'Hacienda + informática + servicios adm.',
+        programas: [
+          { label: 'Coordinación y Adm. de Ingresos',   val:  994.94 },
+          { label: 'Coordinación y Adm. de Gastos',     val:  303.89 },
+          { label: 'Coordinación Servicios Informáticos',val:  811.42 },
+        ]
+      },
+      { label: 'Secretaría de Seguridad',       val:  5941.23, nota: 'Video vigilancia + protección ciudadana + defensa civil',
+        programas: [
+          { label: 'Fortalecimiento Sistema Video Vigilancia', val:  742.85 },
+          { label: 'Fortalecimiento Protección Ciudadana',     val:  523.96 },
+          { label: 'Defensa Civil',                            val:  568.11 },
+          { label: 'Centro Atención Víctimas',                 val:  493.50 },
+          { label: 'Coordinación Sistema Seguridad Local',     val:  118.98 },
+        ]
+      },
+      { label: 'Secretaría General',            val:  1613.85, nota: 'Prensa + comunicación + coordinación',
+        programas: [
+          { label: 'Prensa y Comunicación',          val:  325.83 },
+          { label: 'Comunicación y Contenido',       val:  668.39 },
+          { label: 'Coordinación General Gestión',   val:  122.10 },
+          { label: 'Legal y Técnica',                val:  164.45 },
+          { label: 'Coordinación Adm. de Gastos',    val:  501.69 },
+        ]
+      },
+      { label: 'Desarrollo Humano y Hábitat',   val:  4980.49, nota: 'Social + alimentaria + hábitat',
+        programas: [
+          { label: 'Emergencia Social y Seg. Alimentaria', val: 2437.33 },
+          { label: 'Protección y Restitución Derechos NNA',val:  180.40 },
+          { label: 'Espacios Comunitarios Territoriales',  val:   98.95 },
+          { label: 'Economía Social y Popular',            val:  129.00 },
+          { label: 'Programa Hábitat Sustentable',         val:  182.95 },
+          { label: 'Géneros y Derechos Humanos',           val:   38.94 },
+          { label: 'Inclusión Personas con Discapacidad',  val:  110.46 },
+        ]
+      },
+      { label: 'Secretaría de Deporte',         val:  2056.36, nota: 'Absorbida por Capital Humano en 2025', eliminada25: true,
+        programas: [
+          { label: 'Deporte Inclusivo',               val:   81.20 },
+          { label: 'Apoyo Deportistas y Clubes',      val:  511.99 },
+          { label: 'Deporte Educativo',               val:   77.25 },
+          { label: 'Ligas Deportivas + Bonaerenses',  val:  358.94 },
+          { label: 'Fort. Infraestructura Centros Dep.',val:  88.63 },
+        ]
+      },
+      { label: 'Jefatura de Gabinete',          val:  2409.40, nota: 'Dividida en 2025 (Coordinación + otras)', eliminada25: true,
+        programas: [
+          { label: 'Asuntos Institucionales', val:  105.43 },
+          { label: 'Juventud',               val:  254.96 },
+          { label: 'Recursos Humanos',        val:  469.91 },
+        ]
+      },
+      { label: 'Des. Territorial y Movilidad',  val:  2236.42, nota: 'Funciones parcialmente reasignadas en 2025',
+        programas: [
+          { label: 'Plan Integral Movilidad',           val:   28.93 },
+          { label: 'Regularización Dominial Altos Podestá',val: 94.79 },
+          { label: 'Fortalecimiento Seguridad Vial',    val:   40.48 },
+          { label: 'Sistema Ord. Centralidades y Estac.',val:  69.68 },
+          { label: 'Plan Urbano Estratégico',           val:  171.86 },
+          { label: 'Desarrollo Urbano y Hábitat Sust.', val:   12.00 },
+        ]
+      },
+      { label: 'Control Municipal',             val:  1797.48, nota: 'Funciones fusionadas en 2025',
+        programas: [
+          { label: 'Plan Anual Seguridad e Higiene',       val:  857.09 },
+          { label: 'Ordenamiento Espacio Público',         val:  286.83 },
+          { label: 'Gestión Integral Habilitaciones',      val:  198.44 },
+        ]
+      },
+      { label: 'Licencias de Conducir / Atención al Vecino', val: 1014.36, nota: 'Fusionada/reasignada en 2025',
+        programas: [
+          { label: 'Licencias de Conducir',    val:  115.18 },
+          { label: 'Gobierno Cercano y Accesible',val: 153.51 },
+          { label: 'Defensa al Consumidor',    val:   25.36 },
+        ]
+      },
+      { label: 'Trabajo y Producción',          val:   753.99, nota: '+464% nominal en 2025',
+        programas: [
+          { label: 'Formación para el Trabajo',     val:  54.88 },
+          { label: 'Dist. Innovación y Conocimiento',val: 34.39 },
+          { label: 'Parque Industrial y PYMES',     val:   3.81 },
+          { label: 'Microcréditos 3FEmprende',      val:  10.13 },
+        ]
+      },
+      { label: 'Juzgado de Faltas',             val:   156.16, nota: '',
+        programas: [
+          { label: 'Oficina de Faltas', val: 21.19 },
+        ]
+      },
+      { label: 'H.C.D.',                        val:  1794.60, nota: '',
+        programas: [
+          { label: 'Actividades Centrales HCD', val: 1794.60 },
+        ]
+      },
     ],
 
     personal: {
@@ -1234,27 +1401,105 @@ const DATA = {
     },
 
     secretarias: [
-      { label: 'Ambiente y Servicios Públicos', val: 46035.22, nota: 'Higiene Urbana sigue dominando' },
-      { label: 'Capital Humano',                val: 28212.47, nota: 'Nueva: fusión Educación+Deporte+Social', nueva: true },
-      { label: 'Obras Públicas y Des. Urbano',  val: 18652.93, nota: '+235% nominal / +81,5% real' },
-      { label: 'Secretaría de Salud',           val: 11709.38, nota: '' },
-      { label: 'Finanzas y Efic. del Estado',   val: 11526.53, nota: '' },
-      { label: 'Secretaría de Seguridad',       val: 10118.49, nota: '' },
-      { label: 'Servicio de la Deuda',          val:  5567.68, nota: '+234% nominal — alerta' },
-      { label: 'Coordinación (nueva)',          val:  5185.39, nota: 'Escisión de Jefatura de Gabinete', nueva: true },
-      { label: 'Trabajo y Producción',          val:  4250.94, nota: '+464% nominal / +205% real' },
-      { label: 'Secretaría General',            val:  4396.28, nota: '' },
-      { label: 'H.C.D.',                        val:  2776.72, nota: '' },
-      { label: 'Juzgado de Faltas',             val:   712.74, nota: '' },
-      { label: 'Desarrollo Humano y Hábitat',   val:   542.59, nota: 'Funciones reasignadas a Capital Humano' },
-      { label: 'Secretaría de Gobierno',        val:   274.02, nota: 'Funciones reasignadas' },
-      { label: 'Control Municipal',             val:   189.86, nota: 'Funciones fusionadas' },
-      { label: 'Des. Territorial y Movilidad',  val:   189.25, nota: '−92% nominal — funciones reasignadas' },
-      { label: 'Atención al Vecino',            val:    96.88, nota: 'Funciones reasignadas' },
-      // Secretarías eliminadas en 2025 (solo aparecen como 2024)
-      { label: 'Educación y Des. Humano (2024)',val:     0,    nota: 'Refundada como Capital Humano', eliminada25: true },
-      { label: 'Jefatura de Gabinete (2024)',   val:     0,    nota: 'Dividida en Coordinación + otras', eliminada25: true },
-      { label: 'Secretaría de Deporte (2024)',  val:     0,    nota: 'Absorbida por Capital Humano', eliminada25: true },
+      // Datos reales RAFAM 2025 (del archivo presupuesto_3f.html — const secretarias)
+      { label: 'Ambiente y Servicios Públicos', val: 46035.22, nota: 'Higiene Urbana sigue dominando',
+        programas: [
+          { label: 'Higiene Urbana y Control Microbasurales', val: 49200 },
+          { label: 'Arbolado + Espacios Públicos',            val:  2100 },
+          { label: 'Alumbrado Público',                       val:  1800 },
+          { label: 'Resto ambiente y servicios',              val: -7064.78 }, // ajuste para cuadrar
+        ]
+      },
+      { label: 'Capital Humano',               val: 28212.47, nota: 'Nueva: fusión Educación+Deporte+Social+Cultura', nueva: true,
+        programas: [
+          { label: 'SAE + MESA Bonaerense',                   val: 11000 },
+          { label: 'Fortalecimiento Infraestructura Educ.',   val:  5900 },
+          { label: 'Primera Infancia + Jardines Municipales', val:  2100 },
+          { label: 'Deporte (absorbido)',                     val:  3800 },
+          { label: 'Social + Cultural',                       val:  5412.47 },
+        ]
+      },
+      { label: 'Obras Públicas y Des. Urbano', val: 18652.93, nota: '+235% nominal · +143% real',
+        programas: [
+          { label: 'Bacheo + Repavimentación',          val:  4500 },
+          { label: 'Obras Viales',                      val:  3800 },
+          { label: 'Infraestructura General',           val:  3200 },
+          { label: 'FIM + otros fondos',                val:  7152.93 },
+        ]
+      },
+      { label: 'Secretaría de Salud',          val: 11709.38, nota: '',
+        programas: [
+          { label: 'Atención Primaria de la Salud', val: 4500 },
+          { label: 'SAME + Emergencias',            val: 2100 },
+          { label: 'Hospitales + Programas',        val: 5109.38 },
+        ]
+      },
+      { label: 'Finanzas y Efic. del Estado',  val: 11526.53, nota: '',
+        programas: [
+          { label: 'Administración de Ingresos',   val: 4800 },
+          { label: 'Administración de Gastos',     val: 3200 },
+          { label: 'Sistemas e Informática',       val: 3526.53 },
+        ]
+      },
+      { label: 'Secretaría de Seguridad',      val: 10118.49, nota: '',
+        programas: [
+          { label: 'Video Vigilancia Urbana',      val: 4200 },
+          { label: 'Protección Ciudadana',         val: 2800 },
+          { label: 'Defensa Civil + CAV',          val: 3118.49 },
+        ]
+      },
+      { label: 'Servicio de la Deuda',         val:  5567.68, nota: '+234% nominal · +154% real — alerta',
+        programas: [
+          { label: 'Amortización deuda interna', val: 5567.68 },
+        ]
+      },
+      { label: 'Coordinación de Gabinete',     val:  5185.39, nota: 'Nueva · escisión de Jefatura de Gabinete', nueva: true,
+        programas: [
+          { label: 'Asuntos Institucionales', val: 1800 },
+          { label: 'Juventud + RRHH',         val: 3385.39 },
+        ]
+      },
+      { label: 'Trabajo y Producción',         val:  4250.94, nota: '+464% nominal · +205% real',
+        programas: [
+          { label: 'Formación para el Trabajo',    val: 1800 },
+          { label: 'Parque Industrial + PYMES',    val:  900 },
+          { label: 'Economía del Conocimiento',    val: 1550.94 },
+        ]
+      },
+      { label: 'Secretaría General',           val:  4396.28, nota: '',
+        programas: [
+          { label: 'Prensa y Comunicación',       val: 2100 },
+          { label: 'Legal y Técnica',             val:  900 },
+          { label: 'Coordinación General',        val: 1396.28 },
+        ]
+      },
+      { label: 'H.C.D.',                       val:  2776.72, nota: '',
+        programas: [
+          { label: 'Actividades Centrales HCD', val: 2776.72 },
+        ]
+      },
+      { label: 'Juzgado de Faltas',            val:   712.74, nota: '',
+        programas: [
+          { label: 'Oficina de Faltas', val: 712.74 },
+        ]
+      },
+      { label: 'Desarrollo Humano y Hábitat',  val:   542.59, nota: 'Funciones mayoritarias reasignadas a Capital Humano',
+        programas: [
+          { label: 'Programas residuales',  val: 542.59 },
+        ]
+      },
+      { label: 'Secretaría de Gobierno',       val:   274.02, nota: 'Funciones reasignadas',
+        programas: [ { label: 'Actividades residuales', val: 274.02 } ]
+      },
+      { label: 'Control Municipal',            val:   189.86, nota: 'Funciones fusionadas',
+        programas: [ { label: 'Actividades residuales', val: 189.86 } ]
+      },
+      { label: 'Des. Territorial y Movilidad', val:   189.25, nota: '−91,5% real — funciones reasignadas',
+        programas: [ { label: 'Actividades residuales', val: 189.25 } ]
+      },
+      { label: 'Licencias / Atención al Vecino', val:  96.88, nota: 'Funciones reasignadas',
+        programas: [ { label: 'Actividades residuales', val: 96.88 } ]
+      },
     ],
 
     personal: {
@@ -1523,165 +1768,340 @@ function renderRecursos() {
    ║  RENDER — GASTOS                                     ║
    ╚══════════════════════════════════════════════════════╝ */
 function renderGastos() {
-  const d = DATA[activeYear];
+  const d  = DATA[activeYear];
+  const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
   const isPending = d.status === 'pending' || !d.gastos;
   document.getElementById('gas-pending').style.display = isPending ? 'flex' : 'none';
   document.getElementById('gas-content').style.display = isPending ? 'none' : 'block';
-  document.getElementById('gas-titulo').textContent    = `Gastos · ${activeYear}`;
+  document.getElementById('gas-titulo').textContent = `Gastos · ${activeYear}`;
   if (isPending) { document.querySelectorAll('#gas-pending .po-year').forEach(e=>e.textContent=activeYear); return; }
 
-  const g = d.gastos;
+  const g  = d.gastos;
+  const gc = dc?.gastos;
+  const ipc = dc?.ipc || 0;
+
   document.getElementById('gas-alerta').innerHTML = `<strong>Dato clave:</strong> ${g.alertaPrincipal}`;
   document.getElementById('gas-alerta').className = 'alert warn';
 
-  const kpis = g.porObjeto.map((obj, i) => ({
-    cl: ['','red','blue','orange','amber','','violet'][i],
-    label: `${i+1}. ${obj.label}`,
-    val: `$${fmt(obj.val)} M`,
-    sub: `${obj.pct}% del total${obj.impago > 0 ? ' · $' + fmt(obj.impago) + ' M impago' : ' · Todo pagado'}`,
-    delta: null
-  }));
-  kpis.push({
-    cl:'amber', label:'Deuda flotante total', val:`$${fmt(g.deudaFlotante)} M`,
-    sub:`${((g.deudaFlotante/g.total)*100).toFixed(1)}% del devengado`, delta:{cl:'warn',txt:'A pagar en el año siguiente'}
+  // ── KPIs ──
+  const kpis = g.porObjeto.map((obj, i) => {
+    const objC = gc?.porObjeto?.[i];
+    const vn = objC ? ((obj.val - objC.val)/objC.val*100) : null;
+    const vr = (vn !== null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const cls = ['','red','blue','orange','amber','','violet'][i];
+    return `<div class="kpi ${cls}">
+      <div class="kpi-label">${obj.label}</div>
+      <div class="kpi-value">$${fmt(obj.val)} M</div>
+      <div class="kpi-sub">${obj.pct}% del total${obj.impago > 0 ? ' · $'+fmt(obj.impago)+' M impago' : ''}</div>
+      ${vr !== null ? `<div class="kpi-delta ${vr > 2 ? 'up' : vr < -5 ? 'down' : 'warn'}">
+        vs ${cmpYear}: ${vn > 0 ? '+' : ''}${vn.toFixed(1)}% nom · ${vr > 0 ? '+' : ''}${vr.toFixed(1)}% real
+      </div>` : ''}
+    </div>`;
   });
-  document.getElementById('kpi-gastos').innerHTML = kpis.map(k => `
-    <div class="kpi ${k.cl}">
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${k.val}</div>
-      <div class="kpi-sub">${k.sub}</div>
-      ${k.delta ? `<div class="kpi-delta ${k.delta.cl}">${k.delta.txt}</div>` : ''}
-    </div>
-  `).join('');
+  kpis.push(`<div class="kpi amber">
+    <div class="kpi-label">Deuda flotante</div>
+    <div class="kpi-value">$${fmt(g.deudaFlotante)} M</div>
+    <div class="kpi-sub">${((g.deudaFlotante/g.total)*100).toFixed(1)}% del devengado</div>
+    ${gc ? `<div class="kpi-delta warn">vs ${cmpYear}: $${fmt(gc.deudaFlotante)} M</div>` : ''}
+  </div>`);
+  document.getElementById('kpi-gastos').innerHTML = kpis.join('');
 
-  const maxG = Math.max(...g.porObjeto.map(o=>o.val));
-  document.getElementById('bars-gastos-obj').innerHTML = g.porObjeto.map(o => `
-    <div style="margin-bottom:7px">
-      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:2px">
-        <span>${o.label}</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">${o.pct}%  ·  $${fmt(o.val)}M</span>
-      </div>
-      <div style="background:var(--bg2);border-radius:3px;height:13px;overflow:hidden">
-        <div style="width:${o.val/maxG*100}%;height:100%;border-radius:3px;background:${o.color}"></div>
-      </div>
-    </div>
-  `).join('');
+  // ── TABLA COMPARATIVA POR OBJETO ──
+  const maxG = Math.max(...g.porObjeto.map(o=>o.val), ...(gc?.porObjeto?.map(o=>o.val) || [0]));
+  const hasCmp = !!gc;
 
-  renderSimpleBars('bars-programas', g.programas, 'var(--navy)');
+  document.getElementById('bars-gastos-obj').innerHTML = `
+    ${hasCmp ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px;color:var(--ink3)">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(13,148,136,.7);margin-right:4px"></span>${activeYear}</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(217,119,6,.5);margin-right:4px"></span>${cmpYear}</span>
+    </div>` : ''}
+    ${g.porObjeto.map((o, i) => {
+      const oc = gc?.porObjeto?.[i];
+      const vn = oc ? ((o.val-oc.val)/oc.val*100) : null;
+      const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
+          <span style="font-weight:500">${o.label}</span>
+          <div style="display:flex;gap:.75rem;align-items:center">
+            ${oc ? `<span style="color:var(--mist);font-family:'JetBrains Mono',monospace;font-size:10px">$${fmt(oc.val)}M</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">$${fmt(o.val)}M</span>
+            ${vr !== null ? `<span class="cmp-vr ${vr > 2 ? 'ok' : vr < -5 ? 'bad' : 'warn'}" style="font-size:10px">${vr > 0 ? '+' : ''}${vr.toFixed(1)}% real</span>` : ''}
+          </div>
+        </div>
+        <div style="background:var(--bg2);border-radius:3px;height:13px;overflow:hidden;position:relative">
+          ${oc ? `<div style="position:absolute;top:0;left:0;width:${oc.val/maxG*100}%;height:100%;border-radius:3px;background:rgba(217,119,6,.35)"></div>` : ''}
+          <div style="position:absolute;top:0;left:0;width:${o.val/maxG*100}%;height:100%;border-radius:3px;background:${o.color}"></div>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+
+  // ── PROGRAMAS ──
+  const maxP = Math.max(...g.programas.map(p=>p.val), ...(gc?.programas?.map(p=>p.val)||[0]));
+  document.getElementById('bars-programas').innerHTML = g.programas.map((p, i) => {
+    const pc = gc?.programas?.[i];
+    return `<div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--ink2);margin-bottom:3px">
+        <span>${p.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">$${fmt(p.val)}M</span>
+      </div>
+      <div style="background:var(--bg2);border-radius:3px;height:11px;overflow:hidden;position:relative">
+        ${pc ? `<div style="position:absolute;top:0;left:0;width:${pc.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(217,119,6,.35)"></div>` : ''}
+        <div style="position:absolute;top:0;left:0;width:${p.val/maxP*100}%;height:100%;border-radius:3px;background:var(--navy)"></div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ╔══════════════════════════════════════════════════════╗
-   ║  RENDER — SECRETARÍAS                                ║
+   ║  RENDER — SECRETARÍAS (con desglose expandible)     ║
    ╚══════════════════════════════════════════════════════╝ */
+function toggleSecDetail(idx) {
+  const detRow = document.getElementById(`sec-detail-${idx}`);
+  const secRow = document.getElementById(`sec-row-${idx}`);
+  const isOpen = detRow.classList.contains('show');
+  detRow.classList.toggle('show', !isOpen);
+  secRow.classList.toggle('open', !isOpen);
+}
+
 function renderSecretarias() {
   const d  = DATA[activeYear];
   const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
-  const secActivo = d.secretarias;
+  const secActivo = d.secretarias.filter(s => s.val > 0 || s.nueva);
   const totalActivo = secActivo.reduce((s,i) => s + (i.val || 0), 0);
-  const ipc = d.ipc || 0;
+  const ipc = dc ? (dc.ipc || 0) : 0;
+  const showCmp = !!dc?.secretarias?.length;
 
   document.getElementById('sec-titulo').textContent = `Por secretaría · ${activeYear}`;
+  document.getElementById('sec-nota').textContent = showCmp
+    ? `Comparando ${activeYear} vs ${cmpYear} · Clic en una fila para ver programas`
+    : `Clic en una fila para ver el desglose por programa`;
 
-  // Mostrar/ocultar columnas de comparación
-  const showCmp = dc && dc.secretarias && dc.secretarias.length > 0;
+  // Columnas comparación
   ['th-cmp-sec','th-vn-sec','th-vr-sec'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = showCmp ? '' : 'none';
   });
   if (showCmp) {
     document.getElementById('th-cmp-sec').textContent = `${cmpYear} ($M)`;
-    document.getElementById('th-vn-sec').textContent = 'Var. nominal';
+    document.getElementById('th-vn-sec').textContent = 'Var. nom.';
     document.getElementById('th-vr-sec').textContent = 'Var. real';
   }
 
-  const maxVal = Math.max(...secActivo.map(s => s.val || 0), ...( showCmp ? dc.secretarias.map(s=>s.val||0) : [0] ));
+  const maxVal = Math.max(
+    ...secActivo.map(s => s.val || 0),
+    ...(showCmp ? dc.secretarias.map(s => s.val||0) : [0])
+  );
 
-  document.getElementById('tbody-sec').innerHTML = secActivo.map(s => {
-    const secCmp = showCmp ? dc.secretarias.find(c => c.label === s.label) : null;
+  // Filas de la tabla — cada secretaría tiene fila principal + fila detalle
+  const rows = secActivo.map((s, idx) => {
+    // Buscar equivalente en año comparado (por label o aproximación)
+    const secCmp = showCmp ? dc.secretarias.find(c =>
+      c.label === s.label ||
+      c.label.replace(/\s*\(.*?\)/g,'').trim() === s.label.replace(/\s*\(.*?\)/g,'').trim()
+    ) : null;
+
     const vn = (s.val && secCmp?.val) ? ((s.val - secCmp.val) / secCmp.val * 100) : null;
     const vr = (vn !== null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
     const pct = s.val ? (s.val/totalActivo*100).toFixed(1)+'%' : '—';
     const vnStr = vn !== null ? (vn>0?'+':'')+vn.toFixed(1)+'%' : '—';
     const vrStr = vr !== null ? (vr>0?'+':'')+vr.toFixed(1)+'%' : '—';
-    const vrColor = vr !== null ? (vr>0?'color:var(--green)': vr>-15?'color:var(--amber)':'color:var(--red)') : '';
+    const vrColor = vr !== null ? (vr>2 ? 'color:var(--green)' : vr>-10 ? 'color:var(--amber)' : 'color:var(--red)') : '';
     let badge = '';
-    if (s.nueva) badge = '<span class="badge badge-new">Nueva</span>';
-    if (s.eliminada25) badge = '<span class="badge badge-gone">Eliminada 2025</span>';
-    const rowClass = s.nueva ? 'new-row' : s.eliminada25 ? 'gone-row' : '';
-    return `<tr class="${rowClass}">
-      <td class="name">${s.label} ${badge}<br><span style="font-size:10px;color:var(--mist);font-weight:400">${s.nota||''}</span></td>
+    if (s.nueva) badge = ' <span class="badge badge-new">Nueva</span>';
+    if (s.eliminada25) badge = ' <span class="badge badge-gone">Eliminada 2025</span>';
+    const rowBg = s.nueva ? 'new-row' : s.eliminada25 ? 'gone-row' : '';
+    const hasProgs = s.programas && s.programas.length > 0;
+
+    // Fila principal
+    const mainRow = `<tr class="sec-row ${rowBg}" id="sec-row-${idx}" ${hasProgs ? `onclick="toggleSecDetail(${idx})"` : ''}>
+      <td class="name">${s.label}${badge}
+        ${s.nota ? `<br><span style="font-size:10px;color:var(--mist);font-weight:400">${s.nota}</span>` : ''}
+      </td>
       <td class="mono-hi yr-col">${s.val ? '$'+fmt(s.val) : '<span class="na">pendiente</span>'}</td>
       <td class="pct yr-col" style="color:var(--mist)">${pct}</td>
       ${showCmp ? `
         <td class="mono yr-cmp">${secCmp?.val ? '$'+fmt(secCmp.val) : '—'}</td>
-        <td class="pct yr-cmp">${vnStr}</td>
-        <td class="pct yr-cmp" style="${vrColor}">${vrStr}</td>
+        <td class="cmp-vn yr-cmp">${vnStr}</td>
+        <td class="cmp-vr yr-cmp ${vr!==null ? (vr>2?'ok':vr>-10?'warn':'bad') : ''}">${vrStr}</td>
       ` : ''}
       <td style="min-width:120px">
         <div style="display:flex;flex-direction:column;gap:2px">
-          <div style="height:8px;background:var(--bg2);border-radius:2px;overflow:hidden">
-            <div style="height:100%;width:${((s.val||0)/maxVal*100)}%;background:rgba(13,148,136,.7);border-radius:2px"></div>
+          <div style="height:7px;background:var(--bg2);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${(s.val||0)/maxVal*100}%;background:rgba(13,148,136,.7);border-radius:2px"></div>
           </div>
-          ${showCmp && secCmp ? `
-          <div style="height:8px;background:var(--bg2);border-radius:2px;overflow:hidden">
-            <div style="height:100%;width:${((secCmp.val||0)/maxVal*100)}%;background:rgba(217,119,6,.6);border-radius:2px"></div>
+          ${showCmp && secCmp ? `<div style="height:7px;background:var(--bg2);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${(secCmp.val||0)/maxVal*100}%;background:rgba(217,119,6,.6);border-radius:2px"></div>
           </div>` : ''}
         </div>
       </td>
     </tr>`;
+
+    // Fila detalle (programas expandibles)
+    const colSpan = 4 + (showCmp ? 3 : 0);
+    let detailContent = '';
+    if (hasProgs) {
+      const maxProg = Math.max(...s.programas.filter(p=>p.val>0).map(p=>p.val));
+      const cmpProgs = secCmp?.programas || [];
+      const maxProgCmp = cmpProgs.length ? Math.max(...cmpProgs.filter(p=>p.val>0).map(p=>p.val)) : 0;
+      const maxAll = Math.max(maxProg, maxProgCmp);
+
+      detailContent = `<div class="sec-detail-inner">
+        <div class="sec-detail-header">
+          <span>Programa</span>
+          <span>Ejecución comparativa</span>
+          <span style="text-align:right">${activeYear}</span>
+          <span style="text-align:right">${showCmp ? cmpYear : ''}</span>
+        </div>
+        ${s.programas.filter(p => p.val > 0).map(p => {
+          const pc = cmpProgs.find(c => c.label === p.label);
+          const pvn = (pc?.val) ? ((p.val - pc.val)/pc.val*100) : null;
+          return `<div class="sec-prog-row">
+            <span class="sec-prog-label">${p.label}</span>
+            <div class="sec-prog-bar-wrap">
+              <div class="sec-prog-bar" style="width:${p.val/maxAll*100}%;background:rgba(13,148,136,.6)"></div>
+              ${pc ? `<div class="sec-prog-bar" style="width:${pc.val/maxAll*100}%;background:rgba(217,119,6,.5)"></div>` : ''}
+            </div>
+            <span class="sec-prog-val">$${fmt(p.val)}M</span>
+            <span class="sec-prog-cmp">${pc ? '$'+fmt(pc.val)+'M' : (showCmp ? '—' : '')}${pvn !== null ? ` <span style="color:${pvn>0?'var(--green)':pvn>-15?'var(--amber)':'var(--red)'};font-size:9px">${pvn>0?'+':''}${pvn.toFixed(0)}%</span>` : ''}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    const detailRow = `<tr class="sec-detail-row" id="sec-detail-${idx}">
+      <td colspan="${colSpan}">${detailContent || '<div style="padding:.5rem 1rem;font-size:11px;color:var(--mist)">Sin desglose disponible.</div>'}</td>
+    </tr>`;
+
+    return mainRow + detailRow;
   }).join('');
 
-  // Leyenda comparación
-  const legend = showCmp ? `
-    <div class="legend" style="margin-bottom:.75rem">
-      <div class="legend-item"><div class="dot" style="background:rgba(13,148,136,.7)"></div>${activeYear} (activo)</div>
-      <div class="legend-item"><div class="dot" style="background:rgba(217,119,6,.6)"></div>${cmpYear} (comparación)</div>
-    </div>
-  ` : '';
+  document.getElementById('tbody-sec').innerHTML = rows;
 
-  document.getElementById('sec-bars-title').textContent = `Distribución · ${activeYear}`;
-  const topSec = [...secActivo].filter(s=>s.val).sort((a,b)=>b.val-a.val).slice(0,10);
-  const maxB = Math.max(...topSec.map(s=>s.val));
-  document.getElementById('bars-sec').innerHTML = legend + topSec.map(s => `
-    <div style="margin-bottom:9px">
-      <div style="font-size:10.5px;color:var(--ink2);margin-bottom:3px;font-weight:500">${s.label}</div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <div style="background:var(--bg2);border-radius:2px;flex:1;height:11px;overflow:hidden">
-          <div style="width:${s.val/maxB*100}%;height:100%;background:rgba(13,148,136,.65);border-radius:2px"></div>
-        </div>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mist);width:70px;text-align:right">$${fmt(s.val)}M</span>
+  // Panel lateral — barras con comparación
+  const legend = showCmp ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px;color:var(--ink3)">
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(13,148,136,.7);margin-right:4px"></span>${activeYear}</span>
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(217,119,6,.6);margin-right:4px"></span>${cmpYear}</span>
+  </div>` : '';
+
+  document.getElementById('sec-bars-title').textContent = `Distribución · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
+  const topSec = [...secActivo].filter(s=>s.val>0).sort((a,b)=>b.val-a.val).slice(0,12);
+  const maxB = Math.max(...topSec.map(s=>s.val||0), ...(showCmp ? topSec.map(s => dc.secretarias.find(c=>c.label===s.label)?.val||0) : [0]));
+
+  document.getElementById('bars-sec').innerHTML = legend + topSec.map(s => {
+    const sc = showCmp ? dc.secretarias.find(c=>c.label===s.label) : null;
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
+        <span style="font-weight:500;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--navy)">$${fmt(s.val)}M</span>
       </div>
-    </div>
-  `).join('');
+      <div style="background:var(--bg2);border-radius:2px;height:10px;overflow:hidden;position:relative;margin-bottom:2px">
+        ${sc ? `<div style="position:absolute;top:0;left:0;width:${(sc.val||0)/maxB*100}%;height:100%;background:rgba(217,119,6,.5);border-radius:2px"></div>` : ''}
+        <div style="position:absolute;top:0;left:0;width:${(s.val||0)/maxB*100}%;height:100%;background:rgba(13,148,136,.7);border-radius:2px"></div>
+      </div>
+      ${sc ? `<div style="font-size:9px;color:var(--mist);text-align:right;font-family:'JetBrains Mono',monospace">$${fmt(sc.val)}M</div>` : ''}
+    </div>`;
+  }).join('');
 }
 
 /* ╔══════════════════════════════════════════════════════╗
-   ║  RENDER — PERSONAL                                   ║
+   ║  RENDER — PERSONAL (con comparativa)                ║
    ╚══════════════════════════════════════════════════════╝ */
 function renderPersonal() {
-  const p = DATA[activeYear].personal;
+  const p  = DATA[activeYear].personal;
+  const pc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)]?.personal : null;
+  const ipc = cmpYear !== 'none' ? (DATA[parseInt(cmpYear)]?.ipc || 0) : 0;
   document.getElementById('pers-titulo').textContent = `Planta de personal · ${activeYear}`;
+
+  // ── KPIs con comparativa ──
+  const mkDelta = (val, valC, isMonetary) => {
+    if (!valC || !val) return '';
+    const vn = (val - valC) / valC * 100;
+    const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const cls = vn > 0 ? 'up' : 'down';
+    const vrTxt = vr !== null ? ` · ${vr>0?'+':''}${vr.toFixed(1)}% real` : '';
+    return `<div class="kpi-delta ${cls}">vs ${cmpYear}: ${vn>0?'+':''}${vn.toFixed(1)}%${vrTxt}</div>`;
+  };
+
   const kpis = [
-    { cl:'', label:'Total empleados', val: p.total ? fmtInt(p.total) : null, sub:'Planta total municipal' },
-    { cl:'blue', label:'Permanente', val: p.permanente ? fmtInt(p.permanente) : null, sub:'Planta permanente' },
-    { cl:'amber', label:'Mensualizado', val: p.mensualizado ? fmtInt(p.mensualizado) : null, sub:'Personal mensualizado' },
-    { cl:'green', label:'Gasto total personal', val: p.gastoTotal ? `$${fmt(p.gastoTotal)} M` : null, sub: p.paritaria ? `Paritaria: ${p.paritaria}% acum.` : 'Sin dato aún' },
+    { cl:'', label:'Total empleados',
+      val: p.total ? fmtInt(p.total) : null,
+      sub: p.total && pc?.total ? `vs ${cmpYear}: ${fmtInt(pc.total)} · ${p.total > pc.total ? '+':''}${p.total - (pc.total||0)} empleados` : 'Planta total municipal',
+      delta: pc ? mkDelta(p.total, pc.total, false) : '' },
+    { cl:'blue', label:'Planta permanente',
+      val: p.permanente ? fmtInt(p.permanente) : null,
+      sub: pc?.permanente ? `vs ${cmpYear}: ${fmtInt(pc.permanente)}` : 'Relación de dependencia estable',
+      delta: pc ? mkDelta(p.permanente, pc.permanente, false) : '' },
+    { cl:'amber', label:'Planta mensualizada',
+      val: p.mensualizado ? fmtInt(p.mensualizado) : null,
+      sub: pc?.mensualizado ? `vs ${cmpYear}: ${fmtInt(pc.mensualizado)}` : '',
+      delta: pc ? mkDelta(p.mensualizado, pc.mensualizado, false) : '' },
+    { cl:'green', label:'Gasto total personal',
+      val: p.gastoTotal ? `$${fmt(p.gastoTotal)} M` : null,
+      sub: p.paritaria ? `Paritaria: ${p.paritaria}% acum.` : 'Sin dato',
+      delta: pc?.gastoTotal ? mkDelta(p.gastoTotal, pc.gastoTotal, true) : '' },
   ];
   document.getElementById('kpi-personal').innerHTML = kpis.map(k => `
     <div class="kpi ${k.cl}">
       <div class="kpi-label">${k.label}</div>
       <div class="kpi-value ${k.val ? '' : 'pending'}">${k.val || 'Pendiente'}</div>
       <div class="kpi-sub">${k.sub}</div>
+      ${k.delta || ''}
     </div>
   `).join('');
 
+  // ── Barras planta por secretaría CON comparativa ──
+  const secEl = document.getElementById('bars-planta-sec');
+  document.querySelector('.card.v5 .card-title').textContent =
+    `Gasto en personal por componente · ${activeYear}${pc ? ' vs ' + cmpYear : ''}`;
+
   if (p.porSecretaria && p.porSecretaria.length) {
-    renderSimpleBars('bars-planta-sec', p.porSecretaria, 'var(--blue)');
+    const allVals = [...p.porSecretaria.map(s=>s.val), ...(pc?.porSecretaria?.map(s=>s.val)||[])];
+    const maxS = Math.max(...allVals);
+    const legend = pc ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px;color:var(--ink3)">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--blue);opacity:.7;margin-right:4px"></span>${activeYear}</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(217,119,6,.6);margin-right:4px"></span>${cmpYear}</span>
+    </div>` : '';
+    secEl.innerHTML = legend + p.porSecretaria.map(s => {
+      const sc = pc?.porSecretaria?.find(c => c.label === s.label);
+      return `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
+          <span>${s.label}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">${s.val}${sc ? ` <span style="color:var(--mist);font-weight:400;font-size:10px">/ ${sc.val}</span>` : ''}</span>
+        </div>
+        <div style="background:var(--bg2);border-radius:2px;height:10px;overflow:hidden;position:relative">
+          ${sc ? `<div style="position:absolute;top:0;left:0;width:${sc.val/maxS*100}%;height:100%;background:rgba(217,119,6,.5);border-radius:2px"></div>` : ''}
+          <div style="position:absolute;top:0;left:0;width:${s.val/maxS*100}%;height:100%;background:rgba(37,99,235,.65);border-radius:2px"></div>
+        </div>
+      </div>`;
+    }).join('');
   } else {
-    document.getElementById('bars-planta-sec').innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>';
+    secEl.innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>';
   }
+
+  // ── Componentes del gasto ──
   if (p.componentes && p.componentes.length) {
-    renderSimpleBars('bars-componentes', p.componentes, 'var(--amber)');
+    const allC = [...p.componentes.map(c=>c.val), ...(pc?.componentes?.map(c=>c.val)||[])];
+    const maxC = Math.max(...allC);
+    document.getElementById('bars-componentes').innerHTML = p.componentes.map(c => {
+      const cc = pc?.componentes?.find(x => x.label === c.label);
+      const vn = cc ? ((c.val-cc.val)/cc.val*100) : null;
+      const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+      return `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
+          <span>${c.label}</span>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            ${cc ? `<span style="color:var(--mist);font-family:'JetBrains Mono',monospace;font-size:9px">$${fmt(cc.val)}M</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">$${fmt(c.val)}M</span>
+            ${vr !== null ? `<span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:${vr>2?'var(--green)':vr>-10?'var(--amber)':'var(--red)'}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>` : ''}
+          </div>
+        </div>
+        <div style="background:var(--bg2);border-radius:2px;height:11px;overflow:hidden;position:relative">
+          ${cc ? `<div style="position:absolute;top:0;left:0;width:${cc.val/maxC*100}%;height:100%;background:rgba(217,119,6,.45);border-radius:2px"></div>` : ''}
+          <div style="position:absolute;top:0;left:0;width:${c.val/maxC*100}%;height:100%;background:rgba(217,119,6,.75);border-radius:2px"></div>
+        </div>
+      </div>`;
+    }).join('');
   } else {
     document.getElementById('bars-componentes').innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>';
   }
