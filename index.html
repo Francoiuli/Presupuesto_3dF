@@ -342,6 +342,34 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 
 
 
+
+/* ── CATEGORY PICKER ── */
+.cat-tabs {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px;
+}
+.cat-tab {
+  font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 600;
+  padding: 4px 11px; border-radius: 99px;
+  border: 1.5px solid var(--borde); background: transparent; color: var(--slate);
+  cursor: pointer; transition: all .13s; letter-spacing: .03em;
+}
+.cat-tab:hover { border-color: var(--teal); color: var(--teal) }
+.cat-tab.on { background: var(--navy); color: #fff; border-color: var(--navy) }
+.cat-items {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  min-height: 32px; padding: 4px 0;
+}
+.cat-item {
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+  padding: 5px 12px; border-radius: var(--r);
+  border: 1.5px solid var(--borde); background: var(--card2); color: var(--ink2);
+  cursor: pointer; transition: all .13s; white-space: nowrap;
+}
+.cat-item:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-l) }
+.cat-item.on { background: var(--teal); color: #fff; border-color: var(--teal); font-weight: 600 }
+.cat-item.manual { border-style: dashed; color: var(--mist) }
+.cat-item.manual.on { background: var(--slate); border-color: var(--slate); color: #fff }
+
 /* ── CALCULADORA NUEVA ── */
 .calc-card {
   background: var(--card); border-radius: var(--r3);
@@ -753,32 +781,16 @@ footer a:hover { color: rgba(94,234,212,.85) }
         </select>
       </div>
       <div class="calc-field-group">
-        <label class="calc-label">Concepto (opcional)</label>
-        <select class="calc-select" id="ca-concept" onchange="calcSyncA()">
-          <option value="">— Ingresar monto manual —</option>
-          <optgroup label="Totales"></optgroup>
-          <option value="res.ejecutado">Gasto total ejecutado</option>
-          <option value="res.ingCorrientes">Ingresos corrientes</option>
-          <option value="res.gasCorrientes">Gastos corrientes</option>
-          <option value="res.saldoCajaFin">Saldo de caja</option>
-          <option value="res.deudaFlotante">Deuda flotante</option>
-          <option value="res.gastosCapital">Gastos de capital</option>
-          <option value="res.superavitArt43">Resultado Art. 43</option>
-          <optgroup label="Gastos por objeto"></optgroup>
-          <option value="gas.0">Personal</option>
-          <option value="gas.1">Servicios no personales</option>
-          <option value="gas.2">Bienes de uso (capital)</option>
-          <option value="gas.3">Transferencias</option>
-          <option value="gas.4">Servicio de la deuda</option>
-          <option value="gas.5">Bienes de consumo</option>
-          <optgroup label="Recursos"></optgroup>
-          <option value="rec.0">Tasas municipales</option>
-          <option value="rec.1">Coparticipación + trib.</option>
-          <option value="rec.2">Transferencias prov.</option>
-          <option value="rec.3">Rentas propiedad</option>
-          <optgroup label="Personal"></optgroup>
-          <option value="pers.gastoTotal">Gasto total personal</option>
-        </select>
+        <label class="calc-label">Concepto</label>
+        <div class="cat-tabs" id="ca-cats">
+          <button class="cat-tab on" onclick="setCat('a','totales',this)">Totales</button>
+          <button class="cat-tab" onclick="setCat('a','objeto',this)">Por objeto</button>
+          <button class="cat-tab" onclick="setCat('a','recursos',this)">Recursos</button>
+          <button class="cat-tab" onclick="setCat('a','secretarias',this)">Secretarías</button>
+          <button class="cat-tab" onclick="setCat('a','programas',this)">Programas</button>
+          <button class="cat-tab" onclick="setCat('a','personal',this)">Personal</button>
+        </div>
+        <div class="cat-items" id="ca-items"></div>
       </div>
       <div class="calc-field-group">
         <label class="calc-label">Monto ($M)</label>
@@ -807,32 +819,16 @@ footer a:hover { color: rgba(94,234,212,.85) }
         </select>
       </div>
       <div class="calc-field-group">
-        <label class="calc-label">Concepto (opcional)</label>
-        <select class="calc-select" id="cb-concept" onchange="calcSyncB()">
-          <option value="">— Ingresar monto manual —</option>
-          <optgroup label="Totales"></optgroup>
-          <option value="res.ejecutado">Gasto total ejecutado</option>
-          <option value="res.ingCorrientes">Ingresos corrientes</option>
-          <option value="res.gasCorrientes">Gastos corrientes</option>
-          <option value="res.saldoCajaFin">Saldo de caja</option>
-          <option value="res.deudaFlotante">Deuda flotante</option>
-          <option value="res.gastosCapital">Gastos de capital</option>
-          <option value="res.superavitArt43">Resultado Art. 43</option>
-          <optgroup label="Gastos por objeto"></optgroup>
-          <option value="gas.0">Personal</option>
-          <option value="gas.1">Servicios no personales</option>
-          <option value="gas.2">Bienes de uso (capital)</option>
-          <option value="gas.3">Transferencias</option>
-          <option value="gas.4">Servicio de la deuda</option>
-          <option value="gas.5">Bienes de consumo</option>
-          <optgroup label="Recursos"></optgroup>
-          <option value="rec.0">Tasas municipales</option>
-          <option value="rec.1">Coparticipación + trib.</option>
-          <option value="rec.2">Transferencias prov.</option>
-          <option value="rec.3">Rentas propiedad</option>
-          <optgroup label="Personal"></optgroup>
-          <option value="pers.gastoTotal">Gasto total personal</option>
-        </select>
+        <label class="calc-label">Concepto</label>
+        <div class="cat-tabs" id="cb-cats">
+          <button class="cat-tab on" onclick="setCat('b','totales',this)">Totales</button>
+          <button class="cat-tab" onclick="setCat('b','objeto',this)">Por objeto</button>
+          <button class="cat-tab" onclick="setCat('b','recursos',this)">Recursos</button>
+          <button class="cat-tab" onclick="setCat('b','secretarias',this)">Secretarías</button>
+          <button class="cat-tab" onclick="setCat('b','programas',this)">Programas</button>
+          <button class="cat-tab" onclick="setCat('b','personal',this)">Personal</button>
+        </div>
+        <div class="cat-items" id="cb-items"></div>
       </div>
       <div class="calc-field-group">
         <label class="calc-label">Monto ($M)</label>
@@ -847,8 +843,8 @@ footer a:hover { color: rgba(94,234,212,.85) }
         <span class="calc-label" style="width:auto">Inflación del período (%)</span>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap" id="inf-presets">
           <button class="inf-pill on" onclick="setInf(117.8,this)">2024 · 117,8%</button>
-          <button class="inf-pill" onclick="setInf(84.5,this)">2025 · 84,5%</button>
-          <button class="inf-pill" onclick="setInf(209.1,this)">2024+2025 · 209,1%</button>
+          <button class="inf-pill" onclick="setInf(31.5,this)">2025 · 31,5%</button>
+          <button class="inf-pill" onclick="setInf(186.4,this)">2024+2025 · 186,4%</button>
           <button class="inf-pill" onclick="setInf(0,this)">Manual</button>
         </div>
         <input type="number" class="calc-input" id="c-inf" value="117.8" style="width:100px" oninput="calcRun()">
@@ -1148,7 +1144,7 @@ const DATA = {
   2025: {
     status: 'confirmed',
     fuente: 'RAFAM · Rendición de Cuentas firmada 2026 · Datos RAFAM oficiales',
-    ipc: 0.845,  // IPC 2025: 84,5% (INDEC)
+    ipc: 0.315,  // IPC 2025: 31,5% (INDEC)
 
     resumen: {
       ejecutado:      150745.28,
@@ -1713,7 +1709,51 @@ function renderMetodologia() {
    ║  CALCULADORA DE VARIACIÓN REAL                       ║
    ╚══════════════════════════════════════════════════════╝ */
 
-// Extrae un valor del DATA según clave tipo "res.ejecutado", "gas.0", etc.
+/* ── CATEGORÍAS DE CONCEPTOS ── */
+const CATS = {
+  totales: [
+    { label: 'Gasto total ejecutado',  key: 'res.ejecutado' },
+    { label: 'Ingresos corrientes',    key: 'res.ingCorrientes' },
+    { label: 'Gastos corrientes',      key: 'res.gasCorrientes' },
+    { label: 'Ahorro corriente',       key: 'res.ahorroCorriente' },
+    { label: 'Resultado Art. 43',      key: 'res.superavitArt43' },
+    { label: 'Gastos de capital',      key: 'res.gastosCapital' },
+    { label: 'Saldo de caja',          key: 'res.saldoCajaFin' },
+    { label: 'Deuda flotante',         key: 'res.deudaFlotante' },
+  ],
+  objeto: [
+    { label: 'Personal',              key: 'gas.0' },
+    { label: 'Serv. no personales',   key: 'gas.1' },
+    { label: 'Bienes de uso',         key: 'gas.2' },
+    { label: 'Transferencias',        key: 'gas.3' },
+    { label: 'Servicio deuda',        key: 'gas.4' },
+    { label: 'Bienes de consumo',     key: 'gas.5' },
+    { label: 'Activos financieros',   key: 'gas.6' },
+  ],
+  recursos: [
+    { label: 'Tasas municipales',     key: 'rec.0' },
+    { label: 'Coparticipación',       key: 'rec.1' },
+    { label: 'Transf. prov.',         key: 'rec.2' },
+    { label: 'Rentas propiedad',      key: 'rec.3' },
+    { label: 'Multas y derechos',     key: 'rec.4' },
+    { label: 'Venta bienes/serv.',    key: 'rec.5' },
+  ],
+  secretarias: [], // se rellena dinámicamente desde DATA
+  programas:   [], // se rellena dinámicamente desde DATA
+  personal: [
+    { label: 'Gasto total personal',  key: 'pers.gastoTotal' },
+    { label: 'Planta total (nro.)',   key: 'pers.total' },
+    { label: 'Permanente (nro.)',     key: 'pers.permanente' },
+    { label: 'Mensualizado (nro.)',   key: 'pers.mensualizado' },
+  ],
+};
+
+// Estado de la calculadora
+const calcState = {
+  a: { cat: 'totales', key: null },
+  b: { cat: 'totales', key: null },
+};
+
 function getValFromKey(year, key) {
   if (!key) return null;
   const d = DATA[parseInt(year)];
@@ -1723,26 +1763,96 @@ function getValFromKey(year, key) {
   if (tipo === 'gas')  return d.gastos?.porObjeto?.[parseInt(campo)]?.val ?? null;
   if (tipo === 'rec')  return d.recursos?.tipos?.[parseInt(campo)]?.val ?? null;
   if (tipo === 'pers') return d.personal?.[campo] ?? null;
+  if (tipo === 'sec') {
+    const idx = parseInt(campo);
+    return d.secretarias?.[idx]?.val ?? null;
+  }
+  if (tipo === 'prog') {
+    const idx = parseInt(campo);
+    return d.gastos?.programas?.[idx]?.val ?? null;
+  }
   return null;
 }
 
-function getConceptLabel(key) {
-  const map = {
-    'res.ejecutado': 'Gasto total ejecutado',
-    'res.ingCorrientes': 'Ingresos corrientes',
-    'res.gasCorrientes': 'Gastos corrientes',
-    'res.saldoCajaFin': 'Saldo de caja',
-    'res.deudaFlotante': 'Deuda flotante',
-    'res.gastosCapital': 'Gastos de capital',
-    'res.superavitArt43': 'Resultado Art. 43',
-    'gas.0': 'Personal', 'gas.1': 'Servicios no personales',
-    'gas.2': 'Bienes de uso', 'gas.3': 'Transferencias',
-    'gas.4': 'Servicio de la deuda', 'gas.5': 'Bienes de consumo',
-    'rec.0': 'Tasas municipales', 'rec.1': 'Coparticipación + trib.',
-    'rec.2': 'Transferencias prov.', 'rec.3': 'Rentas propiedad',
-    'pers.gastoTotal': 'Gasto total personal',
-  };
-  return map[key] || '';
+function getLabelFromKey(year, key) {
+  if (!key) return '';
+  const [tipo, campo] = key.split('.');
+  const d = DATA[parseInt(year)];
+  if (tipo === 'sec')  return d?.secretarias?.[parseInt(campo)]?.label ?? key;
+  if (tipo === 'prog') return d?.gastos?.programas?.[parseInt(campo)]?.label ?? key;
+  // Static labels
+  for (const cat of Object.values(CATS)) {
+    const found = cat.find(c => c.key === key);
+    if (found) return found.label;
+  }
+  return key;
+}
+
+function buildDynamicCats(year) {
+  const d = DATA[parseInt(year)];
+  CATS.secretarias = (d?.secretarias || [])
+    .filter(s => s.val)
+    .map((s, i) => ({ label: s.label.length > 28 ? s.label.slice(0,26)+'…' : s.label, key: `sec.${i}` }));
+  CATS.programas = (d?.gastos?.programas || [])
+    .map((p, i) => ({ label: p.label.length > 28 ? p.label.slice(0,26)+'…' : p.label, key: `prog.${i}` }));
+}
+
+function renderItems(side, cat) {
+  const yr    = document.getElementById(`c${side}-year`).value;
+  buildDynamicCats(yr);
+  const items = CATS[cat] || [];
+  const container = document.getElementById(`c${side}-items`);
+  const currentKey = calcState[side].key;
+
+  if (!items.length) {
+    container.innerHTML = '<span style="font-size:11px;color:var(--mist);font-style:italic">Sin datos para este año en esta categoría.</span>';
+    return;
+  }
+
+  container.innerHTML = items.map(item => {
+    const val = getValFromKey(yr, item.key);
+    const hasVal = val !== null;
+    const isOn = currentKey === item.key;
+    return `<button 
+      class="cat-item ${isOn ? 'on' : ''} ${!hasVal ? 'manual' : ''}" 
+      onclick="selectItem('${side}','${item.key}',this)"
+      title="${hasVal ? '$'+val.toLocaleString('es-AR',{maximumFractionDigits:1})+' M' : 'Sin dato — podés ingresarlo manualmente'}"
+    >${item.label}${hasVal ? '' : ' ·?'}</button>`;
+  }).join('');
+}
+
+function setCat(side, cat, btn) {
+  calcState[side].cat = cat;
+  calcState[side].key = null;
+  document.querySelectorAll(`#c${side}-cats .cat-tab`).forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderItems(side, cat);
+  document.getElementById(`c${side}-hint`).textContent = '';
+}
+
+function selectItem(side, key, btn) {
+  // deselect if already on
+  if (calcState[side].key === key) {
+    calcState[side].key = null;
+    btn.classList.remove('on');
+    document.getElementById(`c${side}-val`).value = '';
+    document.getElementById(`c${side}-hint`).textContent = '';
+    calcRun();
+    return;
+  }
+  calcState[side].key = key;
+  document.querySelectorAll(`#c${side}-items .cat-item`).forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const yr  = document.getElementById(`c${side}-year`).value;
+  const val = getValFromKey(yr, key);
+  if (val !== null) {
+    document.getElementById(`c${side}-val`).value = val;
+    document.getElementById(`c${side}-hint`).textContent = '← cargado automáticamente';
+  } else {
+    document.getElementById(`c${side}-val`).value = '';
+    document.getElementById(`c${side}-hint`).textContent = 'Sin dato · ingresá el valor manualmente';
+  }
+  calcRun();
 }
 
 function setInf(val, btn) {
@@ -1753,41 +1863,42 @@ function setInf(val, btn) {
 }
 
 function calcSyncA() {
-  const yr  = document.getElementById('ca-year').value;
-  const key = document.getElementById('ca-concept').value;
-  if (key) {
-    const val = getValFromKey(yr, key);
+  const yr = document.getElementById('ca-year').value;
+  buildDynamicCats(yr);
+  renderItems('a', calcState.a.cat);
+  // reload value if a key was selected
+  if (calcState.a.key) {
+    const val = getValFromKey(yr, calcState.a.key);
     if (val !== null) {
       document.getElementById('ca-val').value = val;
       document.getElementById('ca-hint').textContent = '← cargado automáticamente';
     } else {
       document.getElementById('ca-hint').textContent = 'Sin dato para este año';
     }
-  } else {
-    document.getElementById('ca-hint').textContent = '';
   }
   calcRun();
 }
 
 function calcSyncB() {
-  const yr  = document.getElementById('cb-year').value;
-  const key = document.getElementById('cb-concept').value;
-  // sync concept selector to same key as A if it was just a year change
-  const keyA = document.getElementById('ca-concept').value;
-  if (!key && keyA) document.getElementById('cb-concept').value = keyA;
-  const resolvedKey = document.getElementById('cb-concept').value;
-  if (resolvedKey) {
-    const val = getValFromKey(yr, resolvedKey);
+  const yr = document.getElementById('cb-year').value;
+  buildDynamicCats(yr);
+  renderItems('b', calcState.b.cat);
+  if (calcState.b.key) {
+    const val = getValFromKey(yr, calcState.b.key);
     if (val !== null) {
       document.getElementById('cb-val').value = val;
       document.getElementById('cb-hint').textContent = '← cargado automáticamente';
     } else {
       document.getElementById('cb-hint').textContent = 'Sin dato para este año';
     }
-  } else {
-    document.getElementById('cb-hint').textContent = '';
   }
   calcRun();
+}
+
+// Init calculator items on load
+function initCalc() {
+  renderItems('a', 'totales');
+  renderItems('b', 'totales');
 }
 
 function calcRun() {
@@ -1800,10 +1911,10 @@ function calcRun() {
 
   const yrA = document.getElementById('ca-year').value;
   const yrB = document.getElementById('cb-year').value;
-  const keyA = document.getElementById('ca-concept').value;
-  const keyB = document.getElementById('cb-concept').value;
-  const lblA = keyA ? getConceptLabel(keyA) : 'Monto ingresado';
-  const lblB = keyB ? getConceptLabel(keyB) : 'Monto ingresado';
+  const keyA = calcState.a.key;
+  const keyB = calcState.b.key;
+  const lblA = calcState.a.key ? getLabelFromKey(yrA, calcState.a.key) : 'Monto ingresado';
+  const lblB = calcState.b.key ? getLabelFromKey(yrB, calcState.b.key) : 'Monto ingresado';
 
   const vn     = (vb - va) / va * 100;
   const vr     = ((1 + vn/100) / (1 + inf) - 1) * 100;
@@ -1905,6 +2016,7 @@ function renderCurrentView() {
 
 /* ═══════ INIT ═══════ */
 renderResumen();
+initCalc();
 
 /* ╔══════════════════════════════════════════════════════╗
    ║  EXPORTACIÓN A EXCEL                                 ║
