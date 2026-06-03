@@ -49,7 +49,7 @@
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased }
-body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; line-height: 1.6 }
+body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.6 }
 ::-webkit-scrollbar { width: 4px; height: 4px }
 ::-webkit-scrollbar-track { background: var(--bg2) }
 ::-webkit-scrollbar-thumb { background: var(--navy3); border-radius: 99px }
@@ -133,6 +133,7 @@ nav.main-nav {
 .year-btn:hover { border-color: var(--teal); color: var(--teal) }
 .year-btn.on { background: var(--navy); color: #fff; border-color: var(--navy) }
 .year-btn.pending { border-style: dashed; color: var(--mist) }
+.year-btn.partial { border-style: dashed; border-color: var(--amber); color: var(--amber) }
 .year-btn.pending::after { content: 'próximo'; position: absolute; top: -8px; right: -4px; background: var(--amber); color: #fff; font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 4px; letter-spacing: .04em; font-family: 'DM Sans',sans-serif }
 .year-sep { width: 1px; height: 18px; background: var(--borde) }
 .compare-label { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--mist) }
@@ -173,10 +174,10 @@ nav.main-nav {
 .kpi.blue  { border-left-color: var(--blue) }
 .kpi.orange{ border-left-color: var(--orange) }
 .kpi.violet{ border-left-color: var(--violet) }
-.kpi-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mist); margin-bottom: .6rem }
+.kpi-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mist); margin-bottom: .6rem }
 .kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 1.65rem; font-weight: 700; color: var(--ink); line-height: 1; letter-spacing: -.02em }
 .kpi-value.pending { color: var(--mist); font-size: 1.1rem; font-style: italic }
-.kpi-sub { font-size: 11px; color: var(--ink3); margin-top: .3rem }
+.kpi-sub { font-size: 12px; color: var(--ink3); margin-top: .3rem }
 .kpi-delta {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace;
@@ -235,7 +236,7 @@ nav.main-nav {
 
 /* ── TABLA ── */
 .table-wrap { overflow-x: auto; border-radius: var(--r3); box-shadow: var(--sh); border: 1px solid var(--borde); margin-bottom: 2rem }
-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; background: var(--card) }
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; background: var(--card) }
 thead th {
   background: var(--navy); color: rgba(226,232,240,.85);
   padding: 9px 10px; text-align: left;
@@ -252,7 +253,7 @@ tbody tr:hover { background: var(--teal-l) }
 tbody tr:nth-child(even) { background: var(--card2) }
 tbody tr:nth-child(even):hover { background: var(--teal-l) }
 tbody tr:last-child { border: none }
-td { padding: 9px 10px; vertical-align: middle; color: var(--ink) }
+td { padding: 11px 12px; vertical-align: middle; color: var(--ink) }
 td.name   { font-weight: 600; font-size: 12px; color: var(--navy) }
 td.mono   { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--ink2) }
 td.mono-hi{ font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right; color: var(--navy); font-weight: 600 }
@@ -277,11 +278,11 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 
 /* ── BARRAS ── */
 .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px }
-.bar-label { font-size: 10.5px; color: var(--ink2); width: 175px; flex-shrink: 0; text-align: right; font-weight: 500 }
+.bar-label { font-size: 12px; color: var(--ink2); width: 175px; flex-shrink: 0; text-align: right; font-weight: 500 }
 .bar-track { flex: 1; background: var(--bg2); border-radius: 3px; height: 16px; overflow: hidden }
 .bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; transition: width .6s ease }
 .bar-pct { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; color: #fff; white-space: nowrap }
-.bar-amount { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--mist); width: 90px; text-align: right; flex-shrink: 0 }
+.bar-amount { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mist); width: 90px; text-align: right; flex-shrink: 0 }
 
 /* ── CALCULADORA ── */
 .future-card { background: var(--card2); border: 1px solid var(--borde); border-radius: var(--r3); padding: 1.5rem }
@@ -332,37 +333,90 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 
 
 /* ── FILAS EXPANDIBLES (secretarías) ── */
-.sec-row { cursor: pointer }
+.sec-row { cursor: pointer; transition: background .1s }
+.sec-row:hover td { background: rgba(13,148,136,.04) }
 .sec-row td:first-child::before {
   content: '▶'; font-size: 9px; color: var(--mist);
-  margin-right: 6px; display: inline-block;
+  margin-right: 8px; display: inline-block;
   transition: transform .15s;
 }
 .sec-row.open td:first-child::before { transform: rotate(90deg); color: var(--teal) }
 .sec-detail-row { display: none }
 .sec-detail-row.show { display: table-row }
-.sec-detail-row td { background: var(--card2) !important; padding: 0 }
+.sec-detail-row > td { padding: 0 !important; background: var(--bg2) !important; border-bottom: 2px solid var(--teal) !important }
+
+/* ── Detalle programas ── */
 .sec-detail-inner {
-  padding: .5rem 1rem .75rem 2.5rem;
+  padding: 1rem 1.25rem 1.25rem 2.5rem;
+}
+.sec-detail-legend {
+  display: flex; gap: 1.5rem; margin-bottom: .875rem; flex-wrap: wrap;
+  padding-bottom: .75rem; border-bottom: 1px solid var(--borde);
+}
+.sec-detail-legend-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; color: var(--ink2);
+}
+.sec-detail-legend-dot {
+  width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
+}
+.sec-prog-item {
+  margin-bottom: .875rem;
+}
+.sec-prog-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: .3rem; gap: 1rem;
+}
+.sec-prog-label {
+  font-size: 12px; font-weight: 600; color: var(--ink);
+  flex: 1; min-width: 0;
+}
+.sec-prog-numbers {
+  display: flex; gap: 1.25rem; align-items: baseline; flex-shrink: 0;
+}
+.sec-prog-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  font-weight: 700; color: var(--navy);
+}
+.sec-prog-num.cmp {
+  color: var(--amber-d, #b45309); font-weight: 500;
+}
+.sec-prog-num.pct-total {
+  font-size: 10px; color: var(--mist); font-weight: 400;
+}
+.sec-prog-vn {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  font-weight: 700; padding: 1px 7px; border-radius: 4px;
+}
+.sec-prog-vn.ok  { background: var(--green-l); color: var(--green) }
+.sec-prog-vn.warn{ background: var(--amber-l); color: #92400e }
+.sec-prog-vn.bad { background: var(--red-l);   color: var(--red) }
+.sec-prog-bars {
   display: flex; flex-direction: column; gap: 3px;
 }
-.sec-prog-row {
-  display: grid; gap: .5rem; align-items: center;
-  font-size: 11px; color: var(--ink2);
-  grid-template-columns: 200px 1fr 80px 80px;
+.sec-prog-bar-row {
+  display: flex; align-items: center; gap: 8px;
 }
-.sec-prog-bar-wrap { display: flex; gap: 3px; flex-direction: column }
-.sec-prog-bar {
-  height: 7px; border-radius: 2px; transition: width .4s ease;
+.sec-prog-bar-label {
+  font-size: 10px; color: var(--mist); width: 60px; flex-shrink: 0; text-align: right;
 }
-.sec-prog-label { font-weight: 500 }
-.sec-prog-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: right; color: var(--navy) }
-.sec-prog-cmp { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: right; color: var(--mist) }
-.sec-detail-header {
-  display: grid; gap: .5rem; font-size: 9px; font-weight: 700;
-  letter-spacing: .06em; text-transform: uppercase; color: var(--mist);
-  grid-template-columns: 200px 1fr 80px 80px;
-  padding: .4rem 0; border-bottom: 1px solid var(--borde); margin-bottom: 4px;
+.sec-prog-bar-track {
+  flex: 1; height: 14px; background: var(--borde); border-radius: 3px; overflow: hidden; position: relative;
+}
+.sec-prog-bar-fill {
+  height: 100%; border-radius: 3px; transition: width .5s ease;
+  display: flex; align-items: center; justify-content: flex-end; padding-right: 5px;
+}
+.sec-prog-bar-fill span {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,.9); white-space: nowrap;
+}
+/* barra de % del presupuesto total */
+.sec-prog-pct-bar-track {
+  flex: 1; height: 6px; background: var(--borde); border-radius: 2px; overflow: hidden;
+}
+.sec-prog-pct-bar-fill {
+  height: 100%; border-radius: 2px; transition: width .5s ease;
 }
 
 /* ── COMPARATIVA GASTOS TABLA ── */
@@ -451,7 +505,7 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 .calc-select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,.1) }
 .calc-input {
   width: 100%; padding: 8px 12px; border: 1.5px solid var(--borde);
-  border-radius: var(--r); font-family: 'JetBrains Mono', monospace; font-size: 14px;
+  border-radius: var(--r); font-family: 'JetBrains Mono', monospace; font-size: 16px;
   font-weight: 600; color: var(--ink); background: var(--card); outline: none;
   transition: border-color .15s;
 }
@@ -520,6 +574,66 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 .export-btn:hover { background: var(--green); color: #fff }
 .export-btn svg { width: 13px; height: 13px; flex-shrink: 0 }
 
+
+/* ── DOCUMENTOS ── */
+.doc-grid {
+  display: flex; flex-direction: column; gap: .5rem;
+}
+.doc-item {
+  display: flex; align-items: center; gap: 1rem;
+  padding: .75rem 1rem; border-radius: var(--r2);
+  border: 1px solid var(--borde); background: var(--card2);
+  transition: background .1s;
+}
+.doc-item:hover { background: var(--teal-l) }
+.doc-icon {
+  width: 22px; height: 22px; flex-shrink: 0;
+  color: var(--teal); opacity: .7;
+}
+.doc-info { flex: 1; min-width: 0 }
+.doc-name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px }
+.doc-meta { font-size: 11px; color: var(--ink2) }
+.doc-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 99px;
+  background: var(--bg2); color: var(--mist);
+  flex-shrink: 0;
+}
+
+
+/* ── GRÁFICOS DE TORTA ── */
+.pie-section {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;
+}
+.pie-card {
+  background: var(--card); border-radius: var(--r3);
+  border: 1px solid var(--borde); box-shadow: var(--sh);
+  padding: 1.25rem;
+}
+.pie-card-title {
+  font-family: 'Sora', sans-serif; font-size: .85rem; font-weight: 700;
+  color: var(--navy3); margin-bottom: 1rem;
+}
+.pie-wrap {
+  display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap;
+}
+.pie-canvas-wrap { flex-shrink: 0 }
+.pie-legend { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px }
+.pie-legend-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; color: var(--ink2);
+}
+.pie-legend-dot {
+  width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0;
+}
+.pie-legend-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.pie-legend-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--navy); font-weight: 600; flex-shrink: 0 }
+.pie-legend-pct { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--mist); width: 35px; text-align: right; flex-shrink: 0 }
+@media (max-width: 768px) {
+  .pie-section { grid-template-columns: 1fr }
+}
+
 /* ── FOOTER ── */
 footer {
   background: var(--navy); color: rgba(148,163,184,.5);
@@ -569,6 +683,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <button class="nav-btn" onclick="setView('gastos',this)">Gastos</button>
     <button class="nav-btn" onclick="setView('secretarias',this)">Por secretaría</button>
     <button class="nav-btn" onclick="setView('personal',this)">Personal</button>
+    <button class="nav-btn" onclick="setView('graficos',this)">Gráficos</button>
     <button class="nav-btn" onclick="setView('calc',this)">Calculadora 2027</button>
     <button class="nav-btn" onclick="setView('metodologia',this)">Metodología</button>
   </div>
@@ -582,7 +697,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <span class="year-label">Año activo</span>
     <button class="year-btn on" onclick="setYear(2024,this)">2024</button>
     <button class="year-btn" onclick="setYear(2025,this)">2025</button>
-    <button class="year-btn pending" onclick="setYear(2026,this)">2026</button>
+    <button class="year-btn partial" onclick="setYear(2026,this)">2026 <span style="font-size:9px;opacity:.7">parcial</span></button>
     <button class="year-btn pending" onclick="setYear(2027,this)">2027</button>
     <div class="year-sep"></div>
     <span class="compare-label">Comparar con</span>
@@ -795,6 +910,232 @@ footer a:hover { color: rgba(94,234,212,.85) }
       <div class="card-title">Gasto en personal por componente · 2024</div>
       <div id="bars-componentes"></div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DOCUMENTOS
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-documentos">
+  <div class="sh">
+    <span class="sh-t">Documentos RAFAM</span>
+    <span class="sh-n">Fuentes oficiales de información por ejercicio</span>
+  </div>
+
+  <!-- 2026 -->
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title" style="display:flex;align-items:center;gap:.75rem">
+      <span style="background:var(--violet);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.06em">2026 · Provisorio</span>
+      Ejercicio 2026 — Ejecución al 31/03/2026
+    </div>
+    <div style="font-size:12px;color:var(--ink2);margin-bottom:1rem">Datos provisorios del primer trimestre. Fuente: RAFAM 7/04/2026.</div>
+    <div class="doc-grid">
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Estado de Ejecución de Gastos — Por Objeto</div>
+          <div class="doc-meta">Del 02/01/2026 al 31/03/2026 · 11 páginas</div>
+        </div>
+        <span class="doc-badge">Q1 2026</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Situación Económico-Financiera</div>
+          <div class="doc-meta">Del 02/01/2026 al 31/03/2026 · 6 páginas · Programas + AIF</div>
+        </div>
+        <span class="doc-badge">Q1 2026</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Estado de Ejecución de Recursos</div>
+          <div class="doc-meta">Del 02/01/2026 al 31/03/2026 · 13 páginas</div>
+        </div>
+        <span class="doc-badge">Q1 2026</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Recursos por Carácter Económico</div>
+          <div class="doc-meta">Del 02/01/2026 al 31/03/2026 · 3 páginas</div>
+        </div>
+        <span class="doc-badge">Q1 2026</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Recursos por Procedencia</div>
+          <div class="doc-meta">Del 02/01/2026 al 31/03/2026 · 1 página</div>
+        </div>
+        <span class="doc-badge">Q1 2026</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Gastos por Finalidad y Función</div>
+          <div class="doc-meta">Del 02/01/2026 al 31/03/2026 · 2 páginas</div>
+        </div>
+        <span class="doc-badge">Q1 2026</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Gastos por Fuente de Financiamiento</div>
+          <div class="doc-meta">Del 02/01/2026 al 31/03/2026 · 1 página</div>
+        </div>
+        <span class="doc-badge">Q1 2026</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Stock de Deuda — Servicio de la Deuda</div>
+          <div class="doc-meta">Del 02/01/2026 al 31/03/2026 · 3 páginas</div>
+        </div>
+        <span class="doc-badge">Q1 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2025 -->
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title" style="display:flex;align-items:center;gap:.75rem">
+      <span style="background:var(--teal);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.06em">2025 · Confirmado</span>
+      Ejercicio 2025 — Rendición de Cuentas
+    </div>
+    <div class="doc-grid">
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Análisis Presupuestario 2025 (archivo original)</div>
+          <div class="doc-meta">Datos RAFAM 2025 · Rendición de Cuentas</div>
+        </div>
+        <span class="doc-badge">2025</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2024 -->
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title" style="display:flex;align-items:center;gap:.75rem">
+      <span style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.06em">2024 · Confirmado</span>
+      Ejercicio 2024 — Rendición de Cuentas firmada 28/02/2025
+    </div>
+    <div class="doc-grid">
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Situación Económico-Financiera — 31/12/2024</div>
+          <div class="doc-meta">7 páginas · Programas, AIF, tesorería, patrimonio · Firmado</div>
+        </div>
+        <span class="doc-badge">2024</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Estado de Ejecución de Gastos por Objeto</div>
+          <div class="doc-meta">12 páginas · Devengado / Pagado · Firmado</div>
+        </div>
+        <span class="doc-badge">2024</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Estado de Ejecución de Recursos</div>
+          <div class="doc-meta">14 páginas · Tributarios, tasas, fondos afectados · Firmado</div>
+        </div>
+        <span class="doc-badge">2024</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Recursos por Carácter Económico</div>
+          <div class="doc-meta">3 páginas · Firmado</div>
+        </div>
+        <span class="doc-badge">2024</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Recursos por Procedencia</div>
+          <div class="doc-meta">1 página · Firmado</div>
+        </div>
+        <span class="doc-badge">2024</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Memoria de la Contaduría 2024</div>
+          <div class="doc-meta">10 páginas · Personal, fondos, deuda · Firmado</div>
+        </div>
+        <span class="doc-badge">2024</span>
+      </div>
+      <div class="doc-item">
+        <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="doc-info">
+          <div class="doc-name">Resultado Art. 44</div>
+          <div class="doc-meta">1 página · Firmado</div>
+        </div>
+        <span class="doc-badge">2024</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert info">
+    <strong>Nota:</strong> Los archivos PDF están en poder del bloque. Para agregar links de descarga directa, subí los PDFs a un servicio de almacenamiento (Google Drive, Dropbox) y reemplazá el texto de cada ítem por un link. Escribime y lo implementamos.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     GRÁFICOS DE TORTA
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-graficos">
+  <div class="sh">
+    <span class="sh-t" id="graficos-titulo">Distribución del presupuesto · <span id="graficos-year"></span></span>
+    <span class="sh-n">Las tortas se actualizan al cambiar de año con el selector de arriba</span>
+  </div>
+
+  <!-- Fila 1: Gastos por objeto + Por secretaría -->
+  <div class="pie-section">
+    <div class="pie-card">
+      <div class="pie-card-title" id="pie-objeto-title">Gastos por objeto</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-objeto"></canvas></div>
+        <div class="pie-legend" id="pie-objeto-legend"></div>
+      </div>
+    </div>
+    <div class="pie-card">
+      <div class="pie-card-title" id="pie-sec-title">Por secretaría (top 8)</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-secretarias"></canvas></div>
+        <div class="pie-legend" id="pie-sec-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fila 2: Recursos por tipo + Comparativa años (barras) -->
+  <div class="pie-section">
+    <div class="pie-card">
+      <div class="pie-card-title" id="pie-rec-title">Recursos por tipo</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-recursos"></canvas></div>
+        <div class="pie-legend" id="pie-rec-legend"></div>
+      </div>
+    </div>
+    <div class="pie-card">
+      <div class="pie-card-title" id="pie-origen-title">Recursos por procedencia</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-origen"></canvas></div>
+        <div class="pie-legend" id="pie-origen-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nota al pie -->
+  <div class="alert muted" style="font-size:12px">
+    <strong>Nota metodológica:</strong> Los porcentajes se calculan sobre el total ejecutado/devengado del año seleccionado.
+    Para 2026 los datos son provisorios al 31/03/2026, anualizados (×4).
+    El % de cada ítem es comparable entre años aunque el monto absoluto cambie por inflación.
   </div>
 </div>
 
@@ -1104,7 +1445,7 @@ const DATA = {
       total:           91335.66,
       pagado:          85771.82,
       deudaFlotante:   5563.84,
-      alertaPrincipal: 'El <strong>49% del gasto</strong> son Servicios No Personales, dominados por <strong>Higiene Urbana ($26.702 M)</strong> — el ítem de mayor sensibilidad para negociar el presupuesto 2027.',
+      alertaPrincipal: 'El <strong>48,8% del gasto</strong> son Servicios No Personales, dominados por <strong>Higiene Urbana ($26.702 M · 29% del total)</strong>. Las Actividades Centrales suman $28.113 M (29%). Estos dos ítems concentran el 58% del presupuesto total 2024.',
       porObjeto: [
         { label: 'Gastos en personal',      val: 26421.87, pct: 28.9, impago: 0,       color: 'rgba(13,148,136,.65)'  },
         { label: 'Servicios no personales', val: 44564.62, pct: 48.8, impago: 4072.44, color: 'rgba(220,38,38,.65)'   },
@@ -1115,14 +1456,99 @@ const DATA = {
         { label: 'Activos financieros',     val:   331.99, pct:  0.4, impago: 0,       color: 'rgba(124,58,237,.65)'  },
       ],
       programas: [
-        { label: 'Higiene Urbana y Control Microbasurales', val: 26701.70 },
-        { label: 'Act. Centrales (personal + gastos gles.)',val: 26445.54 },
-        { label: 'SAE + MESA Bonaerense',                   val:  7675.93 },
-        { label: 'Atención Primaria de la Salud',           val:  1832.94 },
-        { label: 'Bacheo y Repavimentación',                val:  1433.48 },
-        { label: 'Obras Viales',                            val:   864.50 },
-        { label: 'Fortalecimiento Infraestructura Educativa',val:  726.53 },
-        { label: 'Arbolado Público + Espacios Públicos',    val:   694.71 },
+        // TODOS los programas 2024 — datos exactos RAFAM · Situación Económico-Financiera
+        { label: 'Higiene Urbana y Control de Microbasurales',     val: 26701.70, sec: 'Ambiente' },
+        { label: 'Act. Centrales (personal y gastos gles.)',        val: 26445.54, sec: 'Central' },
+        { label: 'Partidas no asignables a programas',              val:  1667.23, sec: 'Central' },
+        { label: 'MESA Bonaerense',                                val:  3981.19, sec: 'Educación' },
+        { label: 'Servicio Alimentario Escolar (SAE)',              val:  3694.74, sec: 'Educación' },
+        { label: 'Emergencia Social y Seguridad Alimentaria',       val:  2437.33, sec: 'Des. Humano' },
+        { label: 'HCD - Actividades Centrales',                    val:  1794.60, sec: 'HCD' },
+        { label: 'Fortalecimiento Sistema Atención Primaria',       val:  1832.94, sec: 'Salud' },
+        { label: 'Bacheo y Repavimentación',                        val:  1433.48, sec: 'Obras Púb.' },
+        { label: 'Servicios Generales (Obras Públicas)',            val:  1075.26, sec: 'Obras Púb.' },
+        { label: 'Fortalecimiento Espacios Públicos',               val:  1102.85, sec: 'Ambiente' },
+        { label: 'Coordinación y Adm. de Ingresos',                 val:   994.94, sec: 'Finanzas' },
+        { label: 'Primera Infancia y Jardines de Infantes',         val:   993.30, sec: 'Educación' },
+        { label: 'Coordinación y Adm. Servicios Informáticos',      val:   811.42, sec: 'Finanzas' },
+        { label: 'Fortalecimiento Sistema Atención Médica (SAME)',  val:   768.49, sec: 'Salud' },
+        { label: 'Fortalecimiento Infraestructura Educativa',       val:   726.53, sec: 'Educación' },
+        { label: 'Fortalecimiento Sistema Video Vigilancia',        val:   742.85, sec: 'Seguridad' },
+        { label: 'Mantenimiento Sistema Público de Alumbrado',      val:   743.56, sec: 'Ambiente' },
+        { label: 'Fortalecimiento Infraestructura Educativa',       val:   726.53, sec: 'Educación' },
+        { label: 'Comunicación y Contenido',                        val:   668.39, sec: 'Sec. Gral.' },
+        { label: 'Promoción Cultural y Patrimonial',                val:   683.83, sec: 'Educación' },
+        { label: 'Arbolado Público',                                val:   694.71, sec: 'Ambiente' },
+        { label: 'Obras Viales',                                    val:   864.50, sec: 'Obras Púb.' },
+        { label: 'Plan Anual de Seguridad e Higiene',               val:   857.09, sec: 'Control' },
+        { label: 'Fortalecimiento Sistema Protección Ciudadana',    val:   523.96, sec: 'Seguridad' },
+        { label: 'Fort. y Apoyo Deportistas y Clubes',              val:   511.99, sec: 'Deporte' },
+        { label: 'Coord. y Adm. de Gastos (Sec. Gral.)',            val:   501.69, sec: 'Sec. Gral.' },
+        { label: 'Recursos Humanos',                                val:   469.91, sec: 'Jefatura' },
+        { label: 'Fortalecimiento Hospital Odontológico',           val:   409.40, sec: 'Salud' },
+        { label: 'Fortalecimiento Hospital Oftalmológico',          val:   381.36, sec: 'Salud' },
+        { label: 'Ligas Deportivas y Juegos Bonaerenses',           val:   358.94, sec: 'Deporte' },
+        { label: 'Obras de Infraestructura',                        val:   367.58, sec: 'Obras Púb.' },
+        { label: 'Prensa y Comunicación',                           val:   325.83, sec: 'Sec. Gral.' },
+        { label: 'Coordinación y Adm. de Gastos (Finanzas)',        val:   303.89, sec: 'Finanzas' },
+        { label: 'Plan Integral Ordenamiento Espacio Público',      val:   286.83, sec: 'Control' },
+        { label: 'Juventud',                                        val:   254.96, sec: 'Jefatura' },
+        { label: 'Red Pública Salud AMBA',                          val:   198.25, sec: 'Salud' },
+        { label: 'Gestión Integral Habilitaciones y Permisos',      val:   198.44, sec: 'Control' },
+        { label: 'Programa de Hábitat Sustentable',                 val:   182.95, sec: 'Des. Humano' },
+        { label: 'Protección y Restitución Derechos NNA',           val:   180.40, sec: 'Des. Humano' },
+        { label: 'Plan Urbano Estratégico',                         val:   171.86, sec: 'Territorial' },
+        { label: 'Legal y Técnica',                                 val:   164.45, sec: 'Sec. Gral.' },
+        { label: 'Mantenimiento e Infraestructura Urbana',          val:   155.62, sec: 'Ambiente' },
+        { label: 'Gobierno Cercano y Accesible',                    val:   153.51, sec: 'At. Vecino' },
+        { label: 'Epidemiología, Control Vectores e Inmuniz.',      val:   152.36, sec: 'Salud' },
+        { label: 'Fondo de Infraestructura Municipal (FIM)',        val:   128.52, sec: 'Obras Púb.' },
+        { label: 'Coordinación General de la Gestión',              val:   122.10, sec: 'Sec. Gral.' },
+        { label: 'Coordinación Sistema Seguridad Local',            val:   118.98, sec: 'Seguridad' },
+        { label: 'Asuntos Institucionales',                         val:   105.43, sec: 'Jefatura' },
+        { label: 'Licencias de Conducir (Gob.)',                    val:   115.18, sec: 'Jefatura' },
+        { label: 'Mantenimiento e Infr. Sistema Pluvial',           val:   103.84, sec: 'Ambiente' },
+        { label: 'Programa Inclusión Personas con Discapacidad',    val:   110.46, sec: 'Des. Humano' },
+        { label: 'Espacios Comunitarios Territoriales',             val:    98.95, sec: 'Des. Humano' },
+        { label: 'Fortalecimiento Programas Sanitarios',            val:    99.57, sec: 'Salud' },
+        { label: 'Plan Regularización Dominial Altos de Podestá',   val:    94.79, sec: 'Territorial' },
+        { label: 'Deporte Inclusivo',                               val:    81.20, sec: 'Deporte' },
+        { label: 'Centros Comerciales y Accesibilidad',             val:    81.54, sec: 'Obras Púb.' },
+        { label: 'Fort. e Infraestructura Centros Deportivos',      val:    88.63, sec: 'Deporte' },
+        { label: 'Deporte Educativo',                               val:    77.25, sec: 'Deporte' },
+        { label: 'Fortalecimiento Escuelas Municipales',            val:    77.33, sec: 'Educación' },
+        { label: 'Antropozoonosis',                                 val:    72.96, sec: 'Salud' },
+        { label: 'Sistema Ord. Centralidades y Estacionamiento',    val:    69.68, sec: 'Territorial' },
+        { label: 'Formación para el Trabajo y Teletrabajo',         val:    54.88, sec: 'Trabajo' },
+        { label: 'Centro Educativo Ambiental',                      val:    36.82, sec: 'Ambiente' },
+        { label: 'Géneros, Diversidad Sexual y DDHH',               val:    38.94, sec: 'Des. Humano' },
+        { label: 'Dist. de la Innovación y el Conocimiento',        val:    34.39, sec: 'Trabajo' },
+        { label: 'Red Secundaria Cloacal Loma Hermosa OC70094',     val:    27.54, sec: 'Des. Humano' },
+        { label: 'Defensa al Consumidor',                           val:    25.36, sec: 'At. Vecino' },
+        { label: 'Determinantes Sociales de la Salud',              val:    26.73, sec: 'Salud' },
+        { label: 'Fortalecimiento Sistema de Seguridad Vial',       val:    40.48, sec: 'Territorial' },
+        { label: 'Programa Capacitación 4.0 y Economía del Conoc.', val:    16.57, sec: 'Trabajo' },
+        { label: 'Oficina de Faltas',                               val:    21.19, sec: 'Sec. Gral.' },
+        { label: 'Licencias de Conducir (At. Vecino)',              val:    20.56, sec: 'At. Vecino' },
+        { label: 'Plan SUMAR',                                      val:    19.26, sec: 'Salud' },
+        { label: 'Programa Potenciar Trabajo',                      val:    17.45, sec: 'Des. Humano' },
+        { label: 'Red Cloacal Pluvial Vial Churruca',               val:    15.09, sec: 'Des. Humano' },
+        { label: 'Desarrollo Urbano y Hábitat Sustentable',         val:    13.00, sec: 'Territorial' },
+        { label: 'Plazas en Movimiento y Adultos Mayores',          val:    12.30, sec: 'Deporte' },
+        { label: 'Programa Puertas Abiertas y Padrinos',            val:    11.96, sec: 'Trabajo' },
+        { label: 'Desarrollo Centros Comerciales a Cielo Abierto',  val:    10.89, sec: 'Trabajo' },
+        { label: 'Microcréditos 3FEmprende',                        val:    10.13, sec: 'Trabajo' },
+        { label: 'Fortalecimiento Cementerio Municipal',            val:     8.15, sec: 'Ambiente' },
+        { label: 'Red de Agua Potable y Cloaca B° Maldonado',       val:     7.71, sec: 'Des. Humano' },
+        { label: 'Puesta en Valor de Espacios Verdes',              val:     9.87, sec: 'Obras Púb.' },
+        { label: 'Plan Integral de Movilidad e Integración Terr.',  val:    28.93, sec: 'Territorial' },
+        { label: 'Economía Social y Popular',                       val:   130.00, sec: 'Des. Humano' },
+        { label: 'Programa Familia Solidarias',                     val:     1.65, sec: 'Des. Humano' },
+        { label: 'Programa Proteger - Min. Salud',                  val:     2.83, sec: 'Salud' },
+        { label: 'Servicios Generales (Sec. General)',              val:     2.69, sec: 'Sec. Gral.' },
+        { label: 'Protocolo y Ceremonial',                          val:     3.91, sec: 'Sec. Gral.' },
+        { label: 'Casa Propia - Construir Futuro',                  val:     3.89, sec: 'Obras Púb.' },
+        { label: 'Desarrollo Parque Industrial y PYMES',            val:     3.81, sec: 'Trabajo' },
       ],
     },
 
@@ -1532,17 +1958,235 @@ const DATA = {
     },
   },
 
+
   /* ─────────────── 2026 ─────────────── */
-  /* TODO: Cargar cuando esté disponible la rendición RAFAM (~Feb 2027) */
   2026: {
-    status: 'pending',
-    fuente: 'Pendiente — Rendición de Cuentas disponible ~Febrero 2027',
-    ipc: null,  // completar cuando INDEC publique el dato anual
-    resumen: null,
-    recursos: null,
-    gastos: null,
-    secretarias: [],
-    personal: { total: null, porSecretaria: [], componentes: [] },
+    status: 'partial',
+    fuente: 'RAFAM · Ejecución al 31/03/2026 · Datos provisorios · Anualizados ×4',
+    ipc: 0.30, // IPC 2026 estimado (en curso — dato parcial)
+    nota: 'Datos al 31/03/2026 anualizados (×4). El servicio de la deuda incluye pago de deuda flotante 2025 y NO es representativo del gasto estructural.',
+
+    resumen: {
+      ejecutado:      166680.16,  // devengado Q1 × 4 (incluye deuda flotante pagada)
+      percibido:      182529.40,  // percibido Q1 × 4
+      presupAprobado: 189429.89,  // crédito aprobado anual (del presupuesto)
+      superavitArt43: null,
+      resultadoArt44: null,
+      saldoCajaIni:   30733.66,   // saldo 01/01/2026
+      saldoCajaFin:    9221.69,   // saldo 31/03/2026 (NO anualizado)
+      deudaFlotante:   null,
+      ingCorrientes:  182396.28,  // ingresos corrientes Q1 × 4
+      gasCorrientes:  122074.60,  // gastos corrientes Q1 × 4
+      ahorroCorriente: 60321.68,  // ahorro corriente Q1 × 4
+      recursosCapital:   133.13,  // Q1 × 4
+      gastosCapital:   10122.12,  // bienes de uso Q1 × 4
+      paritaria: null,
+    },
+
+    recursos: {
+      totalDevengado:  207935.63, // Q1 × 4 (estimado, incluye fuentes financ.)
+      totalPercibido:  182529.40,
+      origenMunicipal: 124349.00, // percibido Q1 × 4 (libre disp + afectados)
+      origenProvincial: 57846.00,
+      origenNacional:    333.30,
+      tipos: [
+        { label: 'Tasas municipales (est.)',         val: 99739.16 },  // Q1 × 4
+        { label: 'Coparticipación + trib. (est.)',   val: 56059.08 },  // Copart+otros × 4
+        { label: 'Transferencias corrientes (est.)', val: 16193.52 },  // prov+nac × 4
+        { label: 'Rentas propiedad (intereses)',      val:  2173.96 },  // Q1 × 4
+        { label: 'Multas y derechos',                val:  5645.49 },  // Q1 × 4
+        { label: 'Venta bienes y servicios',         val:     0.00 },
+        { label: 'Recursos propios de capital',      val:   133.13 },
+      ],
+      tasas: [
+        { label: 'Insp. Seg. e Higiene (TISH)',      val: 35617.64 },  // Q1 × 4
+        { label: 'Servicios Generales',              val: 62837.00 },  // Q1 × 4
+        { label: 'Tasa de Seguridad',               val:   330.00 },  // estimado
+        { label: 'Patente Automotores + Rodados',    val:  2094.55 },  // Q1 × 4
+        { label: 'Estacionamiento Medido',           val:  1139.34 },  // Q1 × 4
+      ],
+      tributarios: [
+        { label: 'Coparticipación Pcial. Ley 10.559 (est.)', val: 132587.60, orig: 'Provincial' },
+        { label: 'Canon EDENOR (est.)',                       val:  24165.76, orig: 'Municipal' },
+        { label: 'Fondo Mpal. Inclusión Social L.13863',      val:   3199.02, orig: 'Provincial' },
+        { label: 'Fondo Fort. Recursos Municipales',          val:   2447.23, orig: 'Provincial' },
+        { label: 'CEAMSE - Recepción Residuos',               val:   7107.00, orig: 'Municipal' },
+      ],
+      fondos: [],
+    },
+
+    gastos: {
+      total:          166680.16,
+      pagado:         162901.21,  // Q1 pagado × 4
+      deudaFlotante:   null,      // no disponible al cierre Q1
+      alertaPrincipal: 'Datos <strong>provisorios al 31/03/2026, anualizados (×4)</strong>. El servicio de la deuda ($33.719 M estimado) incluye el pago de la deuda flotante 2025 ($8.431 M) concentrado en Q1 — <strong>no representa el gasto estructural anual</strong>. Los servicios no personales incluyen Higiene Urbana con fuerte estacionalidad.',
+      porObjeto: [
+        { label: 'Gastos en personal',      val: 46439.72, pct: 27.9, impago: 0,    color: 'rgba(13,148,136,.65)'  },
+        { label: 'Servicios no personales', val: 62700.52, pct: 37.6, impago: 2943.60, color: 'rgba(220,38,38,.65)'  },
+        { label: 'Servicio de la deuda (*)',val: 33718.76, pct: 20.2, impago: 0,    color: 'rgba(100,116,139,.65)' },
+        { label: 'Bienes de uso (capital)', val: 10122.12, pct:  6.1, impago: 751.69, color: 'rgba(234,88,12,.65)'  },
+        { label: 'Transferencias',          val:  8190.96, pct:  4.9, impago:  79.82, color: 'rgba(37,99,235,.65)'  },
+        { label: 'Bienes de consumo',       val:  4744.72, pct:  2.8, impago:  28.30, color: 'rgba(217,119,6,.65)'  },
+        { label: 'Activos financieros',     val:   763.36, pct:  0.5, impago: 0,    color: 'rgba(124,58,237,.65)'  },
+      ],
+      programas: [
+        // Anualizados (Q1 × 4) — datos de Situación Económico-Financiera 31/03/2026
+        { label: 'Higiene Urbana y Control de Microbasurales',   val: 39016.40, sec: 'Ambiente' },
+        { label: 'Actividades Centrales (personal y gastos gles.)',val: 20939.24, sec: 'Central' },
+        { label: 'Serv. Deuda y Partidas no asignables (*)',      val: 33718.76, sec: 'Central' },
+        { label: 'Fortalec. Sistema Atención Primaria',           val:  5252.11, sec: 'Salud' },
+        { label: 'Obras Viales y de Infraestructura',             val: 10796.55, sec: 'Obras Púb.' },
+        { label: 'Fortalec. Infr. Educativa (formal/informal)',   val:  2147.79, sec: 'Capital Humano' },
+        { label: 'Emergencia Social y Seg. Alimentaria',          val:  3178.44, sec: 'Capital Humano' },
+        { label: 'Fortalec. Compl. Hospitalario',                 val:  2047.47, sec: 'Salud' },
+        { label: 'Mantenimiento Integral Sistema Alumbrado',      val:  2075.90, sec: 'Ambiente' },
+        { label: 'HCD - Actividades Centrales',                   val:  2736.68, sec: 'HCD' },
+        { label: 'Fortalec. Serv. Urbanos',                       val:  2935.44, sec: 'Ambiente' },
+        { label: 'MESA Bonaerense',                               val:  2078.20, sec: 'Capital Humano' },
+        { label: 'Fortalec. Sistema Protección Ciudadana',        val:  2514.32, sec: 'Seguridad' },
+        { label: 'SAE - Servicio Alimentario Escolar',            val:  1043.04, sec: 'Capital Humano' },
+        { label: 'Servicios Generales (Obras Púb.)',              val:  2470.53, sec: 'Obras Púb.' },
+        { label: 'Primera Infancia y Jardines de Infantes',       val:  2371.92, sec: 'Capital Humano' },
+        { label: 'Fortalec. Sistema Atención Médica (SAME)',      val:  1315.24, sec: 'Salud' },
+        { label: 'Fortalec. Sistema Video Vigilancia',            val:  1436.52, sec: 'Seguridad' },
+        { label: 'Promoción Cultural y Patrimonial',              val:  1589.24, sec: 'Capital Humano' },
+        { label: 'Niñez, Adolescencia y Familia',                 val:  1667.80, sec: 'Capital Humano' },
+        { label: 'Hábitat, Vivienda y Regularización dominial',   val:  1604.66, sec: 'Capital Humano' },
+        { label: 'Desarrollo Deportivo',                          val:  1231.76, sec: 'Capital Humano' },
+        { label: 'Plan Anual de Seg., Higiene y Ord. Esp. Púb.',  val:  2779.62, sec: 'Trabajo' },
+        { label: 'Fortalec. Centro Especialidades (CEMAR)',       val:   892.30, sec: 'Salud' },
+        { label: 'Fortalec. de Inversiones y Emprendedores',      val:   490.19, sec: 'Trabajo' },
+        { label: 'Gobierno Cercano y Accesible',                  val:  1513.11, sec: 'Sec. Gral.' },
+      ],
+    },
+
+    secretarias: [
+      // Datos Q1 2026 anualizados (×4) — provisorios
+      // Fuente: Situación Económico-Financiera 31/03/2026 por programa
+      { label: 'Ambiente y Servicios Públicos', val: 44349.00,
+        nota: 'Higiene Urbana + Alumbrado + Serv. Urbanos + Cementerio — Q1×4',
+        programas: [
+          { label: 'Higiene Urbana y Control de Microbasurales',   val: 39016.40 },
+          { label: 'Mantenimiento Integral Sistema Alumbrado',     val:  2075.90 },
+          { label: 'Fortalecimiento Servicios Urbanos',            val:  2935.44 },
+          { label: 'Fortalecimiento Cementerio Municipal',         val:   321.31 },
+        ]
+      },
+      { label: 'Act. Centrales + Serv. Deuda (*)', val: 54658.00,
+        nota: '(*) Incluye pago deuda flotante 2025 — no representativo del gasto estructural',
+        programas: [
+          { label: 'Actividades Centrales (personal y gastos gles.)', val: 20939.24 },
+          { label: 'Servicio de la Deuda (deuda flotante 2025 + propia)', val: 33718.76 },
+        ]
+      },
+      { label: 'Capital Humano', val: 11725.08,
+        nota: 'SAE + MESA + Infr. Educativa + Deporte + Social + Cultura — Q1×4', nueva25: true,
+        programas: [
+          { label: 'Fortalecimiento Infr. Educativa',     val:  2147.79 },
+          { label: 'Emergencia Social y Seg. Alimentaria',val:  3178.44 },
+          { label: 'Primera Infancia y Jardines',         val:  2371.92 },
+          { label: 'MESA Bonaerense',                     val:  2078.20 },
+          { label: 'Niñez, Adolescencia y Familia',       val:  1667.80 },
+          { label: 'Hábitat, Vivienda y Reg. dominial',   val:  1604.66 },
+          { label: 'SAE - Servicio Alimentario Escolar',  val:  1043.04 },
+          { label: 'Promoción Cultural y Patrimonial',    val:  1589.24 },
+          { label: 'Desarrollo Deportivo',                val:  1231.76 },
+          { label: 'Fortalecimiento Escuelas',            val:   685.94 },
+        ]
+      },
+      { label: 'Obras Públicas y Des. Urbano', val: 15092.52,
+        nota: 'Obras Viales + Serv. Generales + Movilidad + Licencias — Q1×4',
+        programas: [
+          { label: 'Obras Viales y de Infraestructura',  val: 10796.55 },
+          { label: 'Servicios Generales (Obras Púb.)',   val:  2470.53 },
+          { label: 'Plan Integral de Movilidad',         val:   715.40 },
+          { label: 'Licencias de Conducir',              val:   333.28 },
+          { label: 'Desarrollo Urbano y Hábitat Sust.',  val:   570.23 },
+          { label: 'Plan Urbano Estratégico',            val:    87.17 },
+          { label: 'Ord. Centralidades y Estacionamiento',val:  119.42 },
+        ]
+      },
+      { label: 'Secretaría de Salud', val: 10283.04,
+        nota: 'Complejo hospitalario + APS + SAME + especialidades — Q1×4',
+        programas: [
+          { label: 'Fortalec. Sistema Atención Primaria', val:  5252.11 },
+          { label: 'Fortalec. Compl. Hospitalario',       val:  2047.47 },
+          { label: 'Fortalec. Sistema Atención Médica (SAME)', val: 1315.24 },
+          { label: 'Fortalec. Centro Especialidades',     val:   892.30 },
+          { label: 'Programa Salud Mental',               val:   247.43 },
+          { label: 'Determinantes Sociales de la Salud',  val:   524.50 },
+        ]
+      },
+      { label: 'Secretaría de Seguridad', val: 6836.84,
+        nota: 'Protección ciudadana + Video vigilancia + Emergencias — Q1×4',
+        programas: [
+          { label: 'Fortalec. Sistema Protección Ciudadana',val: 2514.32 },
+          { label: 'Servicios Seguridad y Emergencias',     val: 1218.06 },
+          { label: 'Fortalec. Sistema Video Vigilancia',    val: 1436.52 },
+          { label: 'Fortalec. Sistema Seguridad Vial',      val:  858.21 },
+          { label: 'Planificación y Coordinación Seguridad',val:  449.60 },
+          { label: 'Centro de Atención a las Víctimas',     val:  360.17 },
+        ]
+      },
+      { label: 'Trabajo y Producción', val: 3755.24,
+        nota: 'Plan Seg. e Higiene + Emprendedores + Comercial — Q1×4',
+        programas: [
+          { label: 'Plan Anual Seg., Higiene y Ord. Esp. Púb.', val: 2779.62 },
+          { label: 'Fortalecimiento de Inversiones y Emprendedores', val: 490.19 },
+          { label: 'Desarrollo Comercial y Prom. Industrial',  val:  156.53 },
+          { label: 'Desarrollo Parque Industrial',             val:   18.10 },
+          { label: 'Microcréditos 3F Emprende',                val:    4.80 },
+        ]
+      },
+      { label: 'Coordinación de Gabinete', val: 3608.20,
+        nota: 'Comunicación + Legal + Asuntos Institucionales + Juventud — Q1×4',
+        programas: [
+          { label: 'Comunicación y Prensa',                  val: 1227.67 },
+          { label: 'Coordinación y Adm. de Gastos',          val:  893.76 },
+          { label: 'Legal y Técnica',                        val:  884.99 },
+          { label: 'Asuntos Institucionales',                val:  292.88 },
+          { label: 'Juventud',                               val:  308.88 },
+        ]
+      },
+      { label: 'Finanzas y Efic. del Estado', val: 4765.80,
+        nota: 'Administración ingresos, gastos, modernización — Q1×4',
+        programas: [
+          { label: 'Coordinación y Adm. de Ingresos',        val: 1640.41 },
+          { label: 'Coordinación y Adm. de Gastos',          val:  769.99 },
+          { label: 'Coordinación y Adm. de la Modernización',val: 1253.91 },
+          { label: 'Coordinación y Adm. de Recursos Humanos',val: 1100.41 },
+        ]
+      },
+      { label: 'Secretaría General', val: 2024.56,
+        nota: 'Gobierno Cercano + Protocolo + Coord. General — Q1×4',
+        programas: [
+          { label: 'Gobierno Cercano y Accesible',    val: 1513.11 },
+          { label: 'Protocolo y Ceremonial',          val:  162.58 },
+          { label: 'Coord. General de la Gestión',   val:  348.89 },
+        ]
+      },
+      { label: 'H.C.D.', val: 2736.68,
+        nota: 'Q1×4',
+        programas: [
+          { label: 'HCD - Actividades Centrales', val: 2736.68 },
+        ]
+      },
+    ],
+
+    personal: {
+      total: null,       // sin dato al Q1
+      permanente: null,
+      mensualizado: null,
+      gastoTotal: 46439.72,  // Q1 × 4
+      paritaria: null,
+      porSecretaria: [],
+      componentes: [
+        { label: 'Personal permanente', val: 17628.55 },  // Q1 × 4
+        { label: 'Personal temporario', val: 23085.00 },
+        { label: 'Servicios extraordinarios (HE)', val: 4437.36 },
+        { label: 'Asignaciones familiares', val: 1288.87 },
+      ],
+    },
   },
 
   /* ─────────────── 2027 ─────────────── */
@@ -1597,7 +2241,7 @@ function renderSimpleBars(containerId, items, color, labelWidth = 175) {
    ╚══════════════════════════════════════════════════════╝ */
 function renderResumen() {
   const d = DATA[activeYear];
-  const isPending = d.status === 'pending' || !d.resumen;
+  const isPending = (d.status === 'pending') || !d.resumen;
   document.getElementById('resumen-pending').style.display = isPending ? 'block' : 'none';
   document.getElementById('resumen-content').style.display = isPending ? 'none' : 'block';
   if (isPending) {
@@ -1716,7 +2360,7 @@ function renderResumen() {
    ╚══════════════════════════════════════════════════════╝ */
 function renderRecursos() {
   const d = DATA[activeYear];
-  const isPending = d.status === 'pending' || !d.recursos;
+  const isPending = (d.status === 'pending') || !d.recursos;
   document.getElementById('rec-pending').style.display  = isPending ? 'flex' : 'none';
   document.getElementById('rec-content').style.display  = isPending ? 'none' : 'block';
   document.getElementById('rec-titulo').textContent     = `Recursos · ${activeYear}`;
@@ -1770,7 +2414,7 @@ function renderRecursos() {
 function renderGastos() {
   const d  = DATA[activeYear];
   const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
-  const isPending = d.status === 'pending' || !d.gastos;
+  const isPending = (d.status === 'pending') || !d.gastos;
   document.getElementById('gas-pending').style.display = isPending ? 'flex' : 'none';
   document.getElementById('gas-content').style.display = isPending ? 'none' : 'block';
   document.getElementById('gas-titulo').textContent = `Gastos · ${activeYear}`;
@@ -1868,14 +2512,18 @@ function renderSecretarias() {
   const d  = DATA[activeYear];
   const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
   const secActivo = d.secretarias.filter(s => s.val > 0 || s.nueva);
-  const totalActivo = secActivo.reduce((s,i) => s + (i.val || 0), 0);
+  const totalPresupuesto = secActivo.reduce((s,i) => s + (i.val || 0), 0);
   const ipc = dc ? (dc.ipc || 0) : 0;
   const showCmp = !!dc?.secretarias?.length;
 
+  // Colores fijos para los dos años
+  const COL_A = { bg: 'rgba(13,148,136,.75)', light: 'rgba(13,148,136,.15)', label: 'teal' };
+  const COL_B = { bg: 'rgba(234,88,12,.75)',  light: 'rgba(234,88,12,.12)',  label: 'naranja' };
+
   document.getElementById('sec-titulo').textContent = `Por secretaría · ${activeYear}`;
   document.getElementById('sec-nota').textContent = showCmp
-    ? `Comparando ${activeYear} vs ${cmpYear} · Clic en una fila para ver programas`
-    : `Clic en una fila para ver el desglose por programa`;
+    ? `${activeYear} (teal) vs ${cmpYear} (naranja) · % del total del presupuesto · Clic para ver programas`
+    : `Clic en cualquier fila para ver el desglose por programa · % del presupuesto total`;
 
   // Columnas comparación
   ['th-cmp-sec','th-vn-sec','th-vr-sec'].forEach(id => {
@@ -1884,8 +2532,8 @@ function renderSecretarias() {
   });
   if (showCmp) {
     document.getElementById('th-cmp-sec').textContent = `${cmpYear} ($M)`;
-    document.getElementById('th-vn-sec').textContent = 'Var. nom.';
-    document.getElementById('th-vr-sec').textContent = 'Var. real';
+    document.getElementById('th-vn-sec').textContent  = 'Var. nom.';
+    document.getElementById('th-vr-sec').textContent  = 'Var. real';
   }
 
   const maxVal = Math.max(
@@ -1893,27 +2541,45 @@ function renderSecretarias() {
     ...(showCmp ? dc.secretarias.map(s => s.val||0) : [0])
   );
 
-  // Filas de la tabla — cada secretaría tiene fila principal + fila detalle
   const rows = secActivo.map((s, idx) => {
-    // Buscar equivalente en año comparado (por label o aproximación)
     const secCmp = showCmp ? dc.secretarias.find(c =>
       c.label === s.label ||
       c.label.replace(/\s*\(.*?\)/g,'').trim() === s.label.replace(/\s*\(.*?\)/g,'').trim()
     ) : null;
 
     const vn = (s.val && secCmp?.val) ? ((s.val - secCmp.val) / secCmp.val * 100) : null;
-    const vr = (vn !== null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
-    const pct = s.val ? (s.val/totalActivo*100).toFixed(1)+'%' : '—';
+    const vr = (vn !== null && ipc)   ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const pct = s.val ? (s.val/totalPresupuesto*100).toFixed(1)+'%' : '—';
     const vnStr = vn !== null ? (vn>0?'+':'')+vn.toFixed(1)+'%' : '—';
     const vrStr = vr !== null ? (vr>0?'+':'')+vr.toFixed(1)+'%' : '—';
-    const vrColor = vr !== null ? (vr>2 ? 'color:var(--green)' : vr>-10 ? 'color:var(--amber)' : 'color:var(--red)') : '';
+    const vrCls = vr !== null ? (vr>2?'ok':vr>-10?'warn':'bad') : '';
     let badge = '';
-    if (s.nueva) badge = ' <span class="badge badge-new">Nueva</span>';
+    if (s.nueva)      badge = ' <span class="badge badge-new">Nueva</span>';
     if (s.eliminada25) badge = ' <span class="badge badge-gone">Eliminada 2025</span>';
     const rowBg = s.nueva ? 'new-row' : s.eliminada25 ? 'gone-row' : '';
     const hasProgs = s.programas && s.programas.length > 0;
+    const pctW  = (s.val||0)/maxVal*100;
+    const pctWc = showCmp && secCmp ? (secCmp.val||0)/maxVal*100 : 0;
 
-    // Fila principal
+    // Barra doble horizontal: año activo encima, comparación debajo — con etiquetas de color
+    const barCell = `<td style="min-width:140px;padding:8px 12px">
+      ${showCmp && secCmp ? `<div style="font-size:9px;color:var(--mist);margin-bottom:2px;display:flex;gap:4px">
+        <span style="color:rgba(13,148,136,.9);font-weight:700">${activeYear}</span>
+        <span>vs</span>
+        <span style="color:rgba(234,88,12,.85);font-weight:700">${cmpYear}</span>
+      </div>` : ''}
+      <div style="height:13px;background:var(--bg2);border-radius:3px;overflow:hidden;margin-bottom:${showCmp&&secCmp?'3':'0'}px">
+        <div style="height:100%;width:${pctW}%;background:rgba(13,148,136,.75);border-radius:3px;display:flex;align-items:center;padding-left:4px">
+          ${pctW > 15 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,.9);font-weight:700">${pct}</span>` : ''}
+        </div>
+      </div>
+      ${showCmp && secCmp ? `<div style="height:13px;background:var(--bg2);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pctWc}%;background:rgba(234,88,12,.7);border-radius:3px;display:flex;align-items:center;padding-left:4px">
+          ${pctWc > 15 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,.9);font-weight:700">${secCmp?.val ? (secCmp.val/totalPresupuesto*100).toFixed(1)+'%' : ''}</span>` : ''}
+        </div>
+      </div>` : ''}
+    </td>`;
+
     const mainRow = `<tr class="sec-row ${rowBg}" id="sec-row-${idx}" ${hasProgs ? `onclick="toggleSecDetail(${idx})"` : ''}>
       <td class="name">${s.label}${badge}
         ${s.nota ? `<br><span style="font-size:10px;color:var(--mist);font-weight:400">${s.nota}</span>` : ''}
@@ -1923,54 +2589,84 @@ function renderSecretarias() {
       ${showCmp ? `
         <td class="mono yr-cmp">${secCmp?.val ? '$'+fmt(secCmp.val) : '—'}</td>
         <td class="cmp-vn yr-cmp">${vnStr}</td>
-        <td class="cmp-vr yr-cmp ${vr!==null ? (vr>2?'ok':vr>-10?'warn':'bad') : ''}">${vrStr}</td>
+        <td class="cmp-vr yr-cmp ${vrCls}">${vrStr}</td>
       ` : ''}
-      <td style="min-width:120px">
-        <div style="display:flex;flex-direction:column;gap:2px">
-          <div style="height:7px;background:var(--bg2);border-radius:2px;overflow:hidden">
-            <div style="height:100%;width:${(s.val||0)/maxVal*100}%;background:rgba(13,148,136,.7);border-radius:2px"></div>
-          </div>
-          ${showCmp && secCmp ? `<div style="height:7px;background:var(--bg2);border-radius:2px;overflow:hidden">
-            <div style="height:100%;width:${(secCmp.val||0)/maxVal*100}%;background:rgba(217,119,6,.6);border-radius:2px"></div>
-          </div>` : ''}
-        </div>
-      </td>
+      ${barCell}
     </tr>`;
 
-    // Fila detalle (programas expandibles)
+    // ── DETALLE PROGRAMAS (expandible) ──
     const colSpan = 4 + (showCmp ? 3 : 0);
     let detailContent = '';
     if (hasProgs) {
-      const maxProg = Math.max(...s.programas.filter(p=>p.val>0).map(p=>p.val));
+      const maxSec = Math.max(...s.programas.filter(p=>p.val>0).map(p=>p.val));
       const cmpProgs = secCmp?.programas || [];
-      const maxProgCmp = cmpProgs.length ? Math.max(...cmpProgs.filter(p=>p.val>0).map(p=>p.val)) : 0;
-      const maxAll = Math.max(maxProg, maxProgCmp);
+      const maxSeccmp = cmpProgs.length ? Math.max(...cmpProgs.filter(p=>p.val>0).map(p=>p.val)) : 0;
+      const maxAll = Math.max(maxSec, maxSeccmp, 1);
 
-      detailContent = `<div class="sec-detail-inner">
-        <div class="sec-detail-header">
-          <span>Programa</span>
-          <span>Ejecución comparativa</span>
-          <span style="text-align:right">${activeYear}</span>
-          <span style="text-align:right">${showCmp ? cmpYear : ''}</span>
+      const legend = showCmp ? `<div class="sec-detail-legend">
+        <div class="sec-detail-legend-item">
+          <div class="sec-detail-legend-dot" style="background:rgba(13,148,136,.75)"></div>
+          ${activeYear}
         </div>
-        ${s.programas.filter(p => p.val > 0).map(p => {
-          const pc = cmpProgs.find(c => c.label === p.label);
-          const pvn = (pc?.val) ? ((p.val - pc.val)/pc.val*100) : null;
-          return `<div class="sec-prog-row">
-            <span class="sec-prog-label">${p.label}</span>
-            <div class="sec-prog-bar-wrap">
-              <div class="sec-prog-bar" style="width:${p.val/maxAll*100}%;background:rgba(13,148,136,.6)"></div>
-              ${pc ? `<div class="sec-prog-bar" style="width:${pc.val/maxAll*100}%;background:rgba(217,119,6,.5)"></div>` : ''}
-            </div>
-            <span class="sec-prog-val">$${fmt(p.val)}M</span>
-            <span class="sec-prog-cmp">${pc ? '$'+fmt(pc.val)+'M' : (showCmp ? '—' : '')}${pvn !== null ? ` <span style="color:${pvn>0?'var(--green)':pvn>-15?'var(--amber)':'var(--red)'};font-size:9px">${pvn>0?'+':''}${pvn.toFixed(0)}%</span>` : ''}</span>
-          </div>`;
-        }).join('')}
+        <div class="sec-detail-legend-item">
+          <div class="sec-detail-legend-dot" style="background:rgba(234,88,12,.7)"></div>
+          ${cmpYear}
+        </div>
+        <div class="sec-detail-legend-item" style="margin-left:auto;font-weight:400;font-size:10px">
+          % = proporción del presupuesto total del año
+        </div>
+      </div>` : `<div style="font-size:10px;color:var(--mist);margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--borde)">
+        Las barras representan el monto relativo dentro de la secretaría · % = % del presupuesto total municipal
       </div>`;
+
+      const progRows = s.programas.filter(p => p.val > 0).map(p => {
+        const pc = cmpProgs.find(c => c.label === p.label);
+        const pvn = pc?.val ? ((p.val - pc.val)/pc.val*100) : null;
+        const pvr = (pvn !== null && ipc) ? ((1+pvn/100)/(1+ipc)-1)*100 : null;
+        const pctTot  = (p.val / totalPresupuesto * 100).toFixed(2);
+        const pctTotC = pc?.val ? (pc.val / totalPresupuesto * 100).toFixed(2) : null;
+        const barWa   = (p.val / maxAll * 100).toFixed(1);
+        const barWb   = pc ? (pc.val / maxAll * 100).toFixed(1) : 0;
+        const varBadge = pvn !== null
+          ? `<span class="sec-prog-vn ${pvr!==null?(pvr>2?'ok':pvr>-10?'warn':'bad'):(pvn>2?'ok':pvn>-10?'warn':'bad')}">${pvn>0?'+':''}${pvn.toFixed(0)}% nom${pvr!==null?' · '+(pvr>0?'+':'')+pvr.toFixed(0)+'% real':''}</span>`
+          : '';
+
+        return `<div class="sec-prog-item">
+          <div class="sec-prog-header">
+            <span class="sec-prog-label">${p.label}</span>
+            <div class="sec-prog-numbers">
+              <span class="sec-prog-num">$${fmt(p.val)}M</span>
+              ${pc ? `<span class="sec-prog-num cmp">$${fmt(pc.val)}M</span>` : ''}
+              <span class="sec-prog-num pct-total">${pctTot}%</span>
+              ${varBadge}
+            </div>
+          </div>
+          <div class="sec-prog-bars">
+            <div class="sec-prog-bar-row">
+              ${showCmp ? `<span class="sec-prog-bar-label" style="color:rgba(13,148,136,.8)">${activeYear}</span>` : ''}
+              <div class="sec-prog-bar-track">
+                <div class="sec-prog-bar-fill" style="width:${barWa}%;background:rgba(13,148,136,.75)">
+                  ${parseFloat(barWa) > 20 ? `<span>$${fmt(p.val)}M</span>` : ''}
+                </div>
+              </div>
+            </div>
+            ${pc ? `<div class="sec-prog-bar-row">
+              <span class="sec-prog-bar-label" style="color:rgba(234,88,12,.85)">${cmpYear}</span>
+              <div class="sec-prog-bar-track">
+                <div class="sec-prog-bar-fill" style="width:${barWb}%;background:rgba(234,88,12,.7)">
+                  ${parseFloat(barWb) > 20 ? `<span>$${fmt(pc.val)}M</span>` : ''}
+                </div>
+              </div>
+            </div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+
+      detailContent = `<div class="sec-detail-inner">${legend}${progRows}</div>`;
     }
 
     const detailRow = `<tr class="sec-detail-row" id="sec-detail-${idx}">
-      <td colspan="${colSpan}">${detailContent || '<div style="padding:.5rem 1rem;font-size:11px;color:var(--mist)">Sin desglose disponible.</div>'}</td>
+      <td colspan="${colSpan}">${detailContent || '<div style="padding:.75rem 1.25rem;font-size:12px;color:var(--mist)">Sin desglose disponible.</div>'}</td>
     </tr>`;
 
     return mainRow + detailRow;
@@ -1978,31 +2674,42 @@ function renderSecretarias() {
 
   document.getElementById('tbody-sec').innerHTML = rows;
 
-  // Panel lateral — barras con comparación
-  const legend = showCmp ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px;color:var(--ink3)">
-    <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(13,148,136,.7);margin-right:4px"></span>${activeYear}</span>
-    <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(217,119,6,.6);margin-right:4px"></span>${cmpYear}</span>
-  </div>` : '';
-
+  // ── PANEL LATERAL ──
   document.getElementById('sec-bars-title').textContent = `Distribución · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
   const topSec = [...secActivo].filter(s=>s.val>0).sort((a,b)=>b.val-a.val).slice(0,12);
-  const maxB = Math.max(...topSec.map(s=>s.val||0), ...(showCmp ? topSec.map(s => dc.secretarias.find(c=>c.label===s.label)?.val||0) : [0]));
+  const maxB = Math.max(...topSec.map(s=>s.val||0), ...(showCmp ? topSec.map(s => dc?.secretarias.find(c=>c.label===s.label)?.val||0) : [0]));
 
-  document.getElementById('bars-sec').innerHTML = legend + topSec.map(s => {
-    const sc = showCmp ? dc.secretarias.find(c=>c.label===s.label) : null;
-    return `<div style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
-        <span style="font-weight:500;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.label}</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--navy)">$${fmt(s.val)}M</span>
+  const legend2 = showCmp ? `<div style="display:flex;gap:1.25rem;margin-bottom:.875rem;font-size:11px">
+    <span style="display:flex;align-items:center;gap:5px">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(13,148,136,.75)"></span>
+      <strong>${activeYear}</strong>
+    </span>
+    <span style="display:flex;align-items:center;gap:5px">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(234,88,12,.7)"></span>
+      <strong>${cmpYear}</strong>
+    </span>
+  </div>` : '';
+
+  document.getElementById('bars-sec').innerHTML = legend2 + topSec.map(s => {
+    const sc = showCmp ? dc?.secretarias.find(c=>c.label===s.label) : null;
+    const wa = (s.val||0)/maxB*100;
+    const wb = sc ? (sc.val||0)/maxB*100 : 0;
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;gap:.5rem">
+        <span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px">${s.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(13,148,136,.9);white-space:nowrap">$${fmt(s.val)}M</span>
       </div>
-      <div style="background:var(--bg2);border-radius:2px;height:10px;overflow:hidden;position:relative;margin-bottom:2px">
-        ${sc ? `<div style="position:absolute;top:0;left:0;width:${(sc.val||0)/maxB*100}%;height:100%;background:rgba(217,119,6,.5);border-radius:2px"></div>` : ''}
-        <div style="position:absolute;top:0;left:0;width:${(s.val||0)/maxB*100}%;height:100%;background:rgba(13,148,136,.7);border-radius:2px"></div>
+      <div style="height:14px;background:var(--bg2);border-radius:3px;overflow:hidden;margin-bottom:${sc?'3':'0'}px">
+        <div style="height:100%;width:${wa}%;background:rgba(13,148,136,.75);border-radius:3px"></div>
       </div>
-      ${sc ? `<div style="font-size:9px;color:var(--mist);text-align:right;font-family:'JetBrains Mono',monospace">$${fmt(sc.val)}M</div>` : ''}
+      ${sc ? `<div style="height:14px;background:var(--bg2);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${wb}%;background:rgba(234,88,12,.7);border-radius:3px"></div>
+      </div>
+      <div style="font-size:9px;color:rgba(234,88,12,.8);text-align:right;font-family:'JetBrains Mono',monospace;margin-top:2px">$${fmt(sc.val)}M</div>` : ''}
     </div>`;
   }).join('');
 }
+
 
 /* ╔══════════════════════════════════════════════════════╗
    ║  RENDER — PERSONAL (con comparativa)                ║
@@ -2387,6 +3094,7 @@ function setView(id, btn) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   renderCurrentView();
+  if (document.getElementById("v-graficos") && activeView === "graficos") renderTortas();
 }
 
 function setYear(yr, btn) {
@@ -2430,13 +3138,143 @@ function renderCurrentView() {
     case 'gastos':      renderGastos(); break;
     case 'secretarias': renderSecretarias(); break;
     case 'personal':    renderPersonal(); break;
+    case 'graficos':    renderTortas(); break;
     case 'metodologia': renderMetodologia(); break;
+    case 'documentos':  break;
+  }
+}
+
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  GRÁFICOS DE TORTA                                   ║
+   ╚══════════════════════════════════════════════════════╝ */
+
+const COLORS_PIE = [
+  '#0D9488','#DC2626','#2563EB','#EA580C','#D97706',
+  '#6366F1','#059669','#DB2777','#7C3AED','#0891B2',
+  '#65A30D','#9333EA','#C2410C','#1D4ED8','#047857',
+];
+
+function drawPie(canvasId, items, size = 140) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  ctx.scale(dpr, dpr);
+
+  const cx = size / 2, cy = size / 2, r = size * 0.44, inner = r * 0.52;
+  const total = items.reduce((s,i) => s + i.val, 0);
+  let angle = -Math.PI / 2;
+
+  items.forEach((item, i) => {
+    const slice = (item.val / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, angle, angle + slice);
+    ctx.closePath();
+    ctx.fillStyle = COLORS_PIE[i % COLORS_PIE.length];
+    ctx.fill();
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--card') || '#1a2236';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    angle += slice;
+  });
+
+  // Donut hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, inner, 0, Math.PI * 2);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--card') || '#1a2236';
+  ctx.fill();
+
+  // Total en el centro
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ink') || '#e2e8f0';
+  ctx.font = `bold ${size * 0.09}px 'JetBrains Mono', monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const label = total >= 1000 ? '$' + (total/1000).toFixed(0) + 'B' : '$' + total.toFixed(0) + 'M';
+  ctx.fillText(label, cx, cy - 5);
+  ctx.font = `${size * 0.07}px 'DM Sans', sans-serif`;
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--mist') || '#94a3b8';
+  ctx.fillText(activeYear, cx, cy + size * 0.09);
+}
+
+function buildPieLegend(legendId, items, total) {
+  const el = document.getElementById(legendId);
+  if (!el) return;
+  el.innerHTML = items.map((item, i) => `
+    <div class="pie-legend-item">
+      <div class="pie-legend-dot" style="background:${COLORS_PIE[i % COLORS_PIE.length]}"></div>
+      <span class="pie-legend-label" title="${item.label}">${item.label}</span>
+      <span class="pie-legend-val">$${fmt(item.val)}M</span>
+      <span class="pie-legend-pct">${(item.val/total*100).toFixed(1)}%</span>
+    </div>
+  `).join('');
+}
+
+function renderTortas() {
+  const d = DATA[activeYear];
+  if (!d) return;
+
+  // Actualizar títulos con el año
+  document.querySelectorAll('.sh-t #graficos-year, #graficos-year').forEach(el => el.textContent = activeYear);
+  document.getElementById('graficos-titulo') && (document.getElementById('graficos-titulo').innerHTML =
+    `Distribución del presupuesto · <strong>${activeYear}</strong>`);
+
+  // ── Torta 1: Gastos por objeto ──
+  if (d.gastos?.porObjeto) {
+    const items = d.gastos.porObjeto.filter(o => o.val > 0);
+    const total = items.reduce((s,i) => s + i.val, 0);
+    drawPie('pie-objeto', items);
+    buildPieLegend('pie-objeto-legend', items, total);
+    document.getElementById('pie-objeto-title').textContent = `Gastos por objeto · ${activeYear}`;
+  }
+
+  // ── Torta 2: Por secretaría top 8 ──
+  if (d.secretarias?.length) {
+    const all = d.secretarias.filter(s => s.val > 0).sort((a,b) => b.val - a.val);
+    const top  = all.slice(0, 8);
+    const rest = all.slice(8);
+    const items = rest.length
+      ? [...top, { label: 'Resto secretarías', val: rest.reduce((s,r) => s + r.val, 0) }]
+      : top;
+    const total = items.reduce((s,i) => s + i.val, 0);
+    drawPie('pie-secretarias', items);
+    buildPieLegend('pie-sec-legend', items, total);
+    document.getElementById('pie-sec-title').textContent = `Por secretaría (top 8) · ${activeYear}`;
+  }
+
+  // ── Torta 3: Recursos por tipo ──
+  if (d.recursos?.tipos?.length) {
+    const items = d.recursos.tipos.filter(t => t.val > 0);
+    const total = items.reduce((s,i) => s + i.val, 0);
+    drawPie('pie-recursos', items);
+    buildPieLegend('pie-rec-legend', items, total);
+    document.getElementById('pie-rec-title').textContent = `Recursos por tipo · ${activeYear}`;
+  }
+
+  // ── Torta 4: Recursos por procedencia (Municipal / Provincial / Nacional) ──
+  if (d.recursos) {
+    const r = d.recursos;
+    const items = [
+      { label: 'Origen municipal',   val: r.origenMunicipal  || 0 },
+      { label: 'Origen provincial',  val: r.origenProvincial || 0 },
+      { label: 'Origen nacional',    val: r.origenNacional   || 0 },
+    ].filter(i => i.val > 0);
+    const total = items.reduce((s,i) => s + i.val, 0);
+    drawPie('pie-origen', items);
+    buildPieLegend('pie-origen-legend', items, total);
+    document.getElementById('pie-origen-title').textContent = `Recursos por procedencia · ${activeYear}`;
   }
 }
 
 /* ═══════ INIT ═══════ */
 renderResumen();
 initCalc();
+// renderTortas se llama al entrar a la pestaña Gráficos
 
 /* ╔══════════════════════════════════════════════════════╗
    ║  EXPORTACIÓN A EXCEL                                 ║
