@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Análisis Presupuestario · Tres de Febrero</title>
-<meta name="description" content="Herramienta de análisis presupuestario del municipio de Tres de Febrero. Datos RAFAM 2024 oficiales. Bloque opositor.">
+<meta name="description" content="Análisis presupuestario del municipio de Tres de Febrero. Datos RAFAM oficiales.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
@@ -75,14 +76,7 @@ header::after {
   gap: 2rem; align-items: center;
   position: relative; z-index: 1;
 }
-.hdr-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(13,148,136,.15); border: 1px solid rgba(13,148,136,.3);
-  border-radius: 99px; padding: 4px 14px;
-  font-size: 10px; font-weight: 600; letter-spacing: .12em;
-  text-transform: uppercase; color: #99F6E4; margin-bottom: .875rem;
-}
-.hdr-pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #5EEAD4; flex-shrink: 0 }
+/* hdr-pill removed */
 h1 {
   font-family: 'Sora', sans-serif;
   font-size: clamp(1.6rem, 3vw, 2.6rem);
@@ -346,6 +340,116 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 }
 .th-tip:hover .tip { display: block }
 
+
+
+/* ── CALCULADORA NUEVA ── */
+.calc-card {
+  background: var(--card); border-radius: var(--r3);
+  border: 1px solid var(--borde); box-shadow: var(--sh);
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  gap: 0; margin-bottom: 1.25rem; overflow: hidden;
+}
+.calc-side {
+  padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1rem;
+}
+.calc-side:first-child { border-right: 1px solid var(--borde) }
+.calc-side:last-child  { border-left: 1px solid var(--borde) }
+.calc-side-label {
+  font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--teal);
+  padding-bottom: .75rem; border-bottom: 1px solid var(--borde);
+}
+.calc-arrow {
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem; background: var(--card2);
+}
+.calc-inf-row {
+  grid-column: 1 / -1; border-top: 1px solid var(--borde);
+  padding: 1.25rem 2rem; background: var(--card2);
+}
+.calc-field-group { display: flex; flex-direction: column; gap: .4rem }
+.calc-label {
+  font-size: 10px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--mist);
+}
+.calc-select {
+  width: 100%; padding: 8px 12px; border: 1.5px solid var(--borde);
+  border-radius: var(--r); font-family: 'DM Sans', sans-serif; font-size: 12px;
+  color: var(--ink); background: var(--card2); outline: none;
+  transition: border-color .15s; cursor: pointer;
+}
+.calc-select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,.1) }
+.calc-input {
+  width: 100%; padding: 8px 12px; border: 1.5px solid var(--borde);
+  border-radius: var(--r); font-family: 'JetBrains Mono', monospace; font-size: 14px;
+  font-weight: 600; color: var(--ink); background: var(--card); outline: none;
+  transition: border-color .15s;
+}
+.calc-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,.1) }
+.calc-hint {
+  font-size: 10px; color: var(--teal); font-style: italic; min-height: 14px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.inf-pill {
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600;
+  padding: 4px 12px; border-radius: 99px;
+  border: 1.5px solid var(--borde); background: transparent; color: var(--slate);
+  cursor: pointer; transition: all .15s;
+}
+.inf-pill:hover { border-color: var(--teal); color: var(--teal) }
+.inf-pill.on { background: var(--navy); color: #fff; border-color: var(--navy) }
+
+/* RESULTADO */
+.calc-result-card {
+  background: var(--navy); border-radius: var(--r3);
+  padding: 1.75rem 2rem; margin-bottom: 1.25rem;
+  animation: fadeIn .25s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-6px) } to { opacity:1; transform:none } }
+.crc-inner {
+  display: flex; align-items: center; gap: 1rem;
+  flex-wrap: wrap; margin-bottom: 1.25rem;
+}
+.crc-block { flex: 1; min-width: 110px; text-align: center }
+.crc-sep { color: rgba(255,255,255,.2); font-size: 1.5rem; flex-shrink: 0 }
+.crc-label { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: rgba(148,163,184,.6); margin-bottom: .3rem }
+.crc-val { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: #fff; line-height: 1 }
+.crc-val.crc-highlight { font-size: 1.8rem }
+.crc-val.cr-ok   { color: #34D399 }
+.crc-val.cr-warn { color: #FCD34D }
+.crc-val.cr-bad  { color: #F87171 }
+.crc-sub { font-size: 10px; color: rgba(148,163,184,.5); margin-top: .3rem }
+.crc-verdict {
+  border-radius: var(--r2); padding: .875rem 1.25rem;
+  font-size: 13px; font-weight: 500; line-height: 1.6;
+  border-left: 3px solid;
+}
+.crc-verdict.ok   { background: rgba(52,211,153,.12); border-color: #34D399; color: #6EE7B7 }
+.crc-verdict.warn { background: rgba(252,211,77,.1);  border-color: #FCD34D; color: #FCD34D }
+.crc-verdict.bad  { background: rgba(248,113,113,.12);border-color: #F87171; color: #FCA5A5 }
+
+@media (max-width: 768px) {
+  .calc-card { grid-template-columns: 1fr }
+  .calc-side:first-child { border-right: none; border-bottom: 1px solid var(--borde) }
+  .calc-side:last-child  { border-left: none; border-top: 1px solid var(--borde) }
+  .calc-inf-row { grid-column: 1 }
+  .crc-inner { flex-direction: column; align-items: stretch }
+  .crc-sep { text-align: center }
+  .calc-arrow { display: none }
+}
+
+/* ── EXPORT BUTTON ── */
+.export-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600;
+  padding: 6px 16px; border-radius: 99px;
+  border: 1.5px solid var(--green); color: var(--green);
+  background: transparent; cursor: pointer;
+  transition: all .15s; letter-spacing: .02em;
+}
+.export-btn:hover { background: var(--green); color: #fff }
+.export-btn svg { width: 13px; height: 13px; flex-shrink: 0 }
+
 /* ── FOOTER ── */
 footer {
   background: var(--navy); color: rgba(148,163,184,.5);
@@ -365,9 +469,8 @@ footer a:hover { color: rgba(94,234,212,.85) }
 <header>
   <div class="hdr-inner">
     <div>
-      <div class="hdr-pill">Herramienta analítica · Uso interno · Bloque opositor</div>
       <h1>Análisis Presupuestario<br><b>Tres de Febrero</b></h1>
-      <p class="hdr-desc">Ejercicios 2024–2027 · Datos RAFAM oficiales · Bloque de Concejales</p>
+      <p class="hdr-desc">Ejercicios 2024–2027 · Datos RAFAM oficiales</p>
     </div>
     <div class="hdr-chips" id="hdr-chips">
       <div class="hdr-chip">
@@ -441,6 +544,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
   <div id="resumen-content">
     <div class="sh">
       <span class="sh-t" id="resumen-titulo">Resumen ejecutivo · 2024</span>
+      <button class="export-btn" onclick="exportResumen()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Excel</button>
       <span class="sh-n" id="resumen-fuente">Fuente: RAFAM · Rendición de Cuentas firmada 28/02/2025</span>
     </div>
 
@@ -505,7 +609,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
         <div id="bars-tasas"></div>
       </div>
     </div>
-    <div class="sh"><span class="sh-t">Ingresos tributarios · detalle</span></div>
+    <div class="sh"><span class="sh-t">Ingresos tributarios · detalle</span><button class="export-btn" onclick="exportRecursos()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Excel</button></div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -552,7 +656,8 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <div class="po-desc">Completar el objeto <code>DATA[año].gastos</code> cuando esté disponible la rendición RAFAM.</div>
   </div>
   <div id="gas-content">
-    <div class="kpi-grid" id="kpi-gastos"></div>
+    <div style="margin-bottom:1rem"><button class="export-btn" onclick="exportGastos()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Exportar a Excel</button></div>
+  <div class="kpi-grid" id="kpi-gastos"></div>
     <div class="alert warn" id="gas-alerta"></div>
     <div class="card-grid g2">
       <div class="card v3">
@@ -573,6 +678,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
 <div class="wrap" id="v-secretarias">
   <div class="sh">
     <span class="sh-t" id="sec-titulo">Por secretaría</span>
+    <button class="export-btn" onclick="exportSecretarias()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Excel</button>
     <span class="sh-n" id="sec-nota">Año activo vs comparación seleccionada</span>
   </div>
   <div class="alert warn" id="sec-alerta" style="display:none"></div>
@@ -608,6 +714,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <span class="sh-t" id="pers-titulo">Planta de personal</span>
     <span class="sh-n">Estructura y evolución de la planta de personal municipal</span>
   </div>
+  <div style="margin-bottom:1rem"><button class="export-btn" onclick="exportPersonal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Exportar a Excel</button></div>
   <div class="kpi-grid" id="kpi-personal"></div>
   <div class="card-grid g2">
     <div class="card">
@@ -622,64 +729,183 @@ footer a:hover { color: rgba(94,234,212,.85) }
 </div>
 
 <!-- ═══════════════════════════════════════
-     CALCULADORA 2027
+     CALCULADORA
 ═══════════════════════════════════════ -->
 <div class="wrap" id="v-calc">
   <div class="sh">
-    <span class="sh-t">Calculadora presupuestaria 2027</span>
-    <span class="sh-n">Herramienta para evaluar la variación real de cualquier área o total</span>
+    <span class="sh-t">Calculadora de variación real</span>
+    <span class="sh-n">Compará cualquier concepto entre dos períodos y evaluá si hubo ajuste o expansión real</span>
   </div>
-  <div class="card-grid g2">
-    <div class="future-card">
-      <div class="card-title" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);margin-bottom:1rem">Parámetros</div>
-      <div class="input-row">
-        <div class="input-group">
-          <label>Base ($M) — elegir año</label>
-          <input type="number" id="calc-base" value="91336" placeholder="91336">
-        </div>
-        <div class="input-group">
-          <label>Propuesta 2027 ($M)</label>
-          <input type="number" id="calc-prop" placeholder="Ej: 300000">
-        </div>
-        <div class="input-group">
-          <label>Inflación acumulada base→2027 (%)</label>
-          <input type="number" id="calc-inf" value="120" placeholder="120">
-        </div>
+
+  <!-- CALCULADORA PRINCIPAL -->
+  <div class="calc-card">
+
+    <!-- LADO A -->
+    <div class="calc-side">
+      <div class="calc-side-label">Período base</div>
+      <div class="calc-field-group">
+        <label class="calc-label">Año</label>
+        <select class="calc-select" id="ca-year" onchange="calcSyncA()">
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+        </select>
       </div>
-      <button class="calc-btn" onclick="calcular()">Calcular</button>
-      <div class="calc-result" id="calc-result">
-        <div class="result-grid">
-          <div class="result-item">
-            <div class="result-label">Neutro inflacionario</div>
-            <div class="result-val" id="res-neutro">—</div>
-          </div>
-          <div class="result-item">
-            <div class="result-label">Variación real</div>
-            <div class="result-val" id="res-real">—</div>
-          </div>
-          <div class="result-item">
-            <div class="result-label">Diagnóstico</div>
-            <div style="font-size:1.1rem;margin-top:4px" id="res-diag">—</div>
-          </div>
-        </div>
+      <div class="calc-field-group">
+        <label class="calc-label">Concepto (opcional)</label>
+        <select class="calc-select" id="ca-concept" onchange="calcSyncA()">
+          <option value="">— Ingresar monto manual —</option>
+          <optgroup label="Totales"></optgroup>
+          <option value="res.ejecutado">Gasto total ejecutado</option>
+          <option value="res.ingCorrientes">Ingresos corrientes</option>
+          <option value="res.gasCorrientes">Gastos corrientes</option>
+          <option value="res.saldoCajaFin">Saldo de caja</option>
+          <option value="res.deudaFlotante">Deuda flotante</option>
+          <option value="res.gastosCapital">Gastos de capital</option>
+          <option value="res.superavitArt43">Resultado Art. 43</option>
+          <optgroup label="Gastos por objeto"></optgroup>
+          <option value="gas.0">Personal</option>
+          <option value="gas.1">Servicios no personales</option>
+          <option value="gas.2">Bienes de uso (capital)</option>
+          <option value="gas.3">Transferencias</option>
+          <option value="gas.4">Servicio de la deuda</option>
+          <option value="gas.5">Bienes de consumo</option>
+          <optgroup label="Recursos"></optgroup>
+          <option value="rec.0">Tasas municipales</option>
+          <option value="rec.1">Coparticipación + trib.</option>
+          <option value="rec.2">Transferencias prov.</option>
+          <option value="rec.3">Rentas propiedad</option>
+          <optgroup label="Personal"></optgroup>
+          <option value="pers.gastoTotal">Gasto total personal</option>
+        </select>
+      </div>
+      <div class="calc-field-group">
+        <label class="calc-label">Monto ($M)</label>
+        <input type="number" class="calc-input" id="ca-val" placeholder="0" oninput="calcRun()">
+        <div class="calc-hint" id="ca-hint"></div>
       </div>
     </div>
-    <div class="card v4">
-      <div class="card-title">Alertas presupuestarias para 2027</div>
-      <div style="font-size:12.5px;color:var(--ink2);line-height:1.9;display:flex;flex-direction:column;gap:.75rem">
-        <div style="border-left:3px solid var(--red);padding:.5rem .875rem;background:var(--red-l);border-radius:0 var(--r) var(--r) 0">
-          <strong style="color:var(--red)">Servicios no personales (49% del gasto 2024):</strong> 
-          El contrato de Higiene Urbana ($26.702 M en 2024) es el principal determinante. Un aumento del 60% supera los $43.000 M solo en ese ítem.
+
+    <!-- FLECHA CENTRAL -->
+    <div class="calc-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:28px;opacity:.3">
+        <path d="M5 12h14M13 6l6 6-6 6"/>
+      </svg>
+    </div>
+
+    <!-- LADO B -->
+    <div class="calc-side">
+      <div class="calc-side-label">Período a comparar</div>
+      <div class="calc-field-group">
+        <label class="calc-label">Año</label>
+        <select class="calc-select" id="cb-year" onchange="calcSyncB()">
+          <option value="2024">2024</option>
+          <option value="2025" selected>2025</option>
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+        </select>
+      </div>
+      <div class="calc-field-group">
+        <label class="calc-label">Concepto (opcional)</label>
+        <select class="calc-select" id="cb-concept" onchange="calcSyncB()">
+          <option value="">— Ingresar monto manual —</option>
+          <optgroup label="Totales"></optgroup>
+          <option value="res.ejecutado">Gasto total ejecutado</option>
+          <option value="res.ingCorrientes">Ingresos corrientes</option>
+          <option value="res.gasCorrientes">Gastos corrientes</option>
+          <option value="res.saldoCajaFin">Saldo de caja</option>
+          <option value="res.deudaFlotante">Deuda flotante</option>
+          <option value="res.gastosCapital">Gastos de capital</option>
+          <option value="res.superavitArt43">Resultado Art. 43</option>
+          <optgroup label="Gastos por objeto"></optgroup>
+          <option value="gas.0">Personal</option>
+          <option value="gas.1">Servicios no personales</option>
+          <option value="gas.2">Bienes de uso (capital)</option>
+          <option value="gas.3">Transferencias</option>
+          <option value="gas.4">Servicio de la deuda</option>
+          <option value="gas.5">Bienes de consumo</option>
+          <optgroup label="Recursos"></optgroup>
+          <option value="rec.0">Tasas municipales</option>
+          <option value="rec.1">Coparticipación + trib.</option>
+          <option value="rec.2">Transferencias prov.</option>
+          <option value="rec.3">Rentas propiedad</option>
+          <optgroup label="Personal"></optgroup>
+          <option value="pers.gastoTotal">Gasto total personal</option>
+        </select>
+      </div>
+      <div class="calc-field-group">
+        <label class="calc-label">Monto ($M)</label>
+        <input type="number" class="calc-input" id="cb-val" placeholder="0" oninput="calcRun()">
+        <div class="calc-hint" id="cb-hint"></div>
+      </div>
+    </div>
+
+    <!-- INFLACIÓN PUENTE -->
+    <div class="calc-inf-row">
+      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <span class="calc-label" style="width:auto">Inflación del período (%)</span>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap" id="inf-presets">
+          <button class="inf-pill on" onclick="setInf(117.8,this)">2024 · 117,8%</button>
+          <button class="inf-pill" onclick="setInf(84.5,this)">2025 · 84,5%</button>
+          <button class="inf-pill" onclick="setInf(209.1,this)">2024+2025 · 209,1%</button>
+          <button class="inf-pill" onclick="setInf(0,this)">Manual</button>
         </div>
-        <div style="border-left:3px solid var(--amber);padding:.5rem .875rem;background:var(--amber-l);border-radius:0 var(--r) var(--r) 0">
-          <strong style="color:var(--amber)">Deuda flotante:</strong> Los $5.564 M de 2024 son obligaciones a pagar en 2025. El presupuesto 2027 debe absorber la flotante acumulada.
-        </div>
-        <div style="border-left:3px solid var(--teal);padding:.5rem .875rem;background:var(--teal-l);border-radius:0 var(--r) var(--r) 0">
-          <strong style="color:var(--teal-d)">Fondos nacionales no percibidos:</strong> Al 31/12/2024 quedaron $1.332 M de fondos con crédito vigente no percibidos. Exigir ejecución o reprogramación.
-        </div>
-        <div style="border-left:3px solid var(--blue);padding:.5rem .875rem;background:var(--blue-l);border-radius:0 var(--r) var(--r) 0">
-          <strong style="color:var(--blue)">SAE + MESA Bonaerense ($7.676 M en 2024):</strong> Su evolución depende de la transferencia provincial. Monitorear acuerdo 2027 con Provincia.
-        </div>
+        <input type="number" class="calc-input" id="c-inf" value="117.8" style="width:100px" oninput="calcRun()">
+      </div>
+    </div>
+
+  </div><!-- /calc-card -->
+
+  <!-- RESULTADO -->
+  <div class="calc-result-card" id="calc-result-card" style="display:none">
+    <div class="crc-inner">
+      <div class="crc-block">
+        <div class="crc-label">Monto base</div>
+        <div class="crc-val" id="cr-base">—</div>
+        <div class="crc-sub" id="cr-base-year">—</div>
+      </div>
+      <div class="crc-sep">→</div>
+      <div class="crc-block">
+        <div class="crc-label">Monto comparado</div>
+        <div class="crc-val" id="cr-comp">—</div>
+        <div class="crc-sub" id="cr-comp-year">—</div>
+      </div>
+      <div class="crc-sep">=</div>
+      <div class="crc-block">
+        <div class="crc-label">Variación nominal</div>
+        <div class="crc-val" id="cr-vn">—</div>
+        <div class="crc-sub" id="cr-inf-ref">—</div>
+      </div>
+      <div class="crc-sep">/</div>
+      <div class="crc-block">
+        <div class="crc-label">Variación real</div>
+        <div class="crc-val crc-highlight" id="cr-vr">—</div>
+        <div class="crc-sub" id="cr-neutro">Neutro: —</div>
+      </div>
+    </div>
+    <div class="crc-verdict" id="cr-verdict"></div>
+  </div>
+
+  <!-- ALERTAS -->
+  <div class="card v4" style="margin-top:1.5rem">
+    <div class="card-title">Alertas para el análisis de 2027</div>
+    <div style="font-size:12.5px;color:var(--ink2);line-height:1.9;display:flex;flex-direction:column;gap:.75rem">
+      <div style="border-left:3px solid var(--red);padding:.5rem .875rem;background:var(--red-l);border-radius:0 var(--r) var(--r) 0">
+        <strong style="color:var(--red)">Servicios no personales (44,7% del gasto 2025):</strong>
+        Higiene Urbana pasó de $26.702 M (2024) a $49.200 M (2025) — +84% nominal, neutro real. Para 2027 con inflación del 50%, el neutro es ~$73.800 M solo en ese ítem.
+      </div>
+      <div style="border-left:3px solid var(--violet);padding:.5rem .875rem;background:var(--violet-l);border-radius:0 var(--r) var(--r) 0">
+        <strong style="color:var(--violet)">Servicio de la deuda (+234% nominal 2024→2025):</strong>
+        Pasó de $1.667 M a $5.628 M. Si se mantiene la tendencia, el servicio en 2027 puede superar los $10.000 M.
+      </div>
+      <div style="border-left:3px solid var(--amber);padding:.5rem .875rem;background:var(--amber-l);border-radius:0 var(--r) var(--r) 0">
+        <strong style="color:var(--amber)">Deuda flotante acumulada:</strong>
+        2024: $5.564 M · 2025: $8.431 M (+51%). El presupuesto 2027 debe prever absorber la flotante del ejercicio anterior.
+      </div>
+      <div style="border-left:3px solid var(--teal);padding:.5rem .875rem;background:var(--teal-l);border-radius:0 var(--r) var(--r) 0">
+        <strong style="color:var(--teal-d)">SAE + MESA Bonaerense:</strong>
+        2024: $7.676 M → 2025: $11.000 M (+43% nominal, −22% real). Monitorear acuerdo 2027 con Provincia.
       </div>
     </div>
   </div>
@@ -1484,21 +1710,140 @@ function renderMetodologia() {
 }
 
 /* ╔══════════════════════════════════════════════════════╗
-   ║  CALCULADORA                                         ║
+   ║  CALCULADORA DE VARIACIÓN REAL                       ║
    ╚══════════════════════════════════════════════════════╝ */
-function calcular() {
-  const base = parseFloat(document.getElementById('calc-base').value) || 0;
-  const prop = parseFloat(document.getElementById('calc-prop').value) || 0;
-  const inf  = parseFloat(document.getElementById('calc-inf').value) / 100 || 0;
-  if (!prop || !base) return;
-  const neutro = base * (1 + inf);
-  const vn = (prop - base) / base * 100;
-  const vr = ((1 + vn/100) / (1 + inf) - 1) * 100;
-  document.getElementById('res-neutro').textContent = '$' + neutro.toLocaleString('es-AR',{maximumFractionDigits:0}) + ' M';
-  document.getElementById('res-real').textContent   = (vr>0?'+':'') + vr.toFixed(1) + '%';
-  document.getElementById('res-real').className     = 'result-val ' + (vr > 2 ? 'ok' : vr < -5 ? 'bad' : 'warn');
-  document.getElementById('res-diag').textContent   = vr > 5 ? '🟢 Expansión real' : vr > -3 ? '🟡 Neutro / plano' : vr > -10 ? '🟠 Ajuste moderado' : '🔴 Recorte real';
-  document.getElementById('calc-result').classList.add('show');
+
+// Extrae un valor del DATA según clave tipo "res.ejecutado", "gas.0", etc.
+function getValFromKey(year, key) {
+  if (!key) return null;
+  const d = DATA[parseInt(year)];
+  if (!d) return null;
+  const [tipo, campo] = key.split('.');
+  if (tipo === 'res')  return d.resumen?.[campo] ?? null;
+  if (tipo === 'gas')  return d.gastos?.porObjeto?.[parseInt(campo)]?.val ?? null;
+  if (tipo === 'rec')  return d.recursos?.tipos?.[parseInt(campo)]?.val ?? null;
+  if (tipo === 'pers') return d.personal?.[campo] ?? null;
+  return null;
+}
+
+function getConceptLabel(key) {
+  const map = {
+    'res.ejecutado': 'Gasto total ejecutado',
+    'res.ingCorrientes': 'Ingresos corrientes',
+    'res.gasCorrientes': 'Gastos corrientes',
+    'res.saldoCajaFin': 'Saldo de caja',
+    'res.deudaFlotante': 'Deuda flotante',
+    'res.gastosCapital': 'Gastos de capital',
+    'res.superavitArt43': 'Resultado Art. 43',
+    'gas.0': 'Personal', 'gas.1': 'Servicios no personales',
+    'gas.2': 'Bienes de uso', 'gas.3': 'Transferencias',
+    'gas.4': 'Servicio de la deuda', 'gas.5': 'Bienes de consumo',
+    'rec.0': 'Tasas municipales', 'rec.1': 'Coparticipación + trib.',
+    'rec.2': 'Transferencias prov.', 'rec.3': 'Rentas propiedad',
+    'pers.gastoTotal': 'Gasto total personal',
+  };
+  return map[key] || '';
+}
+
+function setInf(val, btn) {
+  document.getElementById('c-inf').value = val;
+  document.querySelectorAll('.inf-pill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  calcRun();
+}
+
+function calcSyncA() {
+  const yr  = document.getElementById('ca-year').value;
+  const key = document.getElementById('ca-concept').value;
+  if (key) {
+    const val = getValFromKey(yr, key);
+    if (val !== null) {
+      document.getElementById('ca-val').value = val;
+      document.getElementById('ca-hint').textContent = '← cargado automáticamente';
+    } else {
+      document.getElementById('ca-hint').textContent = 'Sin dato para este año';
+    }
+  } else {
+    document.getElementById('ca-hint').textContent = '';
+  }
+  calcRun();
+}
+
+function calcSyncB() {
+  const yr  = document.getElementById('cb-year').value;
+  const key = document.getElementById('cb-concept').value;
+  // sync concept selector to same key as A if it was just a year change
+  const keyA = document.getElementById('ca-concept').value;
+  if (!key && keyA) document.getElementById('cb-concept').value = keyA;
+  const resolvedKey = document.getElementById('cb-concept').value;
+  if (resolvedKey) {
+    const val = getValFromKey(yr, resolvedKey);
+    if (val !== null) {
+      document.getElementById('cb-val').value = val;
+      document.getElementById('cb-hint').textContent = '← cargado automáticamente';
+    } else {
+      document.getElementById('cb-hint').textContent = 'Sin dato para este año';
+    }
+  } else {
+    document.getElementById('cb-hint').textContent = '';
+  }
+  calcRun();
+}
+
+function calcRun() {
+  const va  = parseFloat(document.getElementById('ca-val').value);
+  const vb  = parseFloat(document.getElementById('cb-val').value);
+  const inf = parseFloat(document.getElementById('c-inf').value) / 100;
+  const resCard = document.getElementById('calc-result-card');
+
+  if (!va || !vb || isNaN(inf)) { resCard.style.display = 'none'; return; }
+
+  const yrA = document.getElementById('ca-year').value;
+  const yrB = document.getElementById('cb-year').value;
+  const keyA = document.getElementById('ca-concept').value;
+  const keyB = document.getElementById('cb-concept').value;
+  const lblA = keyA ? getConceptLabel(keyA) : 'Monto ingresado';
+  const lblB = keyB ? getConceptLabel(keyB) : 'Monto ingresado';
+
+  const vn     = (vb - va) / va * 100;
+  const vr     = ((1 + vn/100) / (1 + inf) - 1) * 100;
+  const neutro = va * (1 + inf);
+
+  // Render
+  resCard.style.display = 'block';
+  document.getElementById('cr-base').textContent      = '$' + va.toLocaleString('es-AR', {maximumFractionDigits:1}) + ' M';
+  document.getElementById('cr-base-year').textContent  = yrA + (lblA ? ' · ' + lblA : '');
+  document.getElementById('cr-comp').textContent       = '$' + vb.toLocaleString('es-AR', {maximumFractionDigits:1}) + ' M';
+  document.getElementById('cr-comp-year').textContent  = yrB + (lblB ? ' · ' + lblB : '');
+  document.getElementById('cr-vn').textContent         = (vn>0?'+':'') + vn.toFixed(1) + '%';
+  document.getElementById('cr-inf-ref').textContent    = 'Inflación del período: ' + (inf*100).toFixed(1) + '%';
+  document.getElementById('cr-neutro').textContent     = 'Neutro: $' + neutro.toLocaleString('es-AR',{maximumFractionDigits:0}) + ' M';
+
+  const vrEl = document.getElementById('cr-vr');
+  vrEl.textContent = (vr>0?'+':'') + vr.toFixed(1) + '%';
+  vrEl.className = 'crc-val crc-highlight ' + (vr > 2 ? 'cr-ok' : vr < -5 ? 'cr-bad' : 'cr-warn');
+
+  // Veredicto
+  const verdictEl = document.getElementById('cr-verdict');
+  let vClass, vText;
+  if (vr > 10) {
+    vClass = 'ok';
+    vText = `<strong>Expansión real significativa (+${vr.toFixed(1)}%).</strong> El monto creció por encima de la inflación del período. En términos de poder adquisitivo, representa un aumento real de recursos.`;
+  } else if (vr > 2) {
+    vClass = 'ok';
+    vText = `<strong>Leve expansión real (+${vr.toFixed(1)}%).</strong> El monto supera apenas la inflación del período. Crecimiento real moderado.`;
+  } else if (vr > -2) {
+    vClass = 'warn';
+    vText = `<strong>Variación real neutra (${vr.toFixed(1)}%).</strong> El monto acompañó aproximadamente la inflación del período. En términos reales, el gasto o recurso se mantuvo estable.`;
+  } else if (vr > -10) {
+    vClass = 'warn';
+    vText = `<strong>Ajuste real moderado (${vr.toFixed(1)}%).</strong> El monto creció nominalmente pero no alcanzó a cubrir la inflación. Representa una reducción real del ${Math.abs(vr).toFixed(1)}%.`;
+  } else {
+    vClass = 'bad';
+    vText = `<strong>Recorte real significativo (${vr.toFixed(1)}%).</strong> El monto quedó muy por debajo de la inflación del período. La pérdida de poder adquisitivo es de ${Math.abs(vr).toFixed(1)} puntos porcentuales.`;
+  }
+  verdictEl.className = 'crc-verdict ' + vClass;
+  verdictEl.innerHTML = vText;
 }
 
 /* ╔══════════════════════════════════════════════════════╗
@@ -1560,6 +1905,201 @@ function renderCurrentView() {
 
 /* ═══════ INIT ═══════ */
 renderResumen();
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  EXPORTACIÓN A EXCEL                                 ║
+   ╚══════════════════════════════════════════════════════╝ */
+
+function xlsxDownload(wb, filename) {
+  XLSX.writeFile(wb, filename);
+}
+
+function sheetFromRows(headers, rows) {
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  // Column widths
+  ws['!cols'] = headers.map(() => ({ wch: 22 }));
+  ws['!cols'][0] = { wch: 38 };
+  return ws;
+}
+
+// ── Resumen ──
+function exportResumen() {
+  const d = DATA[activeYear];
+  if (!d.resumen) { alert('Sin datos para este año.'); return; }
+  const r = d.resumen;
+  const wb = XLSX.utils.book_new();
+
+  const rows = [
+    ['Ejecutado (devengado)', r.ejecutado],
+    ['Percibido total', r.percibido],
+    ['Presupuesto aprobado original', r.presupAprobado],
+    ['Superávit Art. 43', r.superavitArt43],
+    ['Resultado Art. 44', r.resultadoArt44],
+    ['Saldo de caja inicio', r.saldoCajaIni],
+    ['Saldo de caja cierre', r.saldoCajaFin],
+    ['Deuda flotante', r.deudaFlotante],
+    ['Ingresos corrientes percibidos', r.ingCorrientes],
+    ['Gastos corrientes', r.gasCorrientes],
+    ['Ahorro corriente', r.ahorroCorriente],
+    ['Recursos de capital', r.recursosCapital],
+    ['Gastos de capital', r.gastosCapital],
+  ];
+
+  const ws = sheetFromRows(['Concepto', `${activeYear} ($M)`], rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Resumen');
+  xlsxDownload(wb, `3F_Resumen_${activeYear}.xlsx`);
+}
+
+// ── Recursos ──
+function exportRecursos() {
+  const d = DATA[activeYear];
+  if (!d.recursos) { alert('Sin datos para este año.'); return; }
+  const r = d.recursos;
+  const wb = XLSX.utils.book_new();
+
+  // Hoja 1: totales
+  const wsTot = sheetFromRows(
+    ['Concepto', `${activeYear} ($M)`],
+    [
+      ['Total devengado', r.totalDevengado],
+      ['Total percibido', r.totalPercibido],
+      ['Origen municipal (percibido)', r.origenMunicipal],
+      ['Origen provincial (percibido)', r.origenProvincial],
+      ['Origen nacional (percibido)', r.origenNacional],
+    ]
+  );
+  XLSX.utils.book_append_sheet(wb, wsTot, 'Totales');
+
+  // Hoja 2: por tipo
+  const wsTipo = sheetFromRows(
+    ['Tipo de recurso', `${activeYear} ($M)`],
+    r.tipos.map(t => [t.label, t.val])
+  );
+  XLSX.utils.book_append_sheet(wb, wsTipo, 'Por tipo');
+
+  // Hoja 3: tributarios detalle
+  const wsTrib = sheetFromRows(
+    ['Rubro', `${activeYear} ($M)`, '% del total', 'Origen'],
+    r.tributarios.map(t => [t.label, t.val, ((t.val / r.totalPercibido)*100).toFixed(1)+'%', t.orig])
+  );
+  XLSX.utils.book_append_sheet(wb, wsTrib, 'Tributarios');
+
+  // Hoja 4: fondos afectados
+  const wsFondos = sheetFromRows(
+    ['Fondo', 'Saldo inicial ($M)', 'Ingresos ($M)', 'Egresos ($M)', 'Saldo cierre ($M)'],
+    r.fondos.map(f => [f.label, f.si, f.ing, f.eg, f.sc])
+  );
+  XLSX.utils.book_append_sheet(wb, wsFondos, 'Fondos afectados');
+
+  xlsxDownload(wb, `3F_Recursos_${activeYear}.xlsx`);
+}
+
+// ── Gastos ──
+function exportGastos() {
+  const d = DATA[activeYear];
+  if (!d.gastos) { alert('Sin datos para este año.'); return; }
+  const g = d.gastos;
+  const wb = XLSX.utils.book_new();
+
+  // Hoja 1: por objeto
+  const wsObj = sheetFromRows(
+    ['Objeto del gasto', `${activeYear} devengado ($M)`, '% del total', 'Impago ($M)'],
+    g.porObjeto.map(o => [o.label, o.val, o.pct+'%', o.impago])
+  );
+  XLSX.utils.book_append_sheet(wb, wsObj, 'Por objeto');
+
+  // Hoja 2: programas principales
+  const wsProg = sheetFromRows(
+    ['Programa', `${activeYear} ($M)`],
+    g.programas.map(p => [p.label, p.val])
+  );
+  XLSX.utils.book_append_sheet(wb, wsProg, 'Programas principales');
+
+  // Hoja 3: resumen financiero
+  const wsRes = sheetFromRows(
+    ['Concepto', `${activeYear} ($M)`],
+    [
+      ['Total devengado', g.total],
+      ['Total pagado', g.pagado],
+      ['Deuda flotante', g.deudaFlotante],
+      ['% deuda / devengado', ((g.deudaFlotante/g.total)*100).toFixed(1)+'%'],
+    ]
+  );
+  XLSX.utils.book_append_sheet(wb, wsRes, 'Resumen financiero');
+
+  xlsxDownload(wb, `3F_Gastos_${activeYear}.xlsx`);
+}
+
+// ── Secretarías ──
+function exportSecretarias() {
+  const d  = DATA[activeYear];
+  const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
+  const wb = XLSX.utils.book_new();
+  const ipc = d.ipc || 0;
+  const totalActivo = d.secretarias.reduce((s,i) => s + (i.val||0), 0);
+
+  const headers = ['Secretaría / Área', `${activeYear} ($M)`, '% del total'];
+  if (dc) headers.push(`${cmpYear} ($M)`, 'Var. nominal (%)', 'Var. real (%)');
+  headers.push('Notas');
+
+  const rows = d.secretarias.map(s => {
+    const secCmp = dc ? dc.secretarias.find(c => c.label === s.label) : null;
+    const vn = (s.val && secCmp?.val) ? ((s.val - secCmp.val) / secCmp.val * 100).toFixed(1) : '';
+    const vr = (vn !== '' && ipc) ? (((1+parseFloat(vn)/100)/(1+ipc)-1)*100).toFixed(1) : '';
+    const row = [
+      s.label,
+      s.val || '',
+      s.val ? ((s.val/totalActivo)*100).toFixed(1)+'%' : '',
+    ];
+    if (dc) row.push(secCmp?.val || '', vn ? vn+'%' : '', vr ? vr+'%' : '');
+    row.push(s.nota || '');
+    return row;
+  });
+
+  const ws = sheetFromRows(headers, rows);
+  XLSX.utils.book_append_sheet(wb, ws, `Secretarías ${activeYear}`);
+  xlsxDownload(wb, `3F_Secretarias_${activeYear}.xlsx`);
+}
+
+// ── Personal ──
+function exportPersonal() {
+  const p = DATA[activeYear].personal;
+  const wb = XLSX.utils.book_new();
+
+  // Hoja 1: resumen planta
+  const wsRes = sheetFromRows(
+    ['Concepto', `${activeYear}`],
+    [
+      ['Total empleados', p.total || ''],
+      ['Planta permanente', p.permanente || ''],
+      ['Planta mensualizada', p.mensualizado || ''],
+      ['Gasto total personal ($M)', p.gastoTotal || ''],
+      ['Paritaria acumulada (%)', p.paritaria || ''],
+    ]
+  );
+  XLSX.utils.book_append_sheet(wb, wsRes, 'Resumen');
+
+  // Hoja 2: por secretaría
+  if (p.porSecretaria && p.porSecretaria.length) {
+    const wsSec = sheetFromRows(
+      ['Secretaría', 'Empleados'],
+      p.porSecretaria.map(s => [s.label, s.val])
+    );
+    XLSX.utils.book_append_sheet(wb, wsSec, 'Por secretaría');
+  }
+
+  // Hoja 3: componentes del gasto
+  if (p.componentes && p.componentes.length) {
+    const wsComp = sheetFromRows(
+      ['Componente', `${activeYear} ($M)`],
+      p.componentes.map(c => [c.label, c.val])
+    );
+    XLSX.utils.book_append_sheet(wb, wsComp, 'Componentes gasto');
+  }
+
+  xlsxDownload(wb, `3F_Personal_${activeYear}.xlsx`);
+}
+
 </script>
 </body>
 </html>
