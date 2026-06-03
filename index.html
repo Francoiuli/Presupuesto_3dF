@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis Presupuestario · Tres de Febrero</title>
+<meta name="description" content="Herramienta de análisis presupuestario del municipio de Tres de Febrero. Datos RAFAM 2024 oficiales. Bloque opositor.">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   ANÁLISIS PRESUPUESTARIO · TRES DE FEBRERO
+   v3.0 — Multi-año · GitHub-ready
+   Estética: Observatorio Conurbano
+   Paleta: Navy · Teal · Slate
+═══════════════════════════════════════════ */
+:root {
+  --navy:    #0F172A;
+  --navy2:   #1E293B;
+  --navy3:   #334155;
+  --slate:   #64748B;
+  --mist:    #94A3B8;
+  --bg:      #F1F5F9;
+  --bg2:     #E2E8F0;
+  --card:    #FFFFFF;
+  --card2:   #F8FAFC;
+  --ink:     #0F172A;
+  --ink2:    #475569;
+  --ink3:    #94A3B8;
+  --teal:    #0D9488;
+  --teal-l:  #CCFBF1;
+  --teal-d:  #065F56;
+  --amber:   #D97706;
+  --amber-l: #FEF3C7;
+  --red:     #DC2626;
+  --red-l:   #FEE2E2;
+  --green:   #059669;
+  --green-l: #D1FAE5;
+  --blue:    #2563EB;
+  --blue-l:  #DBEAFE;
+  --orange:  #EA580C;
+  --orange-l:#FFEDD5;
+  --violet:  #7C3AED;
+  --violet-l:#EDE9FE;
+  --borde:   #E2E8F0;
+  --sh:  0 1px 3px rgba(15,23,42,.06), 0 4px 16px rgba(15,23,42,.06);
+  --sh2: 0 4px 24px rgba(15,23,42,.12);
+  --r: 8px; --r2: 12px; --r3: 16px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased }
+body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; line-height: 1.6 }
+::-webkit-scrollbar { width: 4px; height: 4px }
+::-webkit-scrollbar-track { background: var(--bg2) }
+::-webkit-scrollbar-thumb { background: var(--navy3); border-radius: 99px }
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #0F2535 100%);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  position: relative; overflow: hidden;
+}
+header::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 20% 50%, rgba(13,148,136,.12), transparent),
+              radial-gradient(ellipse 60% 80% at 80% 20%, rgba(37,99,235,.08), transparent);
+}
+header::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(13,148,136,.4), transparent);
+}
+.hdr-inner {
+  max-width: 1400px; margin: 0 auto;
+  padding: 2.25rem 2.5rem 2rem;
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 2rem; align-items: center;
+  position: relative; z-index: 1;
+}
+.hdr-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(13,148,136,.15); border: 1px solid rgba(13,148,136,.3);
+  border-radius: 99px; padding: 4px 14px;
+  font-size: 10px; font-weight: 600; letter-spacing: .12em;
+  text-transform: uppercase; color: #99F6E4; margin-bottom: .875rem;
+}
+.hdr-pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #5EEAD4; flex-shrink: 0 }
+h1 {
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -.04em;
+}
+h1 b { background: linear-gradient(135deg,#5EEAD4,#0D9488); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text }
+.hdr-desc { font-size: 13px; color: rgba(148,163,184,.8); margin-top: .5rem }
+.hdr-chips { display: flex; flex-direction: column; gap: 8px; align-items: flex-end }
+.hdr-chip {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--r2); padding: .6rem 1.2rem;
+  text-align: right; min-width: 150px; backdrop-filter: blur(12px);
+}
+.hdr-chip-v { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 600; color: #fff; line-height: 1 }
+.hdr-chip-l { font-size: 9px; color: rgba(148,163,184,.55); text-transform: uppercase; letter-spacing: .1em; margin-top: 3px }
+
+/* ── NAV PRINCIPAL ── */
+nav.main-nav {
+  background: rgba(15,23,42,.97);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  position: sticky; top: 0; z-index: 300;
+  backdrop-filter: blur(20px);
+}
+.nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 2.5rem; display: flex; overflow-x: auto; scrollbar-width: none }
+.nav-inner::-webkit-scrollbar { display: none }
+.nav-btn {
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: .875rem 1.2rem; color: rgba(148,163,184,.6);
+  border: none; background: none; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  white-space: nowrap; transition: color .15s, border-color .15s;
+}
+.nav-btn:hover { color: rgba(226,232,240,.9) }
+.nav-btn.on { color: #fff; border-bottom-color: var(--teal) }
+
+/* ── BARRA AÑO ── */
+.year-bar {
+  background: var(--card); border-bottom: 1px solid var(--borde);
+  position: sticky; top: 43px; z-index: 200;
+  box-shadow: 0 1px 0 var(--borde);
+}
+.year-bar-inner {
+  max-width: 1400px; margin: 0 auto; padding: .6rem 2.5rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.year-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mist) }
+.year-btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+  padding: 4px 14px; border-radius: 99px;
+  border: 1.5px solid var(--borde); background: transparent; color: var(--slate);
+  cursor: pointer; transition: all .15s; position: relative;
+}
+.year-btn:hover { border-color: var(--teal); color: var(--teal) }
+.year-btn.on { background: var(--navy); color: #fff; border-color: var(--navy) }
+.year-btn.pending { border-style: dashed; color: var(--mist) }
+.year-btn.pending::after { content: 'próximo'; position: absolute; top: -8px; right: -4px; background: var(--amber); color: #fff; font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 4px; letter-spacing: .04em; font-family: 'DM Sans',sans-serif }
+.year-sep { width: 1px; height: 18px; background: var(--borde) }
+.compare-label { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--mist) }
+.compare-select {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: var(--r); border: 1.5px solid var(--borde);
+  background: var(--card); color: var(--ink); cursor: pointer; outline: none;
+  transition: border-color .15s;
+}
+.compare-select:focus { border-color: var(--teal) }
+
+/* ── WRAP ── */
+.wrap { max-width: 1400px; margin: 0 auto; padding: 2rem 2.5rem; display: none }
+.wrap.on { display: block }
+
+/* ── SECTION HEAD ── */
+.sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: .5rem }
+.sh-t {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--slate);
+  display: flex; align-items: center; gap: 8px;
+}
+.sh-t::before { content: ''; width: 3px; height: 12px; background: var(--teal); border-radius: 99px; flex-shrink: 0 }
+.sh-n { font-size: 11px; color: var(--mist) }
+
+/* ── KPI GRID ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .875rem; margin-bottom: 2rem }
+.kpi {
+  background: var(--card); border-radius: var(--r3);
+  padding: 1.4rem 1.6rem; box-shadow: var(--sh);
+  border: 1px solid var(--borde); border-left: 3px solid var(--teal);
+  transition: transform .2s, box-shadow .2s;
+}
+.kpi:hover { transform: translateY(-2px); box-shadow: var(--sh2) }
+.kpi.red   { border-left-color: var(--red) }
+.kpi.amber { border-left-color: var(--amber) }
+.kpi.green { border-left-color: var(--green) }
+.kpi.blue  { border-left-color: var(--blue) }
+.kpi.orange{ border-left-color: var(--orange) }
+.kpi.violet{ border-left-color: var(--violet) }
+.kpi-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mist); margin-bottom: .6rem }
+.kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 1.65rem; font-weight: 700; color: var(--ink); line-height: 1; letter-spacing: -.02em }
+.kpi-value.pending { color: var(--mist); font-size: 1.1rem; font-style: italic }
+.kpi-sub { font-size: 11px; color: var(--ink3); margin-top: .3rem }
+.kpi-delta {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+  padding: 2px 8px; border-radius: 4px; margin-top: .3rem;
+}
+.kpi-delta.up   { background: var(--green-l); color: var(--green) }
+.kpi-delta.down { background: var(--red-l);   color: var(--red) }
+.kpi-delta.warn { background: var(--amber-l); color: var(--amber) }
+.kpi-delta.info { background: var(--blue-l);  color: var(--blue) }
+
+/* ── CARDS ── */
+.card-grid { display: grid; gap: 1rem; margin-bottom: 2rem }
+.card-grid.g2  { grid-template-columns: 1fr 1fr }
+.card-grid.g3  { grid-template-columns: 1fr 1fr 1fr }
+.card-grid.g21 { grid-template-columns: 2fr 1fr }
+.card-grid.g12 { grid-template-columns: 1fr 2fr }
+.card {
+  background: var(--card); border-radius: var(--r3);
+  padding: 1.5rem 1.75rem; box-shadow: var(--sh);
+  border: 1px solid var(--borde); position: relative; overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--teal), #5EEAD4);
+}
+.card.v2::before { background: linear-gradient(90deg, var(--green), var(--teal)) }
+.card.v3::before { background: linear-gradient(90deg, var(--red), var(--amber)) }
+.card.v4::before { background: linear-gradient(90deg, var(--blue), var(--teal)) }
+.card.v5::before { background: linear-gradient(90deg, var(--amber), var(--orange)) }
+.card-title { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mist); margin-bottom: 1.2rem }
+
+/* ── PENDING OVERLAY ── */
+.pending-overlay {
+  background: repeating-linear-gradient(45deg, var(--bg2) 0, var(--bg2) 10px, var(--card) 10px, var(--card) 20px);
+  border: 2px dashed var(--borde); border-radius: var(--r3);
+  padding: 2rem; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 140px; margin-bottom: 2rem;
+}
+.pending-overlay .po-icon { font-size: 2rem; margin-bottom: .5rem }
+.pending-overlay .po-title { font-family: 'Sora', sans-serif; font-size: .95rem; font-weight: 700; color: var(--navy3); margin-bottom: .25rem }
+.pending-overlay .po-desc { font-size: 12px; color: var(--mist) }
+
+/* ── ALERT ── */
+.alert {
+  border-radius: var(--r2); padding: .875rem 1.25rem;
+  font-size: 12.5px; line-height: 1.65; margin-bottom: 1.5rem;
+  border-left: 3px solid;
+}
+.alert.info   { background: var(--blue-l);   border-color: var(--blue);  color: #1e40af }
+.alert.warn   { background: var(--amber-l);  border-color: var(--amber); color: #92400e }
+.alert.danger { background: var(--red-l);    border-color: var(--red);   color: #991b1b }
+.alert.ok     { background: var(--green-l);  border-color: var(--green); color: #065f46 }
+.alert.muted  { background: var(--bg2);      border-color: var(--mist);  color: var(--slate) }
+.alert strong { color: var(--ink) }
+
+/* ── TABLA ── */
+.table-wrap { overflow-x: auto; border-radius: var(--r3); box-shadow: var(--sh); border: 1px solid var(--borde); margin-bottom: 2rem }
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; background: var(--card) }
+thead th {
+  background: var(--navy); color: rgba(226,232,240,.85);
+  padding: 9px 10px; text-align: left;
+  font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+thead th:first-child { border-radius: var(--r3) 0 0 0 }
+thead th:last-child  { border-radius: 0 var(--r3) 0 0 }
+thead th.yr-col { background: rgba(13,148,136,.25); color: #99F6E4 }
+thead th.yr-cmp { background: rgba(217,119,6,.2);   color: #FDE68A }
+tbody tr { border-bottom: 1px solid var(--borde); transition: background .1s }
+tbody tr:hover { background: var(--teal-l) }
+tbody tr:nth-child(even) { background: var(--card2) }
+tbody tr:nth-child(even):hover { background: var(--teal-l) }
+tbody tr:last-child { border: none }
+td { padding: 9px 10px; vertical-align: middle; color: var(--ink) }
+td.name   { font-weight: 600; font-size: 12px; color: var(--navy) }
+td.mono   { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--ink2) }
+td.mono-hi{ font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right; color: var(--navy); font-weight: 600 }
+td.pct    { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right }
+td.na     { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--mist); font-style: italic }
+td.yr-col { background: rgba(13,148,136,.06) }
+td.yr-cmp { background: rgba(217,119,6,.06) }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9px; font-weight: 700; padding: 2px 8px;
+  border-radius: 4px; letter-spacing: .05em; text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+.badge-new   { background: var(--green-l);  color: var(--green) }
+.badge-gone  { background: var(--red-l);    color: var(--red) }
+.badge-ok    { background: var(--teal-l);   color: var(--teal-d) }
+.badge-warn  { background: var(--amber-l);  color: var(--amber) }
+.badge-muted { background: var(--bg2);      color: var(--mist) }
+.badge-pend  { background: var(--violet-l); color: var(--violet) }
+tr.new-row  td { background: rgba(5,150,105,.04) }
+tr.gone-row td { background: rgba(220,38,38,.04) }
+
+/* ── BARRAS ── */
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px }
+.bar-label { font-size: 10.5px; color: var(--ink2); width: 175px; flex-shrink: 0; text-align: right; font-weight: 500 }
+.bar-track { flex: 1; background: var(--bg2); border-radius: 3px; height: 16px; overflow: hidden }
+.bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; transition: width .6s ease }
+.bar-pct { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; color: #fff; white-space: nowrap }
+.bar-amount { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--mist); width: 90px; text-align: right; flex-shrink: 0 }
+
+/* ── CALCULADORA ── */
+.future-card { background: var(--card2); border: 1px solid var(--borde); border-radius: var(--r3); padding: 1.5rem }
+.input-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem }
+.input-group label { display: block; font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mist); margin-bottom: .4rem }
+.input-group input {
+  width: 100%; padding: 8px 12px; border: 1.5px solid var(--borde);
+  border-radius: var(--r); font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  color: var(--ink); background: var(--card); outline: none; transition: border-color .15s;
+}
+.input-group input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,.12) }
+.calc-btn {
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700;
+  padding: 10px 24px; border-radius: 99px; border: none;
+  background: var(--teal); color: #fff; cursor: pointer; transition: background .15s;
+}
+.calc-btn:hover { background: var(--teal-d) }
+.calc-result { display: none; margin-top: 1.5rem; background: var(--card); border: 1px solid var(--borde); border-radius: var(--r2); padding: 1.25rem }
+.calc-result.show { display: block }
+.result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem }
+.result-item { text-align: center }
+.result-label { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--mist) }
+.result-val { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 600; margin-top: 4px }
+.result-val.ok  { color: var(--green) }
+.result-val.warn{ color: var(--amber) }
+.result-val.bad { color: var(--red) }
+
+/* ── SURPLUS BAR ── */
+.surplus-bar { height: 8px; background: var(--bg2); border-radius: 99px; overflow: hidden; margin: .4rem 0 }
+.surplus-fill { height: 100%; border-radius: 99px; transition: width .8s ease }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr) }
+  .card-grid.g3 { grid-template-columns: 1fr 1fr }
+  .card-grid.g12, .card-grid.g21 { grid-template-columns: 1fr }
+}
+@media (max-width: 768px) {
+  .hdr-inner { grid-template-columns: 1fr; padding: 1.5rem 1rem 1.25rem }
+  .hdr-chips { display: none }
+  .wrap { padding: 1rem }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: .5rem }
+  .card-grid.g2 { grid-template-columns: 1fr }
+  .bar-label { width: 110px }
+  .input-row { grid-template-columns: 1fr }
+  .year-bar-inner { gap: .5rem }
+}
+
+/* ── TOOLTIP ── */
+.th-tip { position: relative; cursor: help }
+.th-tip .tip {
+  display: none; position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  background: var(--navy); color: #E2E8F0; font-size: 11px; font-weight: 400;
+  padding: 8px 12px; border-radius: var(--r); width: 220px; z-index: 999;
+  white-space: normal; text-transform: none; letter-spacing: 0;
+}
+.th-tip:hover .tip { display: block }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy); color: rgba(148,163,184,.5);
+  padding: 1.25rem 2.5rem; font-size: 11px; letter-spacing: .02em;
+  margin-top: 3rem; border-top: 1px solid rgba(255,255,255,.06);
+}
+footer .fi { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem }
+footer a { color: rgba(94,234,212,.5); text-decoration: none }
+footer a:hover { color: rgba(94,234,212,.85) }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     HEADER
+═══════════════════════════════════════ -->
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-pill">Herramienta analítica · Uso interno · Bloque opositor</div>
+      <h1>Análisis Presupuestario<br><b>Tres de Febrero</b></h1>
+      <p class="hdr-desc">Ejercicios 2024–2027 · Datos RAFAM oficiales · Bloque de Concejales</p>
+    </div>
+    <div class="hdr-chips" id="hdr-chips">
+      <div class="hdr-chip">
+        <div class="hdr-chip-v" id="chip-ejecutado">—</div>
+        <div class="hdr-chip-l">Ejecutado año activo</div>
+      </div>
+      <div class="hdr-chip">
+        <div class="hdr-chip-v" id="chip-resultado">—</div>
+        <div class="hdr-chip-l">Resultado Art. 44</div>
+      </div>
+      <div class="hdr-chip">
+        <div class="hdr-chip-v" id="chip-planta">—</div>
+        <div class="hdr-chip-l">Empleados municipales</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════
+     NAV PRINCIPAL
+═══════════════════════════════════════ -->
+<nav class="main-nav">
+  <div class="nav-inner">
+    <button class="nav-btn on" onclick="setView('resumen',this)">Resumen</button>
+    <button class="nav-btn" onclick="setView('recursos',this)">Recursos</button>
+    <button class="nav-btn" onclick="setView('gastos',this)">Gastos</button>
+    <button class="nav-btn" onclick="setView('secretarias',this)">Por secretaría</button>
+    <button class="nav-btn" onclick="setView('personal',this)">Personal</button>
+    <button class="nav-btn" onclick="setView('calc',this)">Calculadora 2027</button>
+    <button class="nav-btn" onclick="setView('metodologia',this)">Metodología</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     BARRA SELECTOR DE AÑO
+═══════════════════════════════════════ -->
+<div class="year-bar">
+  <div class="year-bar-inner">
+    <span class="year-label">Año activo</span>
+    <button class="year-btn on" onclick="setYear(2024,this)">2024</button>
+    <button class="year-btn" onclick="setYear(2025,this)">2025</button>
+    <button class="year-btn pending" onclick="setYear(2026,this)">2026</button>
+    <button class="year-btn pending" onclick="setYear(2027,this)">2027</button>
+    <div class="year-sep"></div>
+    <span class="compare-label">Comparar con</span>
+    <select class="compare-select" id="cmp-select" onchange="setCmp(this.value)">
+      <option value="none">— sin comparar —</option>
+      <option value="2024">2024</option>
+      <option value="2025">2025</option>
+      <option value="2026">2026</option>
+      <option value="2027">2027</option>
+    </select>
+    <div class="year-sep"></div>
+    <span id="year-status" style="font-size:11px;color:var(--mist)">Año activo: <strong style="color:var(--navy)">2024</strong> · <span style="color:var(--green)">Datos confirmados</span></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     RESUMEN EJECUTIVO
+═══════════════════════════════════════ -->
+<div class="wrap on" id="v-resumen">
+
+  <div id="resumen-pending" style="display:none">
+    <div class="pending-overlay">
+      <div class="po-icon">📋</div>
+      <div class="po-title">Datos del ejercicio <span class="po-year"></span> pendientes de carga</div>
+      <div class="po-desc">Una vez que esté disponible la rendición de cuentas RAFAM, actualizar el objeto <code>DATA[año]</code> en el script.</div>
+    </div>
+  </div>
+
+  <div id="resumen-content">
+    <div class="sh">
+      <span class="sh-t" id="resumen-titulo">Resumen ejecutivo · 2024</span>
+      <span class="sh-n" id="resumen-fuente">Fuente: RAFAM · Rendición de Cuentas firmada 28/02/2025</span>
+    </div>
+
+    <div class="alert info" id="resumen-nota">
+      <strong>¿Cómo leer estos datos?</strong> Todos los importes están en millones de pesos corrientes. 
+      El ejercicio 2024 cerró con <strong>superávit presupuestario de $10.204 M</strong> (Art. 43) y un resultado del ejercicio de <strong>$10.865 M</strong> (Art. 44). 
+      La inflación 2024 fue del 117,8% (IPC INDEC). Paritaria municipal acumulada: 139%.
+    </div>
+
+    <div class="kpi-grid" id="kpi-resumen"></div>
+
+    <div class="card-grid g2">
+      <div class="card">
+        <div class="card-title">Cuenta ahorro – inversión – financiamiento</div>
+        <div id="cuenta-aif"></div>
+      </div>
+      <div class="card v2">
+        <div class="card-title">Resultado presupuestario · evolución</div>
+        <div id="evol-resultado"></div>
+      </div>
+    </div>
+
+    <div class="card-grid g3">
+      <div class="card">
+        <div class="card-title">Origen de recursos percibidos</div>
+        <div id="chart-origen"></div>
+      </div>
+      <div class="card v3">
+        <div class="card-title">Composición del gasto</div>
+        <div id="chart-gasto"></div>
+      </div>
+      <div class="card v4">
+        <div class="card-title">Top 5 secretarías por gasto</div>
+        <div id="chart-top-sec"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     RECURSOS
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-recursos">
+  <div class="sh">
+    <span class="sh-t" id="rec-titulo">Recursos · 2024</span>
+    <span class="sh-n">RAFAM — Estado de ejecución presupuestaria de recursos</span>
+  </div>
+  <div id="rec-pending" class="pending-overlay" style="display:none">
+    <div class="po-icon">📊</div>
+    <div class="po-title">Datos de recursos del año <span class="po-year"></span> no cargados aún</div>
+    <div class="po-desc">Completar el objeto <code>DATA[año].recursos</code> cuando esté disponible la rendición RAFAM.</div>
+  </div>
+  <div id="rec-content">
+    <div class="kpi-grid" id="kpi-recursos"></div>
+    <div class="card-grid g2">
+      <div class="card">
+        <div class="card-title">Recursos percibidos · por tipo</div>
+        <div id="bars-rec-tipo"></div>
+      </div>
+      <div class="card v2">
+        <div class="card-title">Principales tasas municipales</div>
+        <div id="bars-tasas"></div>
+      </div>
+    </div>
+    <div class="sh"><span class="sh-t">Ingresos tributarios · detalle</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rubro</th>
+            <th class="th-tip yr-col" style="text-align:right">Devengado ($M)<span class="tip">Importe devengado en el ejercicio activo</span></th>
+            <th class="yr-col" style="text-align:right">% del total</th>
+            <th id="th-cmp-trib" class="yr-cmp" style="text-align:right;display:none">Año comp. ($M)</th>
+            <th>Origen</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-trib"></tbody>
+      </table>
+    </div>
+    <div class="sh"><span class="sh-t">Fondos afectados · saldos al cierre</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fondo afectado</th>
+            <th style="text-align:right">Saldo inicial ($M)</th>
+            <th class="yr-col" style="text-align:right">Ingresos ($M)</th>
+            <th style="text-align:right">Egresos ($M)</th>
+            <th style="text-align:right">Saldo cierre ($M)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-fondos"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     GASTOS
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-gastos">
+  <div class="sh">
+    <span class="sh-t" id="gas-titulo">Gastos · 2024</span>
+    <span class="sh-n">RAFAM — Estado de ejecución del presupuesto de gastos por objeto</span>
+  </div>
+  <div id="gas-pending" class="pending-overlay" style="display:none">
+    <div class="po-icon">💸</div>
+    <div class="po-title">Datos de gastos del año <span class="po-year"></span> no cargados aún</div>
+    <div class="po-desc">Completar el objeto <code>DATA[año].gastos</code> cuando esté disponible la rendición RAFAM.</div>
+  </div>
+  <div id="gas-content">
+    <div class="kpi-grid" id="kpi-gastos"></div>
+    <div class="alert warn" id="gas-alerta"></div>
+    <div class="card-grid g2">
+      <div class="card v3">
+        <div class="card-title">Gastos por objeto · comparativa</div>
+        <div id="bars-gastos-obj"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Principales programas devengados</div>
+        <div id="bars-programas"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SECRETARÍAS
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-secretarias">
+  <div class="sh">
+    <span class="sh-t" id="sec-titulo">Por secretaría</span>
+    <span class="sh-n" id="sec-nota">Año activo vs comparación seleccionada</span>
+  </div>
+  <div class="alert warn" id="sec-alerta" style="display:none"></div>
+  <div class="card-grid g21">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Secretaría / Área</th>
+            <th class="yr-col th-tip" style="text-align:right">Año activo ($M)<span class="tip">Devengado del año activo seleccionado</span></th>
+            <th class="yr-col" style="text-align:right">%</th>
+            <th class="yr-cmp" id="th-cmp-sec" style="text-align:right;display:none">Comp. ($M)</th>
+            <th class="yr-cmp" id="th-vn-sec" style="text-align:right;display:none">Var. nom.</th>
+            <th class="yr-cmp" id="th-vr-sec" style="text-align:right;display:none">Var. real</th>
+            <th style="min-width:120px">Barras</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-sec"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title" id="sec-bars-title">Distribución por secretaría</div>
+      <div id="bars-sec"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PERSONAL
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-personal">
+  <div class="sh">
+    <span class="sh-t" id="pers-titulo">Planta de personal</span>
+    <span class="sh-n">Estructura y evolución de la planta de personal municipal</span>
+  </div>
+  <div class="kpi-grid" id="kpi-personal"></div>
+  <div class="card-grid g2">
+    <div class="card">
+      <div class="card-title">Planta por secretaría</div>
+      <div id="bars-planta-sec"></div>
+    </div>
+    <div class="card v5">
+      <div class="card-title">Gasto en personal por componente · 2024</div>
+      <div id="bars-componentes"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     CALCULADORA 2027
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-calc">
+  <div class="sh">
+    <span class="sh-t">Calculadora presupuestaria 2027</span>
+    <span class="sh-n">Herramienta para evaluar la variación real de cualquier área o total</span>
+  </div>
+  <div class="card-grid g2">
+    <div class="future-card">
+      <div class="card-title" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);margin-bottom:1rem">Parámetros</div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Base ($M) — elegir año</label>
+          <input type="number" id="calc-base" value="91336" placeholder="91336">
+        </div>
+        <div class="input-group">
+          <label>Propuesta 2027 ($M)</label>
+          <input type="number" id="calc-prop" placeholder="Ej: 300000">
+        </div>
+        <div class="input-group">
+          <label>Inflación acumulada base→2027 (%)</label>
+          <input type="number" id="calc-inf" value="120" placeholder="120">
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcular()">Calcular</button>
+      <div class="calc-result" id="calc-result">
+        <div class="result-grid">
+          <div class="result-item">
+            <div class="result-label">Neutro inflacionario</div>
+            <div class="result-val" id="res-neutro">—</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Variación real</div>
+            <div class="result-val" id="res-real">—</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Diagnóstico</div>
+            <div style="font-size:1.1rem;margin-top:4px" id="res-diag">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card v4">
+      <div class="card-title">Alertas presupuestarias para 2027</div>
+      <div style="font-size:12.5px;color:var(--ink2);line-height:1.9;display:flex;flex-direction:column;gap:.75rem">
+        <div style="border-left:3px solid var(--red);padding:.5rem .875rem;background:var(--red-l);border-radius:0 var(--r) var(--r) 0">
+          <strong style="color:var(--red)">Servicios no personales (49% del gasto 2024):</strong> 
+          El contrato de Higiene Urbana ($26.702 M en 2024) es el principal determinante. Un aumento del 60% supera los $43.000 M solo en ese ítem.
+        </div>
+        <div style="border-left:3px solid var(--amber);padding:.5rem .875rem;background:var(--amber-l);border-radius:0 var(--r) var(--r) 0">
+          <strong style="color:var(--amber)">Deuda flotante:</strong> Los $5.564 M de 2024 son obligaciones a pagar en 2025. El presupuesto 2027 debe absorber la flotante acumulada.
+        </div>
+        <div style="border-left:3px solid var(--teal);padding:.5rem .875rem;background:var(--teal-l);border-radius:0 var(--r) var(--r) 0">
+          <strong style="color:var(--teal-d)">Fondos nacionales no percibidos:</strong> Al 31/12/2024 quedaron $1.332 M de fondos con crédito vigente no percibidos. Exigir ejecución o reprogramación.
+        </div>
+        <div style="border-left:3px solid var(--blue);padding:.5rem .875rem;background:var(--blue-l);border-radius:0 var(--r) var(--r) 0">
+          <strong style="color:var(--blue)">SAE + MESA Bonaerense ($7.676 M en 2024):</strong> Su evolución depende de la transferencia provincial. Monitorear acuerdo 2027 con Provincia.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     METODOLOGÍA
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-metodologia">
+  <div class="sh"><span class="sh-t">Fuentes, metodología y glosario</span></div>
+  <div class="card-grid g2">
+    <div class="card">
+      <div class="card-title">Estado de carga de datos</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem" id="data-status"></div>
+    </div>
+    <div class="card v4">
+      <div class="card-title">Glosario de términos RAFAM</div>
+      <div style="font-size:12.5px;color:var(--ink2);line-height:1.8">
+        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Devengado:</strong> Gasto o recurso reconocido contablemente, independientemente del pago.</div>
+        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Percibido:</strong> Recurso efectivamente cobrado en el ejercicio.</div>
+        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Deuda flotante:</strong> Gastos devengados no pagados al 31/12.</div>
+        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Art. 43:</strong> Resultado presupuestario = percibido − devengado corriente y capital.</div>
+        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Art. 44:</strong> Resultado del ejercicio (LOM) = Art.43 + saldo caja anterior − servicio deuda.</div>
+        <div style="padding:.35rem 0"><strong>Variación real:</strong> Variación nominal descontada la inflación del período.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-title">Fuentes oficiales utilizadas</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.5rem;font-size:12px;color:var(--ink2)">
+      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
+        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓</span><br>
+        Estado Ejecución Recursos RAFAM · 07/02/2025
+      </div>
+      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
+        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓</span><br>
+        Estado Ejecución Gastos por Objeto RAFAM · 27/02/2025
+      </div>
+      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
+        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓</span><br>
+        Situación Económico-Financiera RAFAM · 26/02/2025
+      </div>
+      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
+        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓</span><br>
+        Resultado Art. 44 · Memoria Contaduría · 28/02/2025
+      </div>
+      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem;border-style:dashed">
+        <span class="badge badge-pend" style="margin-bottom:.3rem;display:inline-block">2025 pendiente</span><br>
+        Rendición de Cuentas 2025 (disponible ~Feb 2026)
+      </div>
+      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem;border-style:dashed">
+        <span class="badge badge-pend" style="margin-bottom:.3rem;display:inline-block">2026 pendiente</span><br>
+        Rendición de Cuentas 2026 (disponible ~Feb 2027)
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="fi">
+    <span>Análisis Presupuestario · Tres de Febrero · Bloque Opositor</span>
+    <span>Datos: <a href="https://rafam.gba.gob.ar" target="_blank">RAFAM · Municipalidad de Tres de Febrero</a> · Uso interno</span>
+  </div>
+</footer>
+
+<script>
+/* ╔══════════════════════════════════════════════════════╗
+   ║  DATA STORE — UN OBJETO POR AÑO                     ║
+   ║  Completar los años siguientes cuando estén          ║
+   ║  disponibles los datos RAFAM                         ║
+   ╚══════════════════════════════════════════════════════╝
+
+   ESTRUCTURA DE CADA EJERCICIO:
+   {
+     status: 'confirmed' | 'pending' | 'partial',
+     fuente: string,
+     ipc: número (inflación del año, en decimal),
+     resumen: { ... },
+     recursos: { ... },
+     gastos: { ... },
+     secretarias: [ ... ],
+     personal: { ... },
+   }
+*/
+
+const DATA = {
+
+  /* ─────────────── 2024 ─────────────── */
+  2024: {
+    status: 'confirmed',
+    fuente: 'RAFAM · Rendición de Cuentas firmada 28/02/2025',
+    ipc: 1.178,  // inflación 2024 = 117,8%
+
+    resumen: {
+      ejecutado:     91335.66,
+      percibido:     99810.92,
+      presupAprobado:56761.80,
+      superavitArt43:10203.77,
+      resultadoArt44:10864.53,
+      saldoCajaFin:  18058.37,
+      saldoCajaIni:  3066.45,
+      deudaFlotante: 5563.84,
+      ingCorrientes: 99276.06,
+      gasCorrientes: 85048.37,
+      ahorroCorriente:14228.68,
+      recursosCapital:274.83,
+      gastosCapital:  4266.30,
+      paritaria: 1.39,  // 139% acumulado
+    },
+
+    recursos: {
+      totalDevengado: 109748.60,
+      totalPercibido: 99810.92,
+      origenMunicipal: 58614.64,  // percibido
+      origenProvincial:41149.36,
+      origenNacional:  46.92,
+      tipos: [
+        { label: 'Tasas municipales',              val: 41222.23 },
+        { label: 'Coparticipación + otros trib.',  val: 35636.31 },
+        { label: 'Transferencias corrientes prov.',val: 11038.21 },
+        { label: 'Rentas propiedad (intereses)',   val:  3425.45 },
+        { label: 'Multas y derechos',              val:  2213.99 },
+        { label: 'Venta bienes y servicios',       val:    69.07 },
+        { label: 'Recursos propios de capital',    val:   266.87 },
+      ],
+      tasas: [
+        { label: 'Insp. Seg. e Higiene (TISH)',    val: 22146.42 },
+        { label: 'Servicios Generales',            val: 16444.77 },
+        { label: 'Tasa de Seguridad',              val:  3516.16 },
+        { label: 'Salud Emergencias + At. Primaria',val: 2259.86 },
+        { label: 'Mantenimiento Ctros Deportivos', val:  1627.81 },
+        { label: 'Patente Automotores',            val:  1401.39 },
+        { label: 'Estacionamiento Medido',         val:   834.59 },
+      ],
+      tributarios: [
+        { label: 'Coparticipación Pcial. Ley 10.559', val: 26245.54, orig: 'Provincial' },
+        { label: 'Canon EDENOR',                      val:  3564.84, orig: 'Municipal' },
+        { label: 'Fondo Mpal. Inclusión Social L.13863',val:1804.79, orig: 'Provincial' },
+        { label: 'Fondo Fort. Fiscal Mpal. Ley 15.480',val:1338.95,  orig: 'Municipal' },
+        { label: 'Fondo Fort. Recursos Municipales',   val: 1400.82, orig: 'Provincial' },
+        { label: 'Descentralización Ing. Brutos',      val:  387.21, orig: 'Provincial' },
+        { label: 'CEAMSE - Recepción Residuos',        val:  504.39, orig: 'Municipal' },
+        { label: 'Participación Casinos + Bingo + Hip.',val:  272.78, orig: 'Provincial' },
+      ],
+      fondos: [
+        { label: 'Desarrollo Urbano y Hábitat (Mpal.)',  si:73.10,  ing:1061.68, eg:1020.76, sc:114.01 },
+        { label: 'Estacionamiento Medido (Mpal.)',        si:12.96,  ing:834.59,  eg:271.59,  sc:575.96 },
+        { label: 'Derechos Construcción Ord. 3440 (Mpal.)',si:43.38,ing:550.92,  eg:328.45,  sc:265.85 },
+        { label: 'Fondo Educativo Ley 26.075 (Prov.)',   si:67.22,  ing:2717.48, eg:1594.98, sc:1189.72},
+        { label: 'SAE Serv. Alimentario Escolar (Prov.)',si:13.97,  ing:3118.01, eg:3027.03, sc:104.95 },
+        { label: 'MESA Bonaerense (Prov.)',               si:27.28,  ing:3613.45, eg:3598.38, sc:42.34  },
+        { label: 'Fdo. Fort. Programas Sociales (Prov.)',si:66.05,  ing:561.31,  eg:568.06,  sc:59.29  },
+        { label: 'Fondos Nacionales (Red Cloacal LH OC70291)',si:0, ing:122.58,  eg:0,       sc:122.58 },
+      ],
+    },
+
+    gastos: {
+      total:           91335.66,
+      pagado:          85771.82,
+      deudaFlotante:   5563.84,
+      alertaPrincipal: 'El <strong>49% del gasto</strong> son Servicios No Personales, dominados por <strong>Higiene Urbana ($26.702 M)</strong> — el ítem de mayor sensibilidad para negociar el presupuesto 2027.',
+      porObjeto: [
+        { label: 'Gastos en personal',      val: 26421.87, pct: 28.9, impago: 0,       color: 'rgba(13,148,136,.65)'  },
+        { label: 'Servicios no personales', val: 44564.62, pct: 48.8, impago: 4072.44, color: 'rgba(220,38,38,.65)'   },
+        { label: 'Transferencias',          val: 11192.41, pct: 12.3, impago: 796.64,  color: 'rgba(37,99,235,.65)'   },
+        { label: 'Bienes de uso',           val:  4266.30, pct:  4.7, impago: 314.97,  color: 'rgba(234,88,12,.65)'   },
+        { label: 'Bienes de consumo',       val:  2891.79, pct:  3.2, impago: 379.79,  color: 'rgba(217,119,6,.65)'   },
+        { label: 'Servicio de la deuda',    val:  1666.68, pct:  1.8, impago: 0,       color: 'rgba(100,116,139,.65)' },
+        { label: 'Activos financieros',     val:   331.99, pct:  0.4, impago: 0,       color: 'rgba(124,58,237,.65)'  },
+      ],
+      programas: [
+        { label: 'Higiene Urbana y Control Microbasurales', val: 26701.70 },
+        { label: 'Act. Centrales (personal + gastos gles.)',val: 26445.54 },
+        { label: 'SAE + MESA Bonaerense',                   val:  7675.93 },
+        { label: 'Atención Primaria de la Salud',           val:  1832.94 },
+        { label: 'Bacheo y Repavimentación',                val:  1433.48 },
+        { label: 'Obras Viales',                            val:   864.50 },
+        { label: 'Fortalecimiento Infraestructura Educativa',val:  726.53 },
+        { label: 'Arbolado Público + Espacios Públicos',    val:   694.71 },
+      ],
+    },
+
+    secretarias: [
+      { label: 'Ambiente y Servicios Públicos', val: 28500, nota: 'Higiene Urbana dominante' },
+      { label: 'HCD + Actividades Centrales',   val: 28240, nota: 'Personal + gastos generales' },
+      { label: 'Educación y Cultura',           val:  8580, nota: 'SAE + MESA Bonaerense' },
+      { label: 'Salud',                         val:  4600, nota: 'Atención primaria, SAME, hospitales' },
+      { label: 'Obras Públicas',                val:  4700, nota: 'Vialidad + infraestructura' },
+      { label: 'Desarrollo Humano y Hábitat',   val:  3250, nota: '' },
+      { label: 'Seguridad',                     val:  2800, nota: 'Video vigilancia + protección ciudadana' },
+      { label: 'Secretaría General',            val:  2400, nota: 'Prensa + coordinación + RRHH' },
+      { label: 'Hacienda',                      val:  2950, nota: '' },
+      { label: 'Control Municipal',             val:  1797, nota: '' },
+      { label: 'Deporte',                       val:  2056, nota: 'Absorbida por Capital Humano en 2025', eliminada25: true },
+      { label: 'Secretaría de Gobierno',        val:  2342, nota: 'Funciones reasignadas en 2025' },
+      { label: 'Atención al Vecino',            val:  1014, nota: 'Fusionada en 2025' },
+      { label: 'Juzgado de Faltas',             val:   156, nota: '' },
+      { label: 'Trabajo y Producción',          val:    33, nota: 'Fusionada en 2025' },
+    ],
+
+    personal: {
+      total: 2726,
+      permanente: 1161,
+      mensualizado: 1565,
+      gastoTotal: 26421.87,
+      paritaria: 139,
+      porSecretaria: [
+        { label: 'Salud',                     val: 537 },
+        { label: 'Seguridad',                 val: 430 },
+        { label: 'Educación y Cultura',       val: 335 },
+        { label: 'Ambiente y Serv. Públicos', val: 196 },
+        { label: 'Control Municipal',         val: 169 },
+        { label: 'Obras Públicas',            val: 139 },
+        { label: 'Gobierno',                  val: 124 },
+        { label: 'HCD',                       val: 101 },
+        { label: 'Des. Humano y Hábitat',     val: 106 },
+        { label: 'Hacienda',                  val:  88 },
+        { label: 'Atención al Vecino',        val:  88 },
+        { label: 'Estratégicos + General',    val: 128 },
+        { label: 'Des. Territorial Movilidad',val: 121 },
+        { label: 'Juzgado + Faltas',          val:  22 },
+        { label: 'Deporte',                   val: 109 },
+        { label: 'Trabajo y Producción',      val:  33 },
+        { label: 'Secretaría de Gobierno',    val: 124 },
+      ],
+      componentes: [
+        { label: 'Retribuciones (perm. + temp.)', val: 12466.16 },
+        { label: 'Horas extras',                  val:  2016.26 },
+        { label: 'Contribuciones patronales',     val:  3229.36 },
+        { label: 'SAC',                           val:  1664.04 },
+        { label: 'Otras bonificaciones',          val:  2898.90 },
+        { label: 'Bonif. extraordinaria',         val:   794.95 },
+        { label: 'DIPREGEP + Asig. familiares',   val:   813.08 },
+        { label: 'Asist. social + complementos',  val:    19.57 },
+      ],
+    },
+  },
+
+  /* ─────────────── 2025 ─────────────── */
+  2025: {
+    status: 'confirmed',
+    fuente: 'RAFAM · Rendición de Cuentas firmada 2026 · Datos RAFAM oficiales',
+    ipc: 0.845,  // IPC 2025: 84,5% (INDEC)
+
+    resumen: {
+      ejecutado:      150745.28,
+      percibido:      160362.00,  // estimado: ejecutado + superávit Art43
+      presupAprobado: 121901.00,
+      superavitArt43:   9617.00,
+      resultadoArt44:  10100.00,  // estimado (Art44 = Art43 + saldo anterior − deuda)
+      saldoCajaFin:   30734.00,
+      saldoCajaIni:   18058.37,
+      deudaFlotante:   8431.00,
+      ingCorrientes: 153578.00,
+      gasCorrientes: 129215.00,
+      ahorroCorriente: 24363.00,
+      recursosCapital: 1200.00,   // estimado
+      gastosCapital:  15397.00,
+      paritaria: 0.25,  // 25% acumulado 2025
+    },
+
+    recursos: {
+      totalDevengado: 160362.00,
+      totalPercibido: 160362.00,
+      origenMunicipal:  89467.00,
+      origenProvincial: 60869.00,
+      origenNacional:     300.00,  // estimado ~0,2%
+      tipos: [
+        { label: 'Tasas municipales',               val: 66748 },
+        { label: 'Coparticipación provincial',       val: 41549 },
+        { label: 'Transferencias corrientes prov.',  val: 19100 },
+        { label: 'Rentas propiedad (intereses dep.)',val:  7719 },
+        { label: 'Otros ingresos no tributarios',    val:  7270 },
+        { label: 'Derechos municipales',             val:  3587 },
+        { label: 'Multas y resto',                   val:  7605 },
+      ],
+      tasas: [
+        { label: 'Tasas municipales (total)',         val: 66748 },
+        { label: 'Canon EDENOR',                      val:  6819 },
+        { label: 'Coparticipación Ley 10.559',        val: 41549 },
+        { label: 'Intereses por depósitos',           val:  7719 },
+        { label: 'Transf. prov. afectadas (SAE+MESA)',val: 18794 },
+      ],
+      tributarios: [
+        { label: 'Coparticipación Pcial. Ley 10.559', val: 41549, orig: 'Provincial' },
+        { label: 'Tasas municipales (TISH + Serv. Gen.)', val: 66748, orig: 'Municipal' },
+        { label: 'Canon EDENOR',                      val:  6819, orig: 'Municipal' },
+        { label: 'Intereses por depósitos',           val:  7719, orig: 'Municipal' },
+        { label: 'Transf. prov. Fort. Seguridad',     val:  1659, orig: 'Provincial' },
+        { label: 'SAE - Serv. Alimentario Escolar',   val:  4010, orig: 'Provincial' },
+        { label: 'MESA Bonaerense',                   val:  5081, orig: 'Provincial' },
+        { label: 'Fondo Educativo Ley 26.075',        val:  5911, orig: 'Provincial' },
+        { label: 'Fort. Prog. Sociales + Residuos',   val:  1555, orig: 'Provincial' },
+      ],
+      fondos: [
+        { label: 'Fondo Educativo Ley 26.075',        si: 1189.72, ing: 5911, eg: 5800, sc: 1300.72 },
+        { label: 'SAE Serv. Alimentario Escolar',     si:  104.95, ing: 4010, eg: 3950, sc:  164.95 },
+        { label: 'MESA Bonaerense',                   si:   42.34, ing: 5081, eg: 5000, sc:  123.34 },
+        { label: 'Fort. Seguridad Bonaerense',        si:    3.16, ing: 1659, eg: 1640, sc:   22.16 },
+        { label: 'Fort. Prog. Sociales + Residuos',   si:   59.29, ing: 1555, eg: 1530, sc:   84.29 },
+        { label: 'Desarrollo Urbano y Hábitat (Mpal.)',si: 114.01, ing: 1300, eg: 1250, sc:  164.01 },
+        { label: 'Estacionamiento Medido (Mpal.)',    si:  575.96, ing:  950, eg:  870, sc:  655.96 },
+      ],
+    },
+
+    gastos: {
+      total:           150745.28,
+      pagado:          142314.28,
+      deudaFlotante:     8431.00,
+      alertaPrincipal: 'El <strong>gasto en personal</strong> aumentó un 56% nominal (+0,5% real). El <strong>servicio de la deuda</strong> creció +234% nominal (+81% real) — de $1.667 M a $5.628 M — el ítem de mayor alerta para 2027.',
+      porObjeto: [
+        { label: 'Gastos en personal',      val: 41274.15, pct: 27.4, impago:    0,    color: 'rgba(13,148,136,.65)'  },
+        { label: 'Servicios no personales', val: 67407.23, pct: 44.7, impago: 5800,    color: 'rgba(220,38,38,.65)'   },
+        { label: 'Bienes de uso (capital)', val: 15392.61, pct: 10.2, impago: 1200,    color: 'rgba(234,88,12,.65)'   },
+        { label: 'Transferencias',          val: 14676.92, pct:  9.7, impago:  900,    color: 'rgba(37,99,235,.65)'   },
+        { label: 'Servicio de la deuda',    val:  5627.82, pct:  3.7, impago:    0,    color: 'rgba(124,58,237,.65)'  },
+        { label: 'Bienes de consumo',       val:  5858.89, pct:  3.9, impago:  531,    color: 'rgba(217,119,6,.65)'   },
+        { label: 'Activos financieros',     val:   507.66, pct:  0.3, impago:    0,    color: 'rgba(100,116,139,.65)' },
+      ],
+      programas: [
+        { label: 'Higiene Urbana y Control Microbasurales', val: 49200 },
+        { label: 'Act. Centrales + personal general',       val: 38500 },
+        { label: 'SAE + MESA Bonaerense + Alim.',           val: 11000 },
+        { label: 'Obras Viales + Bacheo + Infraestructura', val: 14800 },
+        { label: 'Atención Primaria de la Salud',           val:  7200 },
+        { label: 'Fort. Infraestructura Educativa',         val:  5900 },
+        { label: 'Sistema Arbolado + Esp. Públicos',        val:  3800 },
+        { label: 'Servicio de la Deuda',                    val:  5628 },
+      ],
+    },
+
+    secretarias: [
+      { label: 'Ambiente y Servicios Públicos', val: 46035.22, nota: 'Higiene Urbana sigue dominando' },
+      { label: 'Capital Humano',                val: 28212.47, nota: 'Nueva: fusión Educación+Deporte+Social', nueva: true },
+      { label: 'Obras Públicas y Des. Urbano',  val: 18652.93, nota: '+235% nominal / +81,5% real' },
+      { label: 'Secretaría de Salud',           val: 11709.38, nota: '' },
+      { label: 'Finanzas y Efic. del Estado',   val: 11526.53, nota: '' },
+      { label: 'Secretaría de Seguridad',       val: 10118.49, nota: '' },
+      { label: 'Servicio de la Deuda',          val:  5567.68, nota: '+234% nominal — alerta' },
+      { label: 'Coordinación (nueva)',          val:  5185.39, nota: 'Escisión de Jefatura de Gabinete', nueva: true },
+      { label: 'Trabajo y Producción',          val:  4250.94, nota: '+464% nominal / +205% real' },
+      { label: 'Secretaría General',            val:  4396.28, nota: '' },
+      { label: 'H.C.D.',                        val:  2776.72, nota: '' },
+      { label: 'Juzgado de Faltas',             val:   712.74, nota: '' },
+      { label: 'Desarrollo Humano y Hábitat',   val:   542.59, nota: 'Funciones reasignadas a Capital Humano' },
+      { label: 'Secretaría de Gobierno',        val:   274.02, nota: 'Funciones reasignadas' },
+      { label: 'Control Municipal',             val:   189.86, nota: 'Funciones fusionadas' },
+      { label: 'Des. Territorial y Movilidad',  val:   189.25, nota: '−92% nominal — funciones reasignadas' },
+      { label: 'Atención al Vecino',            val:    96.88, nota: 'Funciones reasignadas' },
+      // Secretarías eliminadas en 2025 (solo aparecen como 2024)
+      { label: 'Educación y Des. Humano (2024)',val:     0,    nota: 'Refundada como Capital Humano', eliminada25: true },
+      { label: 'Jefatura de Gabinete (2024)',   val:     0,    nota: 'Dividida en Coordinación + otras', eliminada25: true },
+      { label: 'Secretaría de Deporte (2024)',  val:     0,    nota: 'Absorbida por Capital Humano', eliminada25: true },
+    ],
+
+    personal: {
+      total: 2798,
+      permanente: 1110,
+      mensualizado: 1688,
+      gastoTotal: 41274.15,
+      paritaria: 25,  // 25% acumulado 2025
+      porSecretaria: [
+        { label: 'Educación y Cultura (Capital Humano)', val: 541 },
+        { label: 'Salud',                                val: 530 },
+        { label: 'Seguridad',                            val: 528 },
+        { label: 'Obras Públicas',                       val: 250 },
+        { label: 'Trabajo y Producción',                 val: 207 },
+        { label: 'Ambiente y Serv. Públicos',            val: 205 },
+        { label: 'Jefatura de Gabinete',                 val: 151 },
+        { label: 'Finanzas y Efic. del Estado',          val: 129 },
+        { label: 'Secretaría General',                   val: 117 },
+        { label: 'HCD',                                  val: 117 },
+        { label: 'Juzgado de Faltas',                    val:  23 },
+      ],
+      componentes: [
+        { label: 'Retribuciones del cargo (perm. + temp.)', val: 19200 },
+        { label: 'Horas extras',                            val:  3800 },
+        { label: 'Contribuciones patronales',               val:  6100 },
+        { label: 'SAC',                                     val:  3200 },
+        { label: 'Otras bonificaciones + complementos',     val:  5800 },
+        { label: 'DIPREGEP + Asig. familiares + otros',     val:  3174 },
+      ],
+    },
+  },
+
+  /* ─────────────── 2026 ─────────────── */
+  /* TODO: Cargar cuando esté disponible la rendición RAFAM (~Feb 2027) */
+  2026: {
+    status: 'pending',
+    fuente: 'Pendiente — Rendición de Cuentas disponible ~Febrero 2027',
+    ipc: null,  // completar cuando INDEC publique el dato anual
+    resumen: null,
+    recursos: null,
+    gastos: null,
+    secretarias: [],
+    personal: { total: null, porSecretaria: [], componentes: [] },
+  },
+
+  /* ─────────────── 2027 ─────────────── */
+  /* Presupuesto aprobado (cuando exista) */
+  2027: {
+    status: 'pending',
+    fuente: 'Pendiente — Presupuesto 2027 (a aprobar en el HCD)',
+    ipc: null,
+    resumen: null,
+    recursos: null,
+    gastos: null,
+    secretarias: [],
+    personal: { total: null, porSecretaria: [], componentes: [] },
+  },
+
+};
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  ESTADO GLOBAL                                       ║
+   ╚══════════════════════════════════════════════════════╝ */
+let activeYear = 2024;
+let cmpYear    = 'none';
+let activeView = 'resumen';
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  HELPERS                                             ║
+   ╚══════════════════════════════════════════════════════╝ */
+const fmt    = n => n == null ? '—' : n === 0 ? '—' : n.toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fmtInt = n => n == null ? '—' : n.toLocaleString('es-AR');
+
+function renderSimpleBars(containerId, items, color, labelWidth = 175) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const validItems = items.filter(i => i.val != null && i.val > 0);
+  if (!validItems.length) { el.innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>'; return; }
+  const max = Math.max(...validItems.map(i => i.val));
+  el.innerHTML = validItems.map(i => `
+    <div style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:2px">
+        <span style="max-width:${labelWidth}px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy);flex-shrink:0;margin-left:8px">$${fmt(i.val)}M</span>
+      </div>
+      <div style="background:var(--bg2);border-radius:3px;height:11px;overflow:hidden">
+        <div style="width:${i.val/max*100}%;height:100%;border-radius:3px;background:${color || 'var(--teal)'}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  RENDER — RESUMEN                                    ║
+   ╚══════════════════════════════════════════════════════╝ */
+function renderResumen() {
+  const d = DATA[activeYear];
+  const isPending = d.status === 'pending' || !d.resumen;
+  document.getElementById('resumen-pending').style.display = isPending ? 'block' : 'none';
+  document.getElementById('resumen-content').style.display = isPending ? 'none' : 'block';
+  if (isPending) {
+    document.querySelectorAll('#resumen-pending .po-year').forEach(e => e.textContent = activeYear);
+    return;
+  }
+  const r = d.resumen;
+  document.getElementById('resumen-titulo').textContent = `Resumen ejecutivo · ${activeYear}`;
+  document.getElementById('resumen-fuente').textContent = d.fuente;
+
+  // KPIs
+  const kpis = [
+    { cl:'amber', label:'Ejecutado (devengado)',     val:`$${fmt(r.ejecutado)} M`,  sub:`Presup. aprobado: $${fmt(r.presupAprobado)} M`,  delta:{cl:'warn',txt:`+${((r.ejecutado/r.presupAprobado-1)*100).toFixed(0)}% sobre original`}},
+    { cl:'green', label:'Resultado Art. 43',         val:`$${fmt(r.superavitArt43)} M`, sub:'Percibido − Devengado corriente y capital', delta:{cl:'up',txt:'Superávit'}},
+    { cl:'green', label:'Resultado Art. 44 (LOM)',   val:`$${fmt(r.resultadoArt44)} M`, sub:`${((r.resultadoArt44/r.percibido)*100).toFixed(1)}% del percibido`, delta:{cl:'up',txt:'Equilibrio fiscal'}},
+    { cl:'blue',  label:'Saldo de caja final',       val:`$${fmt(r.saldoCajaFin)} M`,  sub:`Inicio del año: $${fmt(r.saldoCajaIni)} M`, delta:{cl:'up',txt:`+${fmt(r.saldoCajaFin - r.saldoCajaIni)} M en el año`}},
+    { cl:'amber', label:'Deuda flotante',            val:`$${fmt(r.deudaFlotante)} M`,  sub:`${((r.deudaFlotante/r.ejecutado)*100).toFixed(1)}% del devengado`, delta:{cl:'warn',txt:'A pagar año siguiente'}},
+    { cl:'',      label:'Ingresos corrientes perc.',  val:`$${fmt(r.ingCorrientes)} M`, sub:'Base real de gestión',    delta:{cl:'info',txt:`Ahorro cte: $${fmt(r.ahorroCorriente)} M`}},
+    { cl:'red',   label:'Gastos corrientes',          val:`$${fmt(r.gasCorrientes)} M`, sub:'Incluye personal y servicios', delta:null},
+    { cl:'orange',label:'Gastos de capital (bienes)', val:`$${fmt(r.gastosCapital)} M`, sub:`${((r.gastosCapital/r.ejecutado)*100).toFixed(1)}% del total ejecutado`, delta:null},
+  ];
+  document.getElementById('kpi-resumen').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cl}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      ${k.delta ? `<div class="kpi-delta ${k.delta.cl}">${k.delta.txt}</div>` : ''}
+    </div>
+  `).join('');
+
+  // Cuenta AIF
+  const rows = [
+    ['Ingresos corrientes', r.ingCorrientes, false],
+    ['Gastos corrientes', r.gasCorrientes, false],
+    ['Ahorro corriente', r.ahorroCorriente, true, 'var(--green)'],
+    ['Recursos de capital', r.recursosCapital, false],
+    ['Gastos de capital', r.gastosCapital, false],
+    ['Resultado financiero', r.superavitArt43, true, r.superavitArt43 >= 0 ? 'var(--teal)' : 'var(--red)'],
+  ];
+  document.getElementById('cuenta-aif').innerHTML = rows.map(([lbl, val, bold, col]) => `
+    <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--borde);${bold ? 'border-top:1px solid var(--borde);margin-top:.25rem;padding-top:.5rem' : ''}">
+      <span style="font-size:12px;color:${col || 'var(--ink2)'};font-weight:${bold ? 700 : 400}">${lbl}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:${bold ? '13' : '11'}px;color:${col || 'var(--ink2)'};font-weight:${bold ? 700 : 400}">$${fmt(val)} M</span>
+    </div>
+  `).join('');
+
+  // Evolución resultado
+  const years = Object.keys(DATA).map(Number).filter(y => DATA[y].resumen);
+  const maxAbs = Math.max(...years.map(y => Math.abs(DATA[y].resumen.superavitArt43)));
+  document.getElementById('evol-resultado').innerHTML = years.map(y => {
+    const res = DATA[y].resumen.superavitArt43;
+    const pct  = Math.abs(res) / maxAbs * 100;
+    const isOk = res >= 0;
+    return `
+      <div style="margin-bottom:.875rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:.3rem">
+          <span style="font-size:12px;color:var(--ink2)">${y}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${isOk ? 'var(--green)' : 'var(--red)'}">
+            ${isOk ? '+' : ''}$${fmt(res)} M
+          </span>
+        </div>
+        <div class="surplus-bar">
+          <div class="surplus-fill" style="width:${pct}%;background:linear-gradient(90deg,${isOk ? 'var(--green),rgba(5,150,105,.5)' : 'var(--red),rgba(220,38,38,.5)'})"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Origen recursos
+  const gastos_d = d.gastos;
+  const origenData = [
+    { label: 'Municipal',  val: r.ingCorrientes * 0.587, color: 'var(--teal)',   pct: 58.7 },
+    { label: 'Provincial', val: r.ingCorrientes * 0.414, color: 'var(--amber)',  pct: 41.4 },
+    { label: 'Nacional',   val: r.ingCorrientes * 0.0004, color: 'var(--mist)', pct: 0.0  },
+  ];
+  document.getElementById('chart-origen').innerHTML = origenData.map(o => `
+    <div style="margin-bottom:7px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);margin-bottom:2px">
+        <span>${o.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">${o.pct}%</span>
+      </div>
+      <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
+        <div style="width:${o.pct}%;height:100%;border-radius:3px;background:${o.color}"></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Composición gasto
+  if (gastos_d) {
+    const maxG = Math.max(...gastos_d.porObjeto.map(g => g.val));
+    document.getElementById('chart-gasto').innerHTML = gastos_d.porObjeto.map(g => `
+      <div style="margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:2px">
+          <span>${g.label}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">${g.pct}%</span>
+        </div>
+        <div style="background:var(--bg2);border-radius:3px;height:11px;overflow:hidden">
+          <div style="width:${g.val/maxG*100}%;height:100%;border-radius:3px;background:${g.color}"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Top secretarías
+  const topSec = [...d.secretarias].filter(s => s.val).sort((a,b)=>b.val-a.val).slice(0,6);
+  renderSimpleBars('chart-top-sec', topSec, 'var(--navy)', 220);
+
+  // Header chips
+  document.getElementById('chip-ejecutado').textContent = `$${(r.ejecutado/1000).toFixed(0)}B`;
+  document.getElementById('chip-resultado').textContent = `$${fmt(r.resultadoArt44)} M`;
+  document.getElementById('chip-planta').textContent = fmtInt(DATA[activeYear].personal?.total);
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  RENDER — RECURSOS                                   ║
+   ╚══════════════════════════════════════════════════════╝ */
+function renderRecursos() {
+  const d = DATA[activeYear];
+  const isPending = d.status === 'pending' || !d.recursos;
+  document.getElementById('rec-pending').style.display  = isPending ? 'flex' : 'none';
+  document.getElementById('rec-content').style.display  = isPending ? 'none' : 'block';
+  document.getElementById('rec-titulo').textContent     = `Recursos · ${activeYear}`;
+  if (isPending) { document.querySelectorAll('#rec-pending .po-year').forEach(e=>e.textContent=activeYear); return; }
+
+  const r = d.recursos;
+  const kpis = [
+    { cl:'amber', label:'Total devengado',          val:`$${fmt(r.totalDevengado)} M`,  sub:`Crédito vigente aprobado`,     delta:null },
+    { cl:'green', label:'Total percibido',           val:`$${fmt(r.totalPercibido)} M`,  sub:`Brecha dev/perc: $${fmt(r.totalDevengado - r.totalPercibido)} M`, delta:null },
+    { cl:'',      label:'Origen municipal (perc.)',  val:`$${fmt(r.origenMunicipal)} M`, sub:`${((r.origenMunicipal/r.totalPercibido)*100).toFixed(1)}% del total`, delta:{cl:'up',txt:'Tasas + canon + copart.'} },
+    { cl:'blue',  label:'Origen provincial (perc.)', val:`$${fmt(r.origenProvincial)} M`,sub:`${((r.origenProvincial/r.totalPercibido)*100).toFixed(1)}% del total`, delta:{cl:'info',txt:'Copart. + transf. afect.'} },
+  ];
+  document.getElementById('kpi-recursos').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cl}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      ${k.delta ? `<div class="kpi-delta ${k.delta.cl}">${k.delta.txt}</div>` : ''}
+    </div>
+  `).join('');
+
+  renderSimpleBars('bars-rec-tipo', r.tipos, 'var(--teal)');
+  renderSimpleBars('bars-tasas',    r.tasas, 'var(--amber)');
+
+  // Tabla tributarios
+  const total = r.tributarios.reduce((s,i) => s + i.val, 0);
+  document.getElementById('tbody-trib').innerHTML = r.tributarios.map(t => `
+    <tr>
+      <td class="name">${t.label}</td>
+      <td class="mono-hi yr-col">$${fmt(t.val)} M</td>
+      <td class="pct yr-col">${((t.val/total)*100).toFixed(1)}%</td>
+      <td><span class="badge ${t.orig === 'Provincial' ? 'badge-warn' : 'badge-ok'}">${t.orig}</span></td>
+    </tr>
+  `).join('');
+
+  // Tabla fondos
+  document.getElementById('tbody-fondos').innerHTML = r.fondos.map(f => `
+    <tr>
+      <td class="name">${f.label}</td>
+      <td class="mono">$${fmt(f.si)} M</td>
+      <td class="mono yr-col">$${fmt(f.ing)} M</td>
+      <td class="mono">$${fmt(f.eg)} M</td>
+      <td class="mono-hi" style="color:${f.sc > 0 ? 'var(--green)' : 'var(--mist)'}">$${fmt(f.sc)} M</td>
+    </tr>
+  `).join('');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  RENDER — GASTOS                                     ║
+   ╚══════════════════════════════════════════════════════╝ */
+function renderGastos() {
+  const d = DATA[activeYear];
+  const isPending = d.status === 'pending' || !d.gastos;
+  document.getElementById('gas-pending').style.display = isPending ? 'flex' : 'none';
+  document.getElementById('gas-content').style.display = isPending ? 'none' : 'block';
+  document.getElementById('gas-titulo').textContent    = `Gastos · ${activeYear}`;
+  if (isPending) { document.querySelectorAll('#gas-pending .po-year').forEach(e=>e.textContent=activeYear); return; }
+
+  const g = d.gastos;
+  document.getElementById('gas-alerta').innerHTML = `<strong>Dato clave:</strong> ${g.alertaPrincipal}`;
+  document.getElementById('gas-alerta').className = 'alert warn';
+
+  const kpis = g.porObjeto.map((obj, i) => ({
+    cl: ['','red','blue','orange','amber','','violet'][i],
+    label: `${i+1}. ${obj.label}`,
+    val: `$${fmt(obj.val)} M`,
+    sub: `${obj.pct}% del total${obj.impago > 0 ? ' · $' + fmt(obj.impago) + ' M impago' : ' · Todo pagado'}`,
+    delta: null
+  }));
+  kpis.push({
+    cl:'amber', label:'Deuda flotante total', val:`$${fmt(g.deudaFlotante)} M`,
+    sub:`${((g.deudaFlotante/g.total)*100).toFixed(1)}% del devengado`, delta:{cl:'warn',txt:'A pagar en el año siguiente'}
+  });
+  document.getElementById('kpi-gastos').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cl}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      ${k.delta ? `<div class="kpi-delta ${k.delta.cl}">${k.delta.txt}</div>` : ''}
+    </div>
+  `).join('');
+
+  const maxG = Math.max(...g.porObjeto.map(o=>o.val));
+  document.getElementById('bars-gastos-obj').innerHTML = g.porObjeto.map(o => `
+    <div style="margin-bottom:7px">
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:2px">
+        <span>${o.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">${o.pct}%  ·  $${fmt(o.val)}M</span>
+      </div>
+      <div style="background:var(--bg2);border-radius:3px;height:13px;overflow:hidden">
+        <div style="width:${o.val/maxG*100}%;height:100%;border-radius:3px;background:${o.color}"></div>
+      </div>
+    </div>
+  `).join('');
+
+  renderSimpleBars('bars-programas', g.programas, 'var(--navy)');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  RENDER — SECRETARÍAS                                ║
+   ╚══════════════════════════════════════════════════════╝ */
+function renderSecretarias() {
+  const d  = DATA[activeYear];
+  const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
+  const secActivo = d.secretarias;
+  const totalActivo = secActivo.reduce((s,i) => s + (i.val || 0), 0);
+  const ipc = d.ipc || 0;
+
+  document.getElementById('sec-titulo').textContent = `Por secretaría · ${activeYear}`;
+
+  // Mostrar/ocultar columnas de comparación
+  const showCmp = dc && dc.secretarias && dc.secretarias.length > 0;
+  ['th-cmp-sec','th-vn-sec','th-vr-sec'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = showCmp ? '' : 'none';
+  });
+  if (showCmp) {
+    document.getElementById('th-cmp-sec').textContent = `${cmpYear} ($M)`;
+    document.getElementById('th-vn-sec').textContent = 'Var. nominal';
+    document.getElementById('th-vr-sec').textContent = 'Var. real';
+  }
+
+  const maxVal = Math.max(...secActivo.map(s => s.val || 0), ...( showCmp ? dc.secretarias.map(s=>s.val||0) : [0] ));
+
+  document.getElementById('tbody-sec').innerHTML = secActivo.map(s => {
+    const secCmp = showCmp ? dc.secretarias.find(c => c.label === s.label) : null;
+    const vn = (s.val && secCmp?.val) ? ((s.val - secCmp.val) / secCmp.val * 100) : null;
+    const vr = (vn !== null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const pct = s.val ? (s.val/totalActivo*100).toFixed(1)+'%' : '—';
+    const vnStr = vn !== null ? (vn>0?'+':'')+vn.toFixed(1)+'%' : '—';
+    const vrStr = vr !== null ? (vr>0?'+':'')+vr.toFixed(1)+'%' : '—';
+    const vrColor = vr !== null ? (vr>0?'color:var(--green)': vr>-15?'color:var(--amber)':'color:var(--red)') : '';
+    let badge = '';
+    if (s.nueva) badge = '<span class="badge badge-new">Nueva</span>';
+    if (s.eliminada25) badge = '<span class="badge badge-gone">Eliminada 2025</span>';
+    const rowClass = s.nueva ? 'new-row' : s.eliminada25 ? 'gone-row' : '';
+    return `<tr class="${rowClass}">
+      <td class="name">${s.label} ${badge}<br><span style="font-size:10px;color:var(--mist);font-weight:400">${s.nota||''}</span></td>
+      <td class="mono-hi yr-col">${s.val ? '$'+fmt(s.val) : '<span class="na">pendiente</span>'}</td>
+      <td class="pct yr-col" style="color:var(--mist)">${pct}</td>
+      ${showCmp ? `
+        <td class="mono yr-cmp">${secCmp?.val ? '$'+fmt(secCmp.val) : '—'}</td>
+        <td class="pct yr-cmp">${vnStr}</td>
+        <td class="pct yr-cmp" style="${vrColor}">${vrStr}</td>
+      ` : ''}
+      <td style="min-width:120px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="height:8px;background:var(--bg2);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${((s.val||0)/maxVal*100)}%;background:rgba(13,148,136,.7);border-radius:2px"></div>
+          </div>
+          ${showCmp && secCmp ? `
+          <div style="height:8px;background:var(--bg2);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${((secCmp.val||0)/maxVal*100)}%;background:rgba(217,119,6,.6);border-radius:2px"></div>
+          </div>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Leyenda comparación
+  const legend = showCmp ? `
+    <div class="legend" style="margin-bottom:.75rem">
+      <div class="legend-item"><div class="dot" style="background:rgba(13,148,136,.7)"></div>${activeYear} (activo)</div>
+      <div class="legend-item"><div class="dot" style="background:rgba(217,119,6,.6)"></div>${cmpYear} (comparación)</div>
+    </div>
+  ` : '';
+
+  document.getElementById('sec-bars-title').textContent = `Distribución · ${activeYear}`;
+  const topSec = [...secActivo].filter(s=>s.val).sort((a,b)=>b.val-a.val).slice(0,10);
+  const maxB = Math.max(...topSec.map(s=>s.val));
+  document.getElementById('bars-sec').innerHTML = legend + topSec.map(s => `
+    <div style="margin-bottom:9px">
+      <div style="font-size:10.5px;color:var(--ink2);margin-bottom:3px;font-weight:500">${s.label}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="background:var(--bg2);border-radius:2px;flex:1;height:11px;overflow:hidden">
+          <div style="width:${s.val/maxB*100}%;height:100%;background:rgba(13,148,136,.65);border-radius:2px"></div>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mist);width:70px;text-align:right">$${fmt(s.val)}M</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  RENDER — PERSONAL                                   ║
+   ╚══════════════════════════════════════════════════════╝ */
+function renderPersonal() {
+  const p = DATA[activeYear].personal;
+  document.getElementById('pers-titulo').textContent = `Planta de personal · ${activeYear}`;
+  const kpis = [
+    { cl:'', label:'Total empleados', val: p.total ? fmtInt(p.total) : null, sub:'Planta total municipal' },
+    { cl:'blue', label:'Permanente', val: p.permanente ? fmtInt(p.permanente) : null, sub:'Planta permanente' },
+    { cl:'amber', label:'Mensualizado', val: p.mensualizado ? fmtInt(p.mensualizado) : null, sub:'Personal mensualizado' },
+    { cl:'green', label:'Gasto total personal', val: p.gastoTotal ? `$${fmt(p.gastoTotal)} M` : null, sub: p.paritaria ? `Paritaria: ${p.paritaria}% acum.` : 'Sin dato aún' },
+  ];
+  document.getElementById('kpi-personal').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cl}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value ${k.val ? '' : 'pending'}">${k.val || 'Pendiente'}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>
+  `).join('');
+
+  if (p.porSecretaria && p.porSecretaria.length) {
+    renderSimpleBars('bars-planta-sec', p.porSecretaria, 'var(--blue)');
+  } else {
+    document.getElementById('bars-planta-sec').innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>';
+  }
+  if (p.componentes && p.componentes.length) {
+    renderSimpleBars('bars-componentes', p.componentes, 'var(--amber)');
+  } else {
+    document.getElementById('bars-componentes').innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>';
+  }
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  RENDER — METODOLOGÍA                                ║
+   ╚══════════════════════════════════════════════════════╝ */
+function renderMetodologia() {
+  const statusMap = { confirmed:'✅ Confirmado', pending:'⏳ Pendiente', partial:'🔶 Parcial' };
+  const colorMap  = { confirmed:'var(--green)', pending:'var(--mist)', partial:'var(--amber)' };
+  document.getElementById('data-status').innerHTML = Object.keys(DATA).map(y => {
+    const d = DATA[y];
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.625rem .875rem;background:var(--card2);border:1px solid var(--borde);border-radius:var(--r);gap:1rem">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:var(--navy)">${y}</span>
+        <span style="font-size:12px;color:${colorMap[d.status]};font-weight:600">${statusMap[d.status]}</span>
+        <span style="font-size:11px;color:var(--mist);flex:1;text-align:right">${d.fuente}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  CALCULADORA                                         ║
+   ╚══════════════════════════════════════════════════════╝ */
+function calcular() {
+  const base = parseFloat(document.getElementById('calc-base').value) || 0;
+  const prop = parseFloat(document.getElementById('calc-prop').value) || 0;
+  const inf  = parseFloat(document.getElementById('calc-inf').value) / 100 || 0;
+  if (!prop || !base) return;
+  const neutro = base * (1 + inf);
+  const vn = (prop - base) / base * 100;
+  const vr = ((1 + vn/100) / (1 + inf) - 1) * 100;
+  document.getElementById('res-neutro').textContent = '$' + neutro.toLocaleString('es-AR',{maximumFractionDigits:0}) + ' M';
+  document.getElementById('res-real').textContent   = (vr>0?'+':'') + vr.toFixed(1) + '%';
+  document.getElementById('res-real').className     = 'result-val ' + (vr > 2 ? 'ok' : vr < -5 ? 'bad' : 'warn');
+  document.getElementById('res-diag').textContent   = vr > 5 ? '🟢 Expansión real' : vr > -3 ? '🟡 Neutro / plano' : vr > -10 ? '🟠 Ajuste moderado' : '🔴 Recorte real';
+  document.getElementById('calc-result').classList.add('show');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  NAVEGACIÓN                                          ║
+   ╚══════════════════════════════════════════════════════╝ */
+function setView(id, btn) {
+  activeView = id;
+  document.querySelectorAll('.wrap').forEach(w => w.classList.remove('on'));
+  document.getElementById('v-' + id).classList.add('on');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderCurrentView();
+}
+
+function setYear(yr, btn) {
+  activeYear = yr;
+  document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  // Actualizar comparador: quitar el año activo de las opciones
+  const sel = document.getElementById('cmp-select');
+  Array.from(sel.options).forEach(opt => {
+    opt.disabled = opt.value === String(yr);
+    if (opt.value === String(yr) && cmpYear === String(yr)) {
+      sel.value = 'none';
+      cmpYear   = 'none';
+    }
+  });
+  const d = DATA[yr];
+  const statusTxt = d.status === 'confirmed' ? `<span style="color:var(--green)">Datos confirmados</span>` : d.status === 'partial' ? `<span style="color:var(--amber)">Datos parciales</span>` : `<span style="color:var(--mist)">Pendiente de carga</span>`;
+  document.getElementById('year-status').innerHTML = `Año activo: <strong style="color:var(--navy)">${yr}</strong> · ${statusTxt}`;
+
+  // Header chips
+  if (d.resumen) {
+    document.getElementById('chip-ejecutado').textContent = `$${(d.resumen.ejecutado/1000).toFixed(0)}B`;
+    document.getElementById('chip-resultado').textContent = `$${fmt(d.resumen.resultadoArt44)} M`;
+  } else {
+    document.getElementById('chip-ejecutado').textContent = '—';
+    document.getElementById('chip-resultado').textContent = '—';
+  }
+  document.getElementById('chip-planta').textContent = d.personal?.total ? fmtInt(d.personal.total) : '—';
+  renderCurrentView();
+}
+
+function setCmp(val) {
+  cmpYear = val;
+  renderCurrentView();
+}
+
+function renderCurrentView() {
+  switch (activeView) {
+    case 'resumen':     renderResumen(); break;
+    case 'recursos':    renderRecursos(); break;
+    case 'gastos':      renderGastos(); break;
+    case 'secretarias': renderSecretarias(); break;
+    case 'personal':    renderPersonal(); break;
+    case 'metodologia': renderMetodologia(); break;
+  }
+}
+
+/* ═══════ INIT ═══════ */
+renderResumen();
+</script>
+</body>
+</html>
