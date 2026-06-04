@@ -2,10 +2,9 @@
    DATOS PRESUPUESTARIOS — Municipio de Tres de Febrero
    Fuentes: RAFAM oficial 2024 (firmado 28/02/2025)
             RAFAM oficial 2025 (Ejecución por Cat. Programática, firmado 20/02/2026)
-            RAFAM provisional 2026 (al 31/03/2026, anualizados ×4)
-   Para actualizar: modificar el bloque del año correspondiente.
+            RAFAM provisional 2026 (al 31/03/2026, anualizados x4)
    Para GitHub Pages: subir index.html + datos.js en la misma carpeta.
-═══════════════════════════════════════════════════════════════ */
+======================================================= */
 
 const DATA = {
 
@@ -721,7 +720,7 @@ const DATA = {
   2026: {
     status: 'partial',
     fuente: 'RAFAM · Ejecución al 31/03/2026 · Datos provisorios · Anualizados ×4',
-    ipc: 0.30, // IPC 2026 estimado (en curso)
+    ipc: 0.30, // IPC 2026 estimado REM (30%)
     nota: 'Datos al 31/03/2026 anualizados (×4). El servicio de la deuda incluye pago de deuda flotante 2025 concentrado en Q1.',
 
     resumen: {
