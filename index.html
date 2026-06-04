@@ -856,6 +856,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
           <button class="cat-tab on" onclick="setCat('a','totales',this)">Totales</button>
           <button class="cat-tab" onclick="setCat('a','objeto',this)">Por objeto</button>
           <button class="cat-tab" onclick="setCat('a','recursos',this)">Recursos</button>
+          <button class="cat-tab" onclick="setCat('a','tasas',this)">Tasas</button>
           <button class="cat-tab" onclick="setCat('a','secretarias',this)">Secretarías</button>
           <button class="cat-tab" onclick="setCat('a','programas',this)">Programas</button>
           <button class="cat-tab" onclick="setCat('a','personal',this)">Personal</button>
@@ -894,6 +895,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
           <button class="cat-tab on" onclick="setCat('b','totales',this)">Totales</button>
           <button class="cat-tab" onclick="setCat('b','objeto',this)">Por objeto</button>
           <button class="cat-tab" onclick="setCat('b','recursos',this)">Recursos</button>
+          <button class="cat-tab" onclick="setCat('b','tasas',this)">Tasas</button>
           <button class="cat-tab" onclick="setCat('b','secretarias',this)">Secretarías</button>
           <button class="cat-tab" onclick="setCat('b','programas',this)">Programas</button>
           <button class="cat-tab" onclick="setCat('b','personal',this)">Personal</button>
@@ -1878,7 +1880,7 @@ const DATA = {
           { label: 'Fort. Cementerio Municipal',                   val:   321.31 },
         ]
       },
-      { label: 'Act. Centrales (personal y gastos gles.)', val: 20939.24, nota: 'Personal general + gastos comunes',
+      { label: 'Actividades Centrales y Gastos Generales', val: 20939.24, nota: 'Personal general + gastos comunes',
         programas: [
           { label: 'Actividades Centrales', val: 20939.24 },
         ]
@@ -3058,6 +3060,10 @@ function getValFromKey(year, key) {
     const parts = key.split('.');
     return d.secretarias?.[parseInt(parts[1])]?.programas?.[parseInt(parts[2])]?.val ?? null;
   }
+  if (key.startsWith('rec.tasas.')) {
+    const idx = parseInt(key.split('.')[2]);
+    return d.recursos?.tasas?.[idx]?.val ?? null;
+  }
   const [tipo, campo] = key.split('.');
   if (tipo === 'res')  return d.resumen?.[campo] ?? null;
   if (tipo === 'gas')  return d.gastos?.porObjeto?.[parseInt(campo)]?.val ?? null;
@@ -3081,6 +3087,9 @@ function buildDynamicCats(year) {
     });
   });
   CATS.programas = progs;
+  // Tasas municipales
+  CATS.tasas = (d?.recursos?.tasas || [])
+    .map((t, i) => ({ label: t.label, key: `rec.tasas.${i}`, val: t.val }));
 }
 
 function renderProgSelector(side) {
