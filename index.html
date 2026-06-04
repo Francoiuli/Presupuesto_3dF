@@ -2515,6 +2515,102 @@ function renderTortas() {
 /* ╔══════════════════════════════════════════════════════╗
    ║  RENDER — SECRETARÍAS (con desglose expandible)     ║
    ╚══════════════════════════════════════════════════════╝ */
+
+// Equivalencias de programas entre años (label 2024 → label 2025 o viceversa)
+const PROG_EQUIV = {
+  // Ambiente
+  'Higiene Urbana y Control Microbasurales': 'Higiene Urbana y Control Microbasurales',
+  'Mantenimiento Arbolado Público':          'Arbolado Público',
+  'Mantenimiento Sistema Pluvial':           'Mantenimiento Infr. Sistema Pluvial',
+  'Mantenimiento Infraestructura Urbana':    'Mantenimiento e Infraestructura Urbana',
+  'Cementerio + Espacios Públicos':          'Fort. Cementerio Municipal',
+  // Salud
+  'Atención Primaria de la Salud':           'Fort. Sistema Atención Primaria',
+  'Atención Médica Emergencias (SAME)':      'Fort. Sistema Atención Médica (SAME)',
+  'Hospital Odontológico':                   'Fort. Hospital Odontológico',
+  'Hospital Oftalmológico':                  'Fort. Hospital Oftalmológico',
+  'Epidemiología + Vectores':                'Epidemiología y Control de Vectores',
+  'Programas Sanitarios':                    'Fort. Programas Sanitarios',
+  'Plan SUMAR + Proteger':                   'Plan SUMAR',
+  // Seguridad
+  'Fortalecimiento Sistema Video Vigilancia':'Fort. Sistema Video Vigilancia',
+  'Fortalecimiento Protección Ciudadana':    'Fort. Sistema Protección Ciudadana',
+  'Centro Atención Víctimas':                'Centro Atención a las Víctimas',
+  'Fortalecimiento Seguridad Vial':          'Fort. Sistema Seguridad Vial',
+  // Obras
+  'Bacheo y Repavimentación':                'Bacheo y Repavimentación',
+  'FIM - Fondo Infraest. Municipal':         'Fondo Infraestructura Municipal (FIM)',
+  'Centros Comerciales + Accesibilidad':     'Desarrollo Centros Comerciales',
+  'Puesta en Valor Espacios Verdes':         'Puesta en Valor Espacios Verdes',
+  'Plan Integral Movilidad':                 'Plan Integral Movilidad (Obras)',
+  'Sistema Ord. Centralidades y Estac.':     'Ord. Centralidades y Estacionamiento',
+  // Educación → Capital Humano
+  'SAE + MESA Bonaerense':                   'Servicio Alimentario Escolar (SAE)',
+  'Fortalecimiento Infraestructura Educativa':'Fort. Infraestructura Educativa',
+  'Fortalecimiento Escuelas Municipales':    'Fort. Escuelas Municipales',
+  // Social → Capital Humano
+  'Emergencia Social y Seg. Alimentaria':    'Emergencia Social y Seg. Alimentaria',
+  'Protección y Restitución Derechos NNA':   'Protección y Restitución Derechos NNA',
+  'Programa Hábitat Sustentable':            'Programa de Hábitat Sustentable',
+  'Géneros y Derechos Humanos':              'Géneros, Diversidad y DDHH',
+  'Inclusión Personas con Discapacidad':     'Programa Inclusión Personas c/ Discapacidad',
+  'Espacios Comunitarios Territoriales':     'Espacios Comunitarios Territoriales',
+  'Economía Social y Popular':               'Economía Social y Popular',
+  // Deporte → Capital Humano
+  'Apoyo Deportistas y Clubes':              'Fort. y Apoyo Deportistas y Clubes',
+  'Fort. Infraestructura Centros Dep.':      'Fort. e Infr. Centros Deportivos',
+  'Ligas Deportivas + Bonaerenses':          'Ligas Deportivas y Juegos Bonaerenses',
+  // Trabajo
+  'Formación para el Trabajo':               'Formación para el Trabajo y Teletrabajo',
+  'Dist. Innovación y Conocimiento':         'Distrito Innovación y Conocimiento',
+  'Parque Industrial y PYMES':               'Desarrollo Parque Industrial y PYMES',
+  // Finanzas
+  'Coordinación Adm. de Gastos':             'Coordinación y Adm. de Gastos',
+  'Coordinación General Gestión':            'Coordinación General de la Gestión',
+  // HCD
+  'Actividades Centrales HCD':               'Formación y Sanción de Ordenanzas (HCD)',
+  // Juzgado
+  'Oficina de Faltas':                       'Administración General (Juzgado Faltas)',
+  // Territorial → reasignados
+  'Regularización Dominial Altos Podestá':   'Plan Regularización Dominial Altos Podestá',
+  'Desarrollo Urbano y Hábitat Sust.':       'Desarrollo Urbano y Hábitat Sustentable',
+  // Otros
+  'Defensa al Consumidor':                   'Defensa al Consumidor (Coord.)',
+  'Recursos Humanos':                        'Recursos Humanos (Finanzas)',
+  'Licencias de Conducir':                   'Licencias de Conducir (Obras)',
+  'Ordenamiento Espacio Público':            'Plan Integral Ordenamiento Esp. Público',
+};
+
+// Matching mejorado de programas con tabla de equivalencias
+function findProgCmp(label, cmpProgs) {
+  if (!cmpProgs || !cmpProgs.length) return null;
+  // 1. Exacto
+  let found = cmpProgs.find(c => c.label === label);
+  if (found) return found;
+  // 2. Via tabla de equivalencias
+  const equiv = PROG_EQUIV[label];
+  if (equiv) { found = cmpProgs.find(c => c.label === equiv); if (found) return found; }
+  // 3. Búsqueda inversa en tabla
+  const revKey = Object.entries(PROG_EQUIV).find(([k,v]) => v === label)?.[0];
+  if (revKey) { found = cmpProgs.find(c => c.label === revKey); if (found) return found; }
+  // 4. Fuzzy: normalizar y comparar
+  const norm = l => l.toLowerCase()
+    .replace(/fort\.\s+|fortalecimiento\s+/g,'')
+    .replace(/\s+de\s+(la|el|los|las)\s+/g,' ')
+    .replace(/[()\*]/g,'').replace(/\s+/g,' ').trim();
+  found = cmpProgs.find(c => norm(c.label) === norm(label));
+  if (found) return found;
+  // 5. Palabras clave largas
+  const words = norm(label).split(' ').filter(w => w.length > 5);
+  if (words.length >= 2) {
+    found = cmpProgs.find(c => {
+      const nb = norm(c.label);
+      return words.filter(w => nb.includes(w)).length >= Math.ceil(words.length * 0.6);
+    });
+  }
+  return found || null;
+}
+
 function toggleSecDetail(idx) {
   const detRow = document.getElementById(`sec-detail-${idx}`);
   const secRow = document.getElementById(`sec-row-${idx}`);
@@ -2618,17 +2714,7 @@ function renderSecretarias() {
           <span style="text-align:right">${showCmp ? cmpYear+' / var. real' : ''}</span>
         </div>
         ${s.programas.filter(p => p.val > 0).map(p => {
-          const normLabel = l => l.toLowerCase()
-            .replace(/fort\.?\s+/g,'').replace(/fortalecimiento\s+/g,'')
-            .replace(/\s+de\s+(la|el|los|las)\s+/g,' ')
-            .replace(/\s+/g,' ').trim();
-          const pc = cmpProgs.find(c => c.label === p.label)
-            || cmpProgs.find(c => normLabel(c.label) === normLabel(p.label))
-            || cmpProgs.find(c => {
-                const a = normLabel(p.label), b = normLabel(c.label);
-                const wordsA = a.split(' ').filter(w=>w.length>4);
-                return wordsA.length > 0 && wordsA.every(w => b.includes(w));
-              });
+          const pc = findProgCmp(p.label, cmpProgs);
           const pvn = (pc?.val) ? ((p.val - pc.val)/pc.val*100) : null;
           const pvr = (pvn !== null && ipc) ? ((1+pvn/100)/(1+ipc)-1)*100 : null;
           const vrCol = pvr!==null?(pvr>2?'#15803d':pvr>-5?'#b45309':'#b91c1c'):'var(--mist)';
