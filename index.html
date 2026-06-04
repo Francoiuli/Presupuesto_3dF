@@ -2105,53 +2105,138 @@ function renderResumen() {
    ║  RENDER — RECURSOS                                   ║
    ╚══════════════════════════════════════════════════════╝ */
 function renderRecursos() {
-  const d = DATA[activeYear];
+  const d   = DATA[activeYear];
+  const dc  = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
+  const rc  = dc?.recursos;
+  const ipc = dc?.ipc || 0;
   const isPending = d.status === 'pending' || !d.recursos;
-  document.getElementById('rec-pending').style.display  = isPending ? 'flex' : 'none';
-  document.getElementById('rec-content').style.display  = isPending ? 'none' : 'block';
-  document.getElementById('rec-titulo').textContent     = `Recursos · ${activeYear}`;
+  document.getElementById('rec-pending').style.display = isPending ? 'flex' : 'none';
+  document.getElementById('rec-content').style.display = isPending ? 'none' : 'block';
+  document.getElementById('rec-titulo').textContent    = `Recursos · ${activeYear}${rc ? ' vs ' + cmpYear : ''}`;
   if (isPending) { document.querySelectorAll('#rec-pending .po-year').forEach(e=>e.textContent=activeYear); return; }
 
   const r = d.recursos;
-  const kpis = [
-    { cl:'amber', label:'Total devengado',          val:`$${fmt(r.totalDevengado)} M`,  sub:`Crédito vigente aprobado`,     delta:null },
-    { cl:'green', label:'Total percibido',           val:`$${fmt(r.totalPercibido)} M`,  sub:`Brecha dev/perc: $${fmt(r.totalDevengado - r.totalPercibido)} M`, delta:null },
-    { cl:'',      label:'Origen municipal (perc.)',  val:`$${fmt(r.origenMunicipal)} M`, sub:`${((r.origenMunicipal/r.totalPercibido)*100).toFixed(1)}% del total`, delta:{cl:'up',txt:'Tasas + canon + copart.'} },
-    { cl:'blue',  label:'Origen provincial (perc.)', val:`$${fmt(r.origenProvincial)} M`,sub:`${((r.origenProvincial/r.totalPercibido)*100).toFixed(1)}% del total`, delta:{cl:'info',txt:'Copart. + transf. afect.'} },
-  ];
-  document.getElementById('kpi-recursos').innerHTML = kpis.map(k => `
-    <div class="kpi ${k.cl}">
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${k.val}</div>
-      <div class="kpi-sub">${k.sub}</div>
-      ${k.delta ? `<div class="kpi-delta ${k.delta.cl}">${k.delta.txt}</div>` : ''}
-    </div>
-  `).join('');
+  const showCmp = !!rc;
 
-  renderSimpleBars('bars-rec-tipo', r.tipos, 'var(--teal)');
-  renderSimpleBars('bars-tasas',    r.tasas, 'var(--amber)');
+  // ── Helper variación ──
+  const mkVar = (val, valC) => {
+    if (!val || !valC) return '';
+    const vn = (val-valC)/valC*100;
+    const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const col = (vr??vn) > 2 ? '#15803d' : (vr??vn) > -5 ? '#b45309' : '#b91c1c';
+    const txt = vr !== null
+      ? `${vn>0?'+':''}${vn.toFixed(1)}% nom · ${vr>0?'+':''}${vr.toFixed(1)}% real`
+      : `${vn>0?'+':''}${vn.toFixed(1)}%`;
+    return `<div class="kpi-delta" style="color:${col};font-size:11px">vs ${cmpYear}: ${txt}</div>`;
+  };
 
-  // Tabla tributarios
-  const total = r.tributarios.reduce((s,i) => s + i.val, 0);
-  document.getElementById('tbody-trib').innerHTML = r.tributarios.map(t => `
-    <tr>
+  // ── KPIs ──
+  document.getElementById('kpi-recursos').innerHTML = [
+    { cl:'amber', label:'Total percibido',     val:r.totalPercibido, valC:rc?.totalPercibido },
+    { cl:'',      label:'Origen municipal',    val:r.origenMunicipal,  valC:rc?.origenMunicipal,
+      sub:`${((r.origenMunicipal/r.totalPercibido)*100).toFixed(1)}% del total` },
+    { cl:'blue',  label:'Origen provincial',   val:r.origenProvincial, valC:rc?.origenProvincial,
+      sub:`${((r.origenProvincial/r.totalPercibido)*100).toFixed(1)}% del total` },
+    { cl:'',      label:'Origen nacional',     val:r.origenNacional,   valC:rc?.origenNacional,
+      sub:`${((r.origenNacional/r.totalPercibido)*100).toFixed(2)}% del total` },
+  ].map(k => `<div class="kpi ${k.cl}">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value">$${fmt(k.val)} M</div>
+    <div class="kpi-sub">${k.sub||''}</div>
+    ${mkVar(k.val, k.valC)}
+  </div>`).join('');
+
+  // ── Barras por tipo CON comparativa ──
+  const maxTipo = Math.max(...r.tipos.map(t=>t.val), ...(rc?.tipos?.map(t=>t.val)||[0]));
+  const legHTML = showCmp ? `<div style="display:flex;gap:1.5rem;margin-bottom:.75rem;font-size:12px;font-weight:600">
+    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(13,148,136,.75)"></span>${activeYear}</span>
+    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
+  </div>` : '';
+
+  document.getElementById('bars-rec-tipo').innerHTML = legHTML + r.tipos.map((t,i) => {
+    const tc = rc?.tipos?.[i];
+    const vn = tc ? ((t.val-tc.val)/tc.val*100) : null;
+    const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const pct = (t.val/r.totalPercibido*100).toFixed(1);
+    const col = vr!==null?(vr>2?'#15803d':vr>-5?'#b45309':'#b91c1c'):'var(--mist)';
+    return `<div style="margin-bottom:11px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
+        <span style="font-size:12px;font-weight:500;color:var(--ink)">${t.label}</span>
+        <div style="display:flex;gap:.75rem;align-items:baseline;flex-shrink:0">
+          ${tc?`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(180,83,9,.75)">$${fmt(tc.val)}M</span>`:''}
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:12px">$${fmt(t.val)}M</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
+          ${vr!==null?`<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>`:''}
+        </div>
+      </div>
+      <div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative;margin-bottom:${tc?'2':'0'}px">
+        <div style="position:absolute;top:0;left:0;width:${t.val/maxTipo*100}%;height:100%;background:rgba(13,148,136,.72);border-radius:3px"></div>
+      </div>
+      ${tc?`<div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
+        <div style="position:absolute;top:0;left:0;width:${tc.val/maxTipo*100}%;height:100%;background:rgba(180,83,9,.55);border-radius:3px"></div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+
+  // ── Barras tasas CON comparativa ──
+  const maxTasa = Math.max(...r.tasas.map(t=>t.val), ...(rc?.tasas?.map(t=>t.val)||[0]));
+  document.getElementById('bars-tasas').innerHTML = (showCmp ? legHTML : '') + r.tasas.map((t,i) => {
+    const tc = rc?.tasas?.[i];
+    const vn = tc ? ((t.val-tc.val)/tc.val*100) : null;
+    const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const col = vr!==null?(vr>2?'#15803d':vr>-5?'#b45309':'#b91c1c'):'var(--mist)';
+    return `<div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
+        <span style="font-size:11px;font-weight:500;color:var(--ink2)">${t.label}</span>
+        <div style="display:flex;gap:.5rem;align-items:baseline;flex-shrink:0">
+          ${tc?`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(180,83,9,.75)">$${fmt(tc.val)}M</span>`:''}
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:11px">$${fmt(t.val)}M</span>
+          ${vr!==null?`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${col}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>`:''}
+        </div>
+      </div>
+      <div style="height:11px;background:var(--bg2);border-radius:2px;overflow:hidden;position:relative;margin-bottom:${tc?'2':'0'}px">
+        <div style="position:absolute;top:0;left:0;width:${t.val/maxTasa*100}%;height:100%;background:rgba(217,119,6,.75);border-radius:2px"></div>
+      </div>
+      ${tc?`<div style="height:11px;background:var(--bg2);border-radius:2px;overflow:hidden;position:relative">
+        <div style="position:absolute;top:0;left:0;width:${tc.val/maxTasa*100}%;height:100%;background:rgba(180,83,9,.45);border-radius:2px"></div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+
+  // ── Tabla tributarios CON comparativa ──
+  const total  = r.tributarios.reduce((s,i)=>s+i.val,0);
+  const totalC = rc ? rc.tributarios.reduce((s,i)=>s+i.val,0) : 0;
+  const thCmp  = document.getElementById('th-cmp-trib');
+  if (thCmp) { thCmp.style.display = showCmp ? '' : 'none'; thCmp.textContent = showCmp ? cmpYear+' ($M)' : ''; }
+  const thVr = document.getElementById('th-vr-trib');
+  if (thVr) thVr.style.display = showCmp ? '' : 'none';
+
+  document.getElementById('tbody-trib').innerHTML = r.tributarios.map((t,i) => {
+    const tc = rc?.tributarios?.find(x=>x.label===t.label) || rc?.tributarios?.[i];
+    const vn = tc ? ((t.val-tc.val)/tc.val*100) : null;
+    const vr = (vn!==null&&ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const col = vr!==null?(vr>2?'#15803d':vr>-5?'#b45309':'#b91c1c'):'var(--mist)';
+    return `<tr>
       <td class="name">${t.label}</td>
       <td class="mono-hi yr-col">$${fmt(t.val)} M</td>
       <td class="pct yr-col">${((t.val/total)*100).toFixed(1)}%</td>
-      <td><span class="badge ${t.orig === 'Provincial' ? 'badge-warn' : 'badge-ok'}">${t.orig}</span></td>
-    </tr>
-  `).join('');
+      ${showCmp?`<td class="mono yr-cmp">${tc?'$'+fmt(tc.val)+' M':'—'}</td>
+      <td class="yr-cmp" style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${vr!==null?(vr>0?'+':'')+vr.toFixed(1)+'%r':'—'}</td>`:''}
+      <td><span class="badge ${t.orig==='Provincial'?'badge-warn':'badge-ok'}">${t.orig}</span></td>
+    </tr>`;
+  }).join('');
 
-  // Tabla fondos
-  document.getElementById('tbody-fondos').innerHTML = r.fondos.map(f => `
+  // ── Fondos (sin comparativa) ──
+  const fondosEl = document.getElementById('tbody-fondos');
+  if (fondosEl) fondosEl.innerHTML = r.fondos?.length ? r.fondos.map(f => `
     <tr>
       <td class="name">${f.label}</td>
       <td class="mono">$${fmt(f.si)} M</td>
       <td class="mono yr-col">$${fmt(f.ing)} M</td>
       <td class="mono">$${fmt(f.eg)} M</td>
-      <td class="mono-hi" style="color:${f.sc > 0 ? 'var(--green)' : 'var(--mist)'}">$${fmt(f.sc)} M</td>
-    </tr>
-  `).join('');
+      <td class="mono-hi" style="color:${f.sc>0?'var(--green)':'var(--mist)'}">$${fmt(f.sc)} M</td>
+    </tr>`).join('')
+  : '<tr><td colspan="5" class="na" style="text-align:center;padding:1rem">Sin datos de fondos para este año</td></tr>';
 }
 
 /* ╔══════════════════════════════════════════════════════╗
@@ -2200,31 +2285,40 @@ function renderGastos() {
   const maxG = Math.max(...g.porObjeto.map(o=>o.val), ...(gc?.porObjeto?.map(o=>o.val) || [0]));
   const hasCmp = !!gc;
 
-  document.getElementById('bars-gastos-obj').innerHTML = `
-    ${hasCmp ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px;color:var(--ink3)">
-      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(13,148,136,.7);margin-right:4px"></span>${activeYear}</span>
-      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(217,119,6,.5);margin-right:4px"></span>${cmpYear}</span>
-    </div>` : ''}
-    ${g.porObjeto.map((o, i) => {
-      const oc = gc?.porObjeto?.[i];
-      const vn = oc ? ((o.val-oc.val)/oc.val*100) : null;
-      const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
-      return `<div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
-          <span style="font-weight:500">${o.label}</span>
-          <div style="display:flex;gap:.75rem;align-items:center">
-            ${oc ? `<span style="color:var(--mist);font-family:'JetBrains Mono',monospace;font-size:10px">$${fmt(oc.val)}M</span>` : ''}
-            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">$${fmt(o.val)}M</span>
-            ${vr !== null ? `<span class="cmp-vr ${vr > 2 ? 'ok' : vr < -5 ? 'bad' : 'warn'}" style="font-size:10px">${vr > 0 ? '+' : ''}${vr.toFixed(1)}% real</span>` : ''}
-          </div>
-        </div>
-        <div style="background:var(--bg2);border-radius:3px;height:13px;overflow:hidden;position:relative">
-          ${oc ? `<div style="position:absolute;top:0;left:0;width:${oc.val/maxG*100}%;height:100%;border-radius:3px;background:rgba(217,119,6,.35)"></div>` : ''}
-          <div style="position:absolute;top:0;left:0;width:${o.val/maxG*100}%;height:100%;border-radius:3px;background:${o.color}"></div>
-        </div>
-      </div>`;
-    }).join('')}
-  `;
+  document.getElementById('bars-gastos-obj').innerHTML = hasCmp ? `
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1rem">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600;letter-spacing:.03em">Objeto del gasto</th>
+          <th style="text-align:right;padding:8px 12px;background:rgba(13,148,136,.85);color:#fff;font-weight:700">${activeYear}<br><span style="font-size:9px;font-weight:400;opacity:.8">$M · %</span></th>
+          <th style="text-align:right;padding:8px 12px;background:rgba(180,83,9,.80);color:#fff;font-weight:700">${cmpYear}<br><span style="font-size:9px;font-weight:400;opacity:.8">$M · %</span></th>
+          <th style="text-align:right;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600">Variación real</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${g.porObjeto.map((o,i) => {
+          const oc = gc?.porObjeto?.[i];
+          const vn = oc ? ((o.val-oc.val)/oc.val*100) : null;
+          const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+          const vrCls = vr>2?'#15803d':vr>-5?'#b45309':'#b91c1c';
+          return `<tr style="border-bottom:1px solid var(--borde);${i%2===1?'background:var(--card2)':''}">
+            <td style="padding:9px 12px;font-weight:600;color:var(--ink)">${o.label}</td>
+            <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy)">$${fmt(o.val)}M<br><span style="font-size:10px;color:var(--mist);font-weight:400">${o.pct}%</span></td>
+            <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--ink2)">${oc?`$${fmt(oc.val)}M<br><span style="font-size:10px;color:var(--mist)">${oc.pct}%</span>`:'—'}</td>
+            <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:${vr!==null?vrCls:'var(--mist)'}">${vr!==null?(vr>0?'+':'')+vr.toFixed(1)+'%':'—'}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  ` : g.porObjeto.map((o,i) => `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+        <span style="font-weight:600;color:var(--ink)">${o.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy)">$${fmt(o.val)}M <span style="color:var(--mist);font-weight:400;font-size:10px">${o.pct}%</span></span>
+      </div>
+      <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
+        <div style="width:${o.val/maxG*100}%;height:100%;border-radius:3px;background:${o.color}"></div>
+      </div>
+    </div>`).join('');
 
   // ── PROGRAMAS ──
   const maxP = Math.max(...g.programas.map(p=>p.val), ...(gc?.programas?.map(p=>p.val)||[0]));
@@ -2409,71 +2503,95 @@ function renderSecretarias() {
    ║  RENDER — PERSONAL (con comparativa)                ║
    ╚══════════════════════════════════════════════════════╝ */
 function renderPersonal() {
-  const p  = DATA[activeYear].personal;
-  const pc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)]?.personal : null;
+  const p   = DATA[activeYear].personal;
+  const pc  = cmpYear !== 'none' ? DATA[parseInt(cmpYear)]?.personal : null;
   const ipc = cmpYear !== 'none' ? (DATA[parseInt(cmpYear)]?.ipc || 0) : 0;
-  document.getElementById('pers-titulo').textContent = `Planta de personal · ${activeYear}`;
+  const showCmp = !!pc;
+  document.getElementById('pers-titulo').textContent = `Planta de personal · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
 
-  // ── KPIs con comparativa ──
-  const mkDelta = (val, valC, isMonetary) => {
-    if (!valC || !val) return '';
+  // ── Helper variación ──
+  const vReal = (val, valC) => {
+    if (!val || !valC) return null;
     const vn = (val - valC) / valC * 100;
     const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
-    const cls = vn > 0 ? 'up' : 'down';
-    const vrTxt = vr !== null ? ` · ${vr>0?'+':''}${vr.toFixed(1)}% real` : '';
-    return `<div class="kpi-delta ${cls}">vs ${cmpYear}: ${vn>0?'+':''}${vn.toFixed(1)}%${vrTxt}</div>`;
+    return { vn, vr };
+  };
+  const badge = (v) => {
+    if (!v) return '';
+    const cls = v.vr !== null ? (v.vr > 2 ? '#15803d' : v.vr > -5 ? '#b45309' : '#b91c1c')
+                              : (v.vn > 2 ? '#15803d' : v.vn > -5 ? '#b45309' : '#b91c1c');
+    const txt = v.vr !== null
+      ? `${v.vn>0?'+':''}${v.vn.toFixed(1)}% nom · ${v.vr>0?'+':''}${v.vr.toFixed(1)}% real`
+      : `${v.vn>0?'+':''}${v.vn.toFixed(1)}%`;
+    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${cls}">${txt}</span>`;
   };
 
-  const kpis = [
-    { cl:'', label:'Total empleados',
-      val: p.total ? fmtInt(p.total) : null,
-      sub: p.total && pc?.total ? `vs ${cmpYear}: ${fmtInt(pc.total)} · ${p.total > pc.total ? '+':''}${p.total - (pc.total||0)} empleados` : 'Planta total municipal',
-      delta: pc ? mkDelta(p.total, pc.total, false) : '' },
-    { cl:'blue', label:'Planta permanente',
-      val: p.permanente ? fmtInt(p.permanente) : null,
-      sub: pc?.permanente ? `vs ${cmpYear}: ${fmtInt(pc.permanente)}` : 'Relación de dependencia estable',
-      delta: pc ? mkDelta(p.permanente, pc.permanente, false) : '' },
-    { cl:'amber', label:'Planta mensualizada',
-      val: p.mensualizado ? fmtInt(p.mensualizado) : null,
-      sub: pc?.mensualizado ? `vs ${cmpYear}: ${fmtInt(pc.mensualizado)}` : '',
-      delta: pc ? mkDelta(p.mensualizado, pc.mensualizado, false) : '' },
-    { cl:'green', label:'Gasto total personal',
-      val: p.gastoTotal ? `$${fmt(p.gastoTotal)} M` : null,
-      sub: p.paritaria ? `Paritaria: ${p.paritaria}% acum.` : 'Sin dato',
-      delta: pc?.gastoTotal ? mkDelta(p.gastoTotal, pc.gastoTotal, true) : '' },
-  ];
-  document.getElementById('kpi-personal').innerHTML = kpis.map(k => `
-    <div class="kpi ${k.cl}">
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value ${k.val ? '' : 'pending'}">${k.val || 'Pendiente'}</div>
-      <div class="kpi-sub">${k.sub}</div>
-      ${k.delta || ''}
+  // ── TABLA RESUMEN (más clara que KPIs) ──
+  const rows = [
+    { label: 'Total empleados',    vA: p.total,       vC: pc?.total,       fmt: fmtInt, unit: '' },
+    { label: 'Planta permanente',  vA: p.permanente,  vC: pc?.permanente,  fmt: fmtInt, unit: '' },
+    { label: 'Planta mensualizada',vA: p.mensualizado,vC: pc?.mensualizado,fmt: fmtInt, unit: '' },
+    { label: 'Gasto total personal',vA:p.gastoTotal,  vC: pc?.gastoTotal,  fmt: v=>`$${fmt(v)} M`, unit:'' },
+    { label: 'Paritaria acumulada',vA: p.paritaria,   vC: pc?.paritaria,   fmt: v=>`${v}%`, unit: '' },
+  ].filter(r => r.vA);
+
+  document.getElementById('kpi-personal').innerHTML = `
+    <div style="grid-column:1/-1">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:8px 12px;background:var(--navy);color:#fff;border-radius:var(--r) 0 0 0;font-weight:600;letter-spacing:.03em">Concepto</th>
+            <th style="text-align:right;padding:8px 12px;background:rgba(13,148,136,.85);color:#fff;font-weight:700">${activeYear}</th>
+            ${showCmp ? `<th style="text-align:right;padding:8px 12px;background:rgba(180,83,9,.80);color:#fff;font-weight:700">${cmpYear}</th>
+            <th style="text-align:right;padding:8px 12px;background:var(--navy);color:#fff;border-radius:0 var(--r) 0 0;font-weight:600">Variación</th>` : ''}
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((r,i) => {
+            const v = vReal(r.vA, r.vC);
+            return `<tr style="border-bottom:1px solid var(--borde);${i%2===1?'background:var(--card2)':''}">
+              <td style="padding:9px 12px;font-weight:600;color:var(--ink)">${r.label}</td>
+              <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy)">${r.fmt(r.vA)}</td>
+              ${showCmp ? `<td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--ink2)">${r.vC ? r.fmt(r.vC) : '—'}</td>
+              <td style="padding:9px 12px;text-align:right">${badge(v)}</td>` : ''}
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
     </div>
-  `).join('');
+  `;
 
-  // ── Barras planta por secretaría CON comparativa ──
+  // ── Planta por secretaría ──
   const secEl = document.getElementById('bars-planta-sec');
-  document.querySelector('.card.v5 .card-title').textContent =
-    `Gasto en personal por componente · ${activeYear}${pc ? ' vs ' + cmpYear : ''}`;
-
   if (p.porSecretaria && p.porSecretaria.length) {
-    const allVals = [...p.porSecretaria.map(s=>s.val), ...(pc?.porSecretaria?.map(s=>s.val)||[])];
-    const maxS = Math.max(...allVals);
-    const legend = pc ? `<div style="display:flex;gap:1rem;margin-bottom:.75rem;font-size:11px;color:var(--ink3)">
-      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--blue);opacity:.7;margin-right:4px"></span>${activeYear}</span>
-      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(217,119,6,.6);margin-right:4px"></span>${cmpYear}</span>
+    const totalPlanta = p.porSecretaria.reduce((s,x)=>s+(x.val||0),0);
+    const allVals = [...p.porSecretaria.map(s=>s.val||0), ...(pc?.porSecretaria?.map(s=>s.val||0)||[])];
+    const maxS = Math.max(...allVals, 1);
+    const legHTML = showCmp ? `<div style="display:flex;gap:1.5rem;margin-bottom:.875rem;font-size:12px;font-weight:600">
+      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(29,111,164,.75)"></span>${activeYear}</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--mist);font-weight:400">% = de la planta total</span>
     </div>` : '';
-    secEl.innerHTML = legend + p.porSecretaria.map(s => {
-      const sc = pc?.porSecretaria?.find(c => c.label === s.label);
-      return `<div style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
-          <span>${s.label}</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">${s.val}${sc ? ` <span style="color:var(--mist);font-weight:400;font-size:10px">/ ${sc.val}</span>` : ''}</span>
+    secEl.innerHTML = legHTML + p.porSecretaria.map(s => {
+      const sc = pc?.porSecretaria?.find(c=>c.label===s.label);
+      const pct = ((s.val||0)/totalPlanta*100).toFixed(1);
+      const v = sc ? vReal(s.val, sc.val) : null;
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
+          <span style="font-size:12px;font-weight:500;color:var(--ink)">${s.label}</span>
+          <div style="display:flex;gap:.75rem;align-items:baseline;flex-shrink:0">
+            ${sc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.8)">${sc.val}</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:12px">${s.val}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
+            ${badge(v)}
+          </div>
         </div>
-        <div style="background:var(--bg2);border-radius:2px;height:10px;overflow:hidden;position:relative">
-          ${sc ? `<div style="position:absolute;top:0;left:0;width:${sc.val/maxS*100}%;height:100%;background:rgba(217,119,6,.5);border-radius:2px"></div>` : ''}
-          <div style="position:absolute;top:0;left:0;width:${s.val/maxS*100}%;height:100%;background:rgba(37,99,235,.65);border-radius:2px"></div>
+        <div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative;margin-bottom:${sc?'2':'0'}px">
+          <div style="position:absolute;top:0;left:0;width:${(s.val||0)/maxS*100}%;height:100%;background:rgba(29,111,164,.70);border-radius:3px"></div>
         </div>
+        ${sc ? `<div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
+          <div style="position:absolute;top:0;left:0;width:${(sc.val||0)/maxS*100}%;height:100%;background:rgba(180,83,9,.55);border-radius:3px"></div>
+        </div>` : ''}
       </div>`;
     }).join('');
   } else {
@@ -2481,26 +2599,32 @@ function renderPersonal() {
   }
 
   // ── Componentes del gasto ──
+  document.querySelector('.card.v5 .card-title').textContent =
+    `Gasto en personal por componente · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
   if (p.componentes && p.componentes.length) {
-    const allC = [...p.componentes.map(c=>c.val), ...(pc?.componentes?.map(c=>c.val)||[])];
-    const maxC = Math.max(...allC);
+    const totalComp = p.componentes.reduce((s,c)=>s+(c.val||0),0);
+    const allC = [...p.componentes.map(c=>c.val||0), ...(pc?.componentes?.map(c=>c.val||0)||[])];
+    const maxC = Math.max(...allC, 1);
     document.getElementById('bars-componentes').innerHTML = p.componentes.map(c => {
-      const cc = pc?.componentes?.find(x => x.label === c.label);
-      const vn = cc ? ((c.val-cc.val)/cc.val*100) : null;
-      const vr = (vn!==null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
-      return `<div style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
-          <span>${c.label}</span>
-          <div style="display:flex;gap:.5rem;align-items:center">
-            ${cc ? `<span style="color:var(--mist);font-family:'JetBrains Mono',monospace;font-size:9px">$${fmt(cc.val)}M</span>` : ''}
-            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">$${fmt(c.val)}M</span>
-            ${vr !== null ? `<span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:${vr>2?'var(--green)':vr>-10?'var(--amber)':'var(--red)'}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>` : ''}
+      const cc = pc?.componentes?.find(x=>x.label===c.label);
+      const pct = ((c.val||0)/totalComp*100).toFixed(1);
+      const v = cc ? vReal(c.val, cc.val) : null;
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
+          <span style="font-size:12px;font-weight:500;color:var(--ink)">${c.label}</span>
+          <div style="display:flex;gap:.75rem;align-items:baseline;flex-shrink:0">
+            ${cc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.8)">$${fmt(cc.val)}M</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:12px">$${fmt(c.val)}M</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
+            ${badge(v)}
           </div>
         </div>
-        <div style="background:var(--bg2);border-radius:2px;height:11px;overflow:hidden;position:relative">
-          ${cc ? `<div style="position:absolute;top:0;left:0;width:${cc.val/maxC*100}%;height:100%;background:rgba(217,119,6,.45);border-radius:2px"></div>` : ''}
-          <div style="position:absolute;top:0;left:0;width:${c.val/maxC*100}%;height:100%;background:rgba(217,119,6,.75);border-radius:2px"></div>
+        <div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative;margin-bottom:${cc?'2':'0'}px">
+          <div style="position:absolute;top:0;left:0;width:${(c.val||0)/maxC*100}%;height:100%;background:rgba(217,119,6,.75);border-radius:3px"></div>
         </div>
+        ${cc ? `<div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
+          <div style="position:absolute;top:0;left:0;width:${(cc.val||0)/maxC*100}%;height:100%;background:rgba(180,83,9,.50);border-radius:3px"></div>
+        </div>` : ''}
       </div>`;
     }).join('');
   } else {
@@ -2575,25 +2699,7 @@ const calcState = {
   b: { cat: 'totales', key: null },
 };
 
-function getValFromKey(year, key) {
-  if (!key) return null;
-  const d = DATA[parseInt(year)];
-  if (!d) return null;
-  const [tipo, campo] = key.split('.');
-  if (tipo === 'res')  return d.resumen?.[campo] ?? null;
-  if (tipo === 'gas')  return d.gastos?.porObjeto?.[parseInt(campo)]?.val ?? null;
-  if (tipo === 'rec')  return d.recursos?.tipos?.[parseInt(campo)]?.val ?? null;
-  if (tipo === 'pers') return d.personal?.[campo] ?? null;
-  if (tipo === 'sec') {
-    const idx = parseInt(campo);
-    return d.secretarias?.[idx]?.val ?? null;
-  }
-  if (tipo === 'prog') {
-    const idx = parseInt(campo);
-    return d.gastos?.programas?.[idx]?.val ?? null;
-  }
-  return null;
-}
+// getValFromKey moved into buildDynamicCats block above
 
 function getLabelFromKey(year, key) {
   if (!key) return '';
@@ -2609,22 +2715,113 @@ function getLabelFromKey(year, key) {
   return key;
 }
 
+// Estado del selector de programas
+const progState = { a: '', b: '' };
+
+function getValFromKey(year, key) {
+  if (!key) return null;
+  const d = DATA[parseInt(year)];
+  if (!d) return null;
+  if (key.startsWith('secprog.')) {
+    const parts = key.split('.');
+    return d.secretarias?.[parseInt(parts[1])]?.programas?.[parseInt(parts[2])]?.val ?? null;
+  }
+  const [tipo, campo] = key.split('.');
+  if (tipo === 'res')  return d.resumen?.[campo] ?? null;
+  if (tipo === 'gas')  return d.gastos?.porObjeto?.[parseInt(campo)]?.val ?? null;
+  if (tipo === 'rec')  return d.recursos?.tipos?.[parseInt(campo)]?.val ?? null;
+  if (tipo === 'pers') return d.personal?.[campo] ?? null;
+  if (tipo === 'sec')  return d.secretarias?.[parseInt(campo)]?.val ?? null;
+  if (tipo === 'prog') return d.gastos?.programas?.[parseInt(campo)]?.val ?? null;
+  return null;
+}
+
 function buildDynamicCats(year) {
   const d = DATA[parseInt(year)];
   CATS.secretarias = (d?.secretarias || [])
     .filter(s => s.val)
-    .map((s, i) => ({ label: s.label.length > 28 ? s.label.slice(0,26)+'…' : s.label, key: `sec.${i}` }));
-  CATS.programas = (d?.gastos?.programas || [])
-    .map((p, i) => ({ label: p.label.length > 28 ? p.label.slice(0,26)+'…' : p.label, key: `prog.${i}` }));
+    .map((s, i) => ({ label: s.label, key: `sec.${i}` }));
+  // Programas: siempre desde secretarias[].programas para tener todos
+  const progs = [];
+  (d?.secretarias || []).forEach((s, si) => {
+    (s.programas || []).forEach((p, pi) => {
+      progs.push({ label: p.label, key: `secprog.${si}.${pi}`, sec: s.label, val: p.val });
+    });
+  });
+  CATS.programas = progs;
+}
+
+function renderProgSelector(side) {
+  const yr  = document.getElementById(`c${side}-year`).value;
+  const d   = DATA[parseInt(yr)];
+  buildDynamicCats(yr);
+  const container = document.getElementById(`c${side}-items`);
+  const progs = CATS.programas;
+  const total = d?.gastos?.total || 1;
+
+  if (!progs.length) {
+    container.innerHTML = '<span style="color:var(--mist);font-size:11px;font-style:italic">Sin programas para este año.</span>';
+    return;
+  }
+
+  const secs = [...new Set(progs.map(p => p.sec).filter(Boolean))].sort();
+  if (!progState[side]) progState[side] = secs[0] || '';
+  const currentSec = progState[side];
+  const filtrados = currentSec ? progs.filter(p => p.sec === currentSec) : progs;
+
+  container.innerHTML = `<div style="display:flex;flex-direction:column;gap:6px;width:100%">
+    <select style="width:100%;padding:7px 10px;border:1.5px solid var(--borde);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--card2);cursor:pointer;outline:none"
+      onchange="progState['${side}']=this.value; renderProgSelector('${side}')">
+      ${secs.map(s => `<option value="${s}" ${s===currentSec?'selected':''}>${s}</option>`).join('')}
+    </select>
+    <div style="display:flex;flex-direction:column;gap:2px;max-height:220px;overflow-y:auto;border:1.5px solid var(--borde);border-radius:var(--r);background:var(--card2);padding:3px">
+      ${filtrados.map(item => {
+        const isOn = calcState[side].key === item.key;
+        const pct  = item.val && total ? (item.val/total*100).toFixed(1) : null;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:5px;cursor:pointer;font-size:12px;border:1px solid transparent;${isOn?'background:var(--teal);color:#fff;':'color:var(--ink2)'}"
+          onclick="selectProgItem('${side}','${item.key}',this)"
+          data-key="${item.key}">
+          <span style="font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.label}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;${isOn?'color:rgba(255,255,255,.8)':'color:var(--mist)'};flex-shrink:0;margin-left:8px">${item.val?'$'+item.val.toLocaleString('es-AR',{maximumFractionDigits:0})+'M':''} ${pct?pct+'%':''}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function selectProgItem(side, key, el) {
+  calcState[side].key = key;
+  // deselect all in list
+  el.closest('div[style*="flex-direction:column"]').querySelectorAll('[data-key]').forEach(d => {
+    d.style.background = ''; d.style.color = 'var(--ink2)';
+    d.querySelector('span:last-child').style.color = 'var(--mist)';
+  });
+  el.style.background = 'var(--teal)'; el.style.color = '#fff';
+  el.querySelector('span:last-child').style.color = 'rgba(255,255,255,.8)';
+  const yr  = document.getElementById(`c${side}-year`).value;
+  const val = getValFromKey(yr, key);
+  if (val !== null) {
+    document.getElementById(`c${side}-val`).value = val;
+    document.getElementById(`c${side}-hint`).textContent = '← cargado automáticamente';
+  } else {
+    document.getElementById(`c${side}-val`).value = '';
+    document.getElementById(`c${side}-hint`).textContent = 'Sin dato · ingresá el valor manualmente';
+  }
+  calcRun();
 }
 
 function renderItems(side, cat) {
   const yr    = document.getElementById(`c${side}-year`).value;
   buildDynamicCats(yr);
-  const items = CATS[cat] || [];
   const container = document.getElementById(`c${side}-items`);
   const currentKey = calcState[side].key;
 
+  if (cat === 'programas') {
+    renderProgSelector(side);
+    return;
+  }
+
+  const items = CATS[cat] || [];
   if (!items.length) {
     container.innerHTML = '<span style="font-size:11px;color:var(--mist);font-style:italic">Sin datos para este año en esta categoría.</span>';
     return;
@@ -2637,7 +2834,7 @@ function renderItems(side, cat) {
     return `<button 
       class="cat-item ${isOn ? 'on' : ''} ${!hasVal ? 'manual' : ''}" 
       onclick="selectItem('${side}','${item.key}',this)"
-      title="${hasVal ? '$'+val.toLocaleString('es-AR',{maximumFractionDigits:1})+' M' : 'Sin dato — podés ingresarlo manualmente'}"
+      title="${hasVal ? '$'+val.toLocaleString('es-AR',{maximumFractionDigits:1})+' M' : 'Sin dato'}"
     >${item.label}${hasVal ? '' : ' ·?'}</button>`;
   }).join('');
 }
@@ -2645,6 +2842,7 @@ function renderItems(side, cat) {
 function setCat(side, cat, btn) {
   calcState[side].cat = cat;
   calcState[side].key = null;
+  if (cat !== 'programas') progState[side] = '';
   document.querySelectorAll(`#c${side}-cats .cat-tab`).forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   renderItems(side, cat);
@@ -2662,7 +2860,7 @@ function selectItem(side, key, btn) {
     return;
   }
   calcState[side].key = key;
-  document.querySelectorAll(`#c${side}-items .cat-item`).forEach(b => b.classList.remove('on'));
+  document.querySelectorAll(`#c${side}-items .cat-item, #c${side}-items [data-key]`).forEach(b => { b.classList?.remove('on'); });
   btn.classList.add('on');
   const yr  = document.getElementById(`c${side}-year`).value;
   const val = getValFromKey(yr, key);
