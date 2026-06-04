@@ -2204,9 +2204,8 @@ function renderRecursos() {
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
         <span style="font-size:12px;font-weight:500;color:var(--ink)">${t.label}</span>
         <div style="display:flex;gap:.75rem;align-items:baseline;flex-shrink:0">
-          ${tc?`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(180,83,9,.75)">$${fmt(tc.val)}M</span>`:''}
-          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:12px">$${fmt(t.val)}M</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
+          ${tc?`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(180,83,9,.75)">$${fmt(tc.val)}M·${(tc.val/rc.totalPercibido*100).toFixed(1)}%</span>`:''}
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:12px">$${fmt(t.val)}M·<span style="font-weight:400;color:var(--mist)">${pct}%</span></span>
           ${vr!==null?`<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>`:''}
         </div>
       </div>
@@ -2230,8 +2229,8 @@ function renderRecursos() {
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
         <span style="font-size:11px;font-weight:500;color:var(--ink2)">${t.label}</span>
         <div style="display:flex;gap:.5rem;align-items:baseline;flex-shrink:0">
-          ${tc?`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(180,83,9,.75)">$${fmt(tc.val)}M</span>`:''}
-          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:11px">$${fmt(t.val)}M</span>
+          ${tc?`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(180,83,9,.75)">$${fmt(tc.val)}M·${(tc.val/rc.totalPercibido*100).toFixed(1)}%</span>`:''}
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:11px">$${fmt(t.val)}M·<span style="font-weight:400;color:var(--mist);font-size:10px">${(t.val/r.totalPercibido*100).toFixed(1)}%</span></span>
           ${vr!==null?`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${col}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>`:''}
         </div>
       </div>
