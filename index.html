@@ -232,8 +232,8 @@ thead th {
 }
 thead th:first-child { border-radius: var(--r3) 0 0 0 }
 thead th:last-child  { border-radius: 0 var(--r3) 0 0 }
-thead th.yr-col { background: rgba(13,148,136,.25); color: #99F6E4 }
-thead th.yr-cmp { background: rgba(217,119,6,.2);   color: #FDE68A }
+thead th.yr-col { background: rgba(13,148,136,.85); color: #ffffff }
+thead th.yr-cmp { background: rgba(180,83,9,.80);   color: #ffffff }
 tbody tr { border-bottom: 1px solid var(--borde); transition: background .1s }
 tbody tr:hover { background: var(--teal-l) }
 tbody tr:nth-child(even) { background: var(--card2) }
@@ -241,12 +241,12 @@ tbody tr:nth-child(even):hover { background: var(--teal-l) }
 tbody tr:last-child { border: none }
 td { padding: 9px 10px; vertical-align: middle; color: var(--ink) }
 td.name   { font-weight: 600; font-size: 12px; color: var(--navy) }
-td.mono   { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--ink2) }
+td.mono   { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--ink) }
 td.mono-hi{ font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right; color: var(--navy); font-weight: 600 }
 td.pct    { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right }
 td.na     { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--mist); font-style: italic }
-td.yr-col { background: rgba(13,148,136,.06) }
-td.yr-cmp { background: rgba(217,119,6,.06) }
+td.yr-col { background: rgba(13,148,136,.08) }
+td.yr-cmp { background: rgba(180,83,9,.06) }
 .badge {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 9px; font-weight: 700; padding: 2px 8px;
@@ -354,10 +354,10 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 
 /* ── COMPARATIVA GASTOS TABLA ── */
 .cmp-vn { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right }
-.cmp-vr { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; font-weight: 600 }
-.cmp-vr.ok  { color: var(--green) }
-.cmp-vr.warn{ color: var(--amber) }
-.cmp-vr.bad { color: var(--red) }
+.cmp-vr { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right; font-weight: 700 }
+.cmp-vr.ok  { color: #15803d }
+.cmp-vr.warn{ color: #b45309 }
+.cmp-vr.bad { color: #b91c1c }
 
 /* ── TOOLTIP ── */
 .th-tip { position: relative; cursor: help }
@@ -2344,7 +2344,18 @@ function renderSecretarias() {
           <span style="text-align:right">${showCmp ? cmpYear : ''}</span>
         </div>
         ${s.programas.filter(p => p.val > 0).map(p => {
-          const pc = cmpProgs.find(c => c.label === p.label);
+          // Matching por label exacto o por palabras clave comunes
+        const normLabel = l => l.toLowerCase()
+          .replace(/fort\.?\s+/g,'').replace(/fortalecimiento\s+/g,'')
+          .replace(/\s+de\s+(la|el|los|las)\s+/g,' ')
+          .replace(/\s+/g,' ').trim();
+        const pc = cmpProgs.find(c => c.label === p.label)
+          || cmpProgs.find(c => normLabel(c.label) === normLabel(p.label))
+          || cmpProgs.find(c => {
+              const a = normLabel(p.label), b = normLabel(c.label);
+              const wordsA = a.split(' ').filter(w=>w.length>4);
+              return wordsA.length > 0 && wordsA.every(w => b.includes(w));
+            });
           const pvn = (pc?.val) ? ((p.val - pc.val)/pc.val*100) : null;
           return `<div class="sec-prog-row">
             <span class="sec-prog-label">${p.label}</span>
