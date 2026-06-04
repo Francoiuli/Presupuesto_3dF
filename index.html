@@ -1359,48 +1359,55 @@ const DATA = {
     },
 
     recursos: {
-      totalDevengado: 160362.00,
-      totalPercibido: 160362.00,
-      origenMunicipal:  93298.00,  // RAFAM 2025
-      origenProvincial: 60869.00,
-      origenNacional:     305.00,  // RAFAM 2025
+      // Fuente: RAFAM · Estado de Ejecución de Recursos 2025 · firmado 03/02/2026
+      // Todos los valores = PERCIBIDO (efectivamente ingresado a caja)
+      totalDevengado: 173134.94,
+      totalPercibido: 154471.82,
+      origenMunicipal:  89596.78,   // tasas + derechos + multas + otros + rentas + venta + capital mpal.
+      origenProvincial: 18794.67,   // transferencias corrientes provinciales
+      origenNacional:     305.04,   // transferencias nacionales
       tipos: [
-        { label: 'Tasas municipales',               val: 66748 },
-        { label: 'Coparticipación provincial',       val: 41549 },
-        { label: 'Transferencias corrientes prov.',  val: 19100 },
-        { label: 'Rentas propiedad (intereses dep.)',val:  7719 },
-        { label: 'Otros ingresos no tributarios',    val:  7270 },
-        { label: 'Derechos municipales',             val:  3587 },
-        { label: 'Multas y resto',                   val:  7605 },
+        { label: 'Tasas municipales',               val: 66748.23 },
+        { label: 'Coparticipación + otros trib.',    val: 49020.79 },
+        { label: 'Transferencias corrientes',        val: 19099.71 },
+        { label: 'Rentas propiedad (intereses dep.)',val:  7718.77 },
+        { label: 'Derechos municipales',             val:  3587.01 },
+        { label: 'Multas',                           val:  2903.02 },
+        { label: 'Otros no tributarios',             val:  4366.24 },
+        { label: 'Venta bienes y servicios',         val:   134.16 },
+        { label: 'Recursos propios de capital',      val:   646.95 },
       ],
       tasas: [
-        { label: 'Tasas municipales (total)',         val: 66748 },
-        { label: 'Canon EDENOR',                      val:  6819 },
-        { label: 'Coparticipación Ley 10.559',        val: 41549 },
-        { label: 'Intereses por depósitos',           val:  7719 },
-        { label: 'Transf. prov. afectadas (SAE+MESA)',val: 18794 },
+        { label: 'Insp. Seg. e Higiene (TISH)',      val: 35112.58 },
+        { label: 'Servicios Generales',              val: 30916.72 },
+        { label: 'Derechos de Construcción',         val:  2081.05 },
+        { label: 'Patentes (autom. + rodados)',       val:  2173.37 },
+        { label: 'Estacionamiento Medido',           val:  1159.20 },
+        { label: 'Tasa de Seguridad',                val:   168.26 },
+        { label: 'Salud y emergencias',              val:   184.30 },
+        { label: 'Multas y contravenciones',         val:  2903.02 },
       ],
       tributarios: [
-        { label: 'Coparticipación Pcial. Ley 10.559', val: 41549, orig: 'Provincial' },
-        { label: 'Tasas municipales (TISH + Serv. Gen.)', val: 66748, orig: 'Municipal' },
-        { label: 'Canon EDENOR',                      val:  6819, orig: 'Municipal' },
-        { label: 'Intereses por depósitos',           val:  7719, orig: 'Municipal' },
-        { label: 'Transf. prov. Fort. Seguridad',     val:  1659, orig: 'Provincial' },
-        { label: 'SAE - Serv. Alimentario Escolar',   val:  4010, orig: 'Provincial' },
-        { label: 'MESA Bonaerense',                   val:  5081, orig: 'Provincial' },
-        { label: 'Fondo Educativo Ley 26.075',        val:  5911, orig: 'Provincial' },
-        { label: 'Fort. Prog. Sociales + Residuos',   val:  1555, orig: 'Provincial' },
+        { label: 'Coparticipación Pcial. Ley 10.559', val: 36249.49, orig: 'Provincial' },
+        { label: 'Canon EDENOR',                      val:  6819.43, orig: 'Municipal' },
+        { label: 'Fondo Mpal. Inclusión Social L.13863',val:2670.74, orig: 'Provincial' },
+        { label: 'Fondo Fort. Recursos Municipales',   val: 2048.97, orig: 'Provincial' },
+        { label: 'Descentralización Ing. Brutos',      val:   580.20, orig: 'Provincial' },
+        { label: 'Apuestas + Bingo + Casinos + Máq.',  val:   524.76, orig: 'Provincial' },
+        { label: 'Juegos On Line',                     val:    47.73, orig: 'Municipal' },
       ],
       fondos: [
-        { label: 'Fondo Educativo Ley 26.075',        si: 1189.72, ing: 5911, eg: 5800, sc: 1300.72 },
-        { label: 'SAE Serv. Alimentario Escolar',     si:  104.95, ing: 4010, eg: 3950, sc:  164.95 },
-        { label: 'MESA Bonaerense',                   si:   42.34, ing: 5081, eg: 5000, sc:  123.34 },
-        { label: 'Fort. Seguridad Bonaerense',        si:    3.16, ing: 1659, eg: 1640, sc:   22.16 },
-        { label: 'Fort. Prog. Sociales + Residuos',   si:   59.29, ing: 1555, eg: 1530, sc:   84.29 },
-        { label: 'Desarrollo Urbano y Hábitat (Mpal.)',si: 114.01, ing: 1300, eg: 1250, sc:  164.01 },
-        { label: 'Estacionamiento Medido (Mpal.)',    si:  575.96, ing:  950, eg:  870, sc:  655.96 },
+        { label: 'SAE - Serv. Alimentario Escolar (Prov.)',  si:   0, ing: 4010.37, eg: 4010.37, sc:   0 },
+        { label: 'MESA Bonaerense (Prov.)',                   si:   0, ing: 5081.05, eg: 5081.05, sc:   0 },
+        { label: 'Fondo Educativo Ley 26.075 (Prov.)',        si:   0, ing: 5911.35, eg: 5911.35, sc:   0 },
+        { label: 'Fort. Seguridad Bonaerense (Prov.)',        si:   0, ing: 1659.00, eg: 1659.00, sc:   0 },
+        { label: 'Fort. Programas Sociales (Prov.)',          si:   0, ing: 1001.53, eg: 1001.53, sc:   0 },
+        { label: 'Desarrollo Urbano Ord. 3690 (Mpal.)',       si:   0, ing:  586.00, eg:  586.00, sc:   0 },
+        { label: 'Derechos Construcción Ord. 3440 (Mpal.)',   si:   0, ing:  870.00, eg:  870.00, sc:   0 },
+        { label: 'Estacionamiento Medido Ord. 3494 (Mpal.)',  si:   0, ing: 1159.20, eg: 1159.20, sc:   0 },
       ],
     },
+
 
     gastos: {
       total:           150745.28,
