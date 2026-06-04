@@ -825,7 +825,7 @@ const DATA = {
           { label: 'Fort. Cementerio Municipal',                   val:   321.31 },
         ]
       },
-      { label: 'Act. Centrales (personal y gastos gles.)', val: 20939.24, nota: 'Personal general + gastos comunes',
+      { label: 'Actividades Centrales y Gastos Generales', val: 20939.24, nota: 'Personal general + gastos comunes',
         programas: [
           { label: 'Actividades Centrales', val: 20939.24 },
         ]
