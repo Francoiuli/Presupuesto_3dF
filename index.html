@@ -1771,7 +1771,7 @@ const DATA = {
   2026: {
     status: 'partial',
     fuente: 'RAFAM · Ejecución al 31/03/2026 · Datos provisorios · Anualizados ×4',
-    ipc: 0.30, // IPC 2026 estimado (en curso)
+    ipc: 0.30, // IPC 2026 estimado REM (30%)
     nota: 'Datos al 31/03/2026 anualizados (×4). El servicio de la deuda incluye pago de deuda flotante 2025 concentrado en Q1.',
 
     resumen: {
@@ -2149,7 +2149,7 @@ function renderRecursos() {
   const d   = DATA[activeYear];
   const dc  = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
   const rc  = dc?.recursos;
-  const ipc = dc?.ipc || 0;
+  const ipc = d.ipc || 0;  // inflación del año activo
   const isPending = d.status === 'pending' || !d.recursos;
   document.getElementById('rec-pending').style.display = isPending ? 'flex' : 'none';
   document.getElementById('rec-content').style.display = isPending ? 'none' : 'block';
@@ -2294,7 +2294,7 @@ function renderGastos() {
 
   const g  = d.gastos;
   const gc = dc?.gastos;
-  const ipc = dc?.ipc || 0;
+  const ipc = d.ipc || 0;  // inflación del año activo
 
   document.getElementById('gas-alerta').innerHTML = `<strong>Dato clave:</strong> ${g.alertaPrincipal}`;
   document.getElementById('gas-alerta').className = 'alert warn';
@@ -2528,7 +2528,7 @@ function renderSecretarias() {
   const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
   const secActivo = d.secretarias.filter(s => s.val > 0 || s.nueva);
   const totalActivo = secActivo.reduce((s,i) => s + (i.val || 0), 0);
-  const ipc = dc ? (dc.ipc || 0) : 0;
+  const ipc = d.ipc || 0;  // inflación del año activo
   const showCmp = !!dc?.secretarias?.length;
 
   document.getElementById('sec-titulo').textContent = `Por secretaría · ${activeYear}`;
@@ -2689,9 +2689,10 @@ function renderSecretarias() {
    ║  RENDER — PERSONAL (con comparativa)                ║
    ╚══════════════════════════════════════════════════════╝ */
 function renderPersonal() {
-  const p   = DATA[activeYear].personal;
+  const d   = DATA[activeYear];
+  const p   = d.personal;
   const pc  = cmpYear !== 'none' ? DATA[parseInt(cmpYear)]?.personal : null;
-  const ipc = cmpYear !== 'none' ? (DATA[parseInt(cmpYear)]?.ipc || 0) : 0;
+  const ipc = d.ipc || 0;  // inflación del año activo
   const showCmp = !!pc;
   document.getElementById('pers-titulo').textContent = `Planta de personal · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
 
