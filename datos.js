@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    DATOS PRESUPUESTARIOS — Municipio de Tres de Febrero
    Fuentes: RAFAM oficial 2024 (firmado 28/02/2025)
-            RAFAM oficial 2025 (Estado Ejecución Gastos 02/01–31/12/2025, firmado 20/02/2026)
+            RAFAM oficial 2025 (Ejecución por Cat. Programática, firmado 20/02/2026)
             RAFAM provisional 2026 (al 31/03/2026, anualizados ×4)
    Para actualizar: modificar el bloque del año correspondiente.
    Para GitHub Pages: subir index.html + datos.js en la misma carpeta.
@@ -288,18 +288,18 @@ const DATA = {
   /* ─────────────── 2025 ─────────────── */
   2025: {
     status: 'confirmed',
-    fuente: 'RAFAM · Estado de Ejecución del Presupuesto de Gastos 02/01/2025–31/12/2025 · firmado 20/02/2026',
+    fuente: 'RAFAM · Rendición de Cuentas firmada 2026 · Datos RAFAM oficiales',
     ipc: 0.315,  // IPC 2025: 31,5% (INDEC)
 
     resumen: {
       ejecutado:      150745.28,
       percibido:      160362.00,  // estimado: ejecutado + superávit Art43
-      presupAprobado: 121900.59,
+      presupAprobado: 121901.00,
       superavitArt43:   9617.00,
       resultadoArt44:  10100.00,  // estimado (Art44 = Art43 + saldo anterior − deuda)
       saldoCajaFin:   30734.00,
       saldoCajaIni:   18058.37,
-      deudaFlotante:   8430.54,
+      deudaFlotante:   8431.00,
       ingCorrientes: 153578.00,
       gasCorrientes: 129215.00,
       ahorroCorriente: 24363.00,
@@ -311,9 +311,9 @@ const DATA = {
     recursos: {
       totalDevengado: 160362.00,
       totalPercibido: 160362.00,
-      origenMunicipal:  89467.00,
+      origenMunicipal:  93298.00,  // RAFAM 2025
       origenProvincial: 60869.00,
-      origenNacional:     300.00,  // estimado ~0,2%
+      origenNacional:     305.00,  // RAFAM 2025
       tipos: [
         { label: 'Tasas municipales',               val: 66748 },
         { label: 'Coparticipación provincial',       val: 41549 },
@@ -354,7 +354,7 @@ const DATA = {
 
     gastos: {
       total:           150745.28,
-      pagado:          142314.75,
+      pagado:          142314.28,
       deudaFlotante:     8431.00,
       alertaPrincipal: 'El <strong>gasto en personal</strong> aumentó un 56% nominal (+0,5% real). El <strong>servicio de la deuda</strong> creció +234% nominal (+81% real) — de $1.667 M a $5.628 M — el ítem de mayor alerta para 2027.',
       porObjeto: [
@@ -489,7 +489,6 @@ const DATA = {
         { label: 'Plan SUMAR',                                 val:    47.45, sec: 'Salud' },
         { label: 'Mantenimiento Infr. Sistema Pluvial',        val:    78.07, sec: 'Ambiente' },
         { label: 'Fort. Cementerio Municipal',                 val:    59.47, sec: 'Ambiente' },
-      ],
       ],
     },
 
@@ -719,16 +718,212 @@ const DATA = {
   },
 
   /* ─────────────── 2026 ─────────────── */
-  /* TODO: Cargar cuando esté disponible la rendición RAFAM (~Feb 2027) */
   2026: {
-    status: 'pending',
-    fuente: 'Pendiente — Rendición de Cuentas disponible ~Febrero 2027',
-    ipc: null,  // completar cuando INDEC publique el dato anual
-    resumen: null,
-    recursos: null,
-    gastos: null,
-    secretarias: [],
-    personal: { total: null, porSecretaria: [], componentes: [] },
+    status: 'partial',
+    fuente: 'RAFAM · Ejecución al 31/03/2026 · Datos provisorios · Anualizados ×4',
+    ipc: 0.30, // IPC 2026 estimado (en curso)
+    nota: 'Datos al 31/03/2026 anualizados (×4). El servicio de la deuda incluye pago de deuda flotante 2025 concentrado en Q1.',
+
+    resumen: {
+      ejecutado:      166680.16,
+      percibido:      182529.40,
+      presupAprobado: 189429.89,
+      superavitArt43: null,
+      resultadoArt44: null,
+      saldoCajaIni:   30733.66,
+      saldoCajaFin:    9221.69,
+      deudaFlotante:   null,
+      ingCorrientes:  182396.28,
+      gasCorrientes:  122074.60,
+      ahorroCorriente: 60321.68,
+      recursosCapital:   133.13,
+      gastosCapital:   10122.12,
+      paritaria: null,
+    },
+
+    recursos: {
+      totalDevengado:  207935.63,
+      totalPercibido:  182529.40,
+      origenMunicipal: 124349.00,
+      origenProvincial: 57846.00,
+      origenNacional:    333.30,
+      tipos: [
+        { label: 'Tasas municipales (est.)',         val: 99739.16 },
+        { label: 'Coparticipación + trib. (est.)',   val: 56059.08 },
+        { label: 'Transferencias corrientes (est.)', val: 16193.52 },
+        { label: 'Rentas propiedad (intereses)',      val:  2173.96 },
+        { label: 'Multas y derechos',                val:  5645.49 },
+        { label: 'Venta bienes y servicios',         val:     0.00 },
+        { label: 'Recursos propios de capital',      val:   133.13 },
+      ],
+      tasas: [
+        { label: 'Insp. Seg. e Higiene (TISH)',      val: 35617.64 },
+        { label: 'Servicios Generales',              val: 62837.00 },
+        { label: 'Patente Automotores + Rodados',    val:  2094.55 },
+        { label: 'Estacionamiento Medido',           val:  1139.34 },
+      ],
+      tributarios: [
+        { label: 'Coparticipación Pcial. Ley 10.559 (est.)', val: 132587.60, orig: 'Provincial' },
+        { label: 'Canon EDENOR (est.)',                       val:  24165.76, orig: 'Municipal' },
+        { label: 'Fondo Mpal. Inclusión Social L.13863',      val:   3199.02, orig: 'Provincial' },
+        { label: 'Fondo Fort. Recursos Municipales',          val:   2447.23, orig: 'Provincial' },
+        { label: 'CEAMSE - Recepción Residuos',               val:   7107.00, orig: 'Municipal' },
+      ],
+      fondos: [],
+    },
+
+    gastos: {
+      total:          166680.16,
+      pagado:         162901.21,
+      deudaFlotante:   null,
+      alertaPrincipal: 'Datos <strong>provisorios al 31/03/2026, anualizados (×4)</strong>. El servicio de la deuda ($33.719 M est.) incluye pago de deuda flotante 2025 concentrado en Q1.',
+      porObjeto: [
+        { label: 'Gastos en personal',      val: 46439.72, pct: 27.9, impago: 0,       color: 'rgba(13,148,136,.65)'  },
+        { label: 'Servicios no personales', val: 62700.52, pct: 37.6, impago: 2943.60, color: 'rgba(220,38,38,.65)'   },
+        { label: 'Servicio de la deuda (*)',val: 33718.76, pct: 20.2, impago: 0,       color: 'rgba(100,116,139,.65)' },
+        { label: 'Bienes de uso (capital)', val: 10122.12, pct:  6.1, impago:  751.69, color: 'rgba(234,88,12,.65)'   },
+        { label: 'Transferencias',          val:  8190.96, pct:  4.9, impago:   79.82, color: 'rgba(37,99,235,.65)'   },
+        { label: 'Bienes de consumo',       val:  4744.72, pct:  2.8, impago:   28.30, color: 'rgba(217,119,6,.65)'   },
+        { label: 'Activos financieros',     val:   763.36, pct:  0.5, impago: 0,       color: 'rgba(124,58,237,.65)'  },
+      ],
+      programas: [
+        { label: 'Higiene Urbana y Control de Microbasurales',   val: 39016.40, sec: 'Ambiente' },
+        { label: 'Actividades Centrales (personal y gastos gles.)',val: 20939.24, sec: 'Central' },
+        { label: 'Serv. Deuda y Partidas no asignables (*)',      val: 33718.76, sec: 'Deuda' },
+        { label: 'Fort. Sistema Atención Primaria',               val:  5252.11, sec: 'Salud' },
+        { label: 'Obras Viales y de Infraestructura',             val: 10796.55, sec: 'Obras Púb.' },
+        { label: 'Fort. Infr. Educativa (formal/informal)',       val:  2147.79, sec: 'Capital Humano' },
+        { label: 'Emergencia Social y Seg. Alimentaria',          val:  3178.44, sec: 'Capital Humano' },
+        { label: 'Fort. Compl. Hospitalario',                     val:  2047.47, sec: 'Salud' },
+        { label: 'Mantenimiento Integral Sistema Alumbrado',      val:  2075.90, sec: 'Ambiente' },
+        { label: 'HCD - Actividades Centrales',                   val:  2736.68, sec: 'HCD' },
+        { label: 'Fort. Serv. Urbanos',                           val:  2935.44, sec: 'Ambiente' },
+        { label: 'MESA Bonaerense',                               val:  2078.20, sec: 'Capital Humano' },
+        { label: 'Fort. Sistema Protección Ciudadana',            val:  2514.32, sec: 'Seguridad' },
+        { label: 'SAE - Servicio Alimentario Escolar',            val:  1043.04, sec: 'Capital Humano' },
+        { label: 'Servicios Generales (Obras Púb.)',              val:  2470.53, sec: 'Obras Púb.' },
+        { label: 'Primera Infancia y Jardines de Infantes',       val:  2371.92, sec: 'Capital Humano' },
+        { label: 'Fort. Sistema Atención Médica (SAME)',          val:  1315.24, sec: 'Salud' },
+        { label: 'Fort. Sistema Video Vigilancia',                val:  1436.52, sec: 'Seguridad' },
+        { label: 'Promoción Cultural y Patrimonial',              val:  1589.24, sec: 'Capital Humano' },
+        { label: 'Gobierno Cercano y Accesible',                  val:  1513.11, sec: 'Sec. Gral.' },
+      ],
+    },
+
+    secretarias: [
+      { label: 'Ambiente y Servicios Públicos', val: 44349.00, nota: 'Higiene Urbana + Alumbrado + Serv. Urbanos — Q1×4',
+        programas: [
+          { label: 'Higiene Urbana y Control de Microbasurales',   val: 39016.40 },
+          { label: 'Mantenimiento Integral Sistema Alumbrado',     val:  2075.90 },
+          { label: 'Fort. Servicios Urbanos',                      val:  2935.44 },
+          { label: 'Fort. Cementerio Municipal',                   val:   321.31 },
+        ]
+      },
+      { label: 'Act. Centrales (personal y gastos gles.)', val: 20939.24, nota: 'Personal general + gastos comunes',
+        programas: [
+          { label: 'Actividades Centrales', val: 20939.24 },
+        ]
+      },
+      { label: 'Servicio de la Deuda', val: 33718.76, nota: 'Incluye pago deuda flotante 2025 concentrado en Q1 — Q1×4',
+        programas: [
+          { label: 'Amortización deuda interna (flotante 2025 + propia)', val: 33718.76 },
+        ]
+      },
+      { label: 'Capital Humano', val: 11725.08, nota: 'SAE + MESA + Infr. Educativa + Deporte + Social + Cultura — Q1×4', nueva25: true,
+        programas: [
+          { label: 'Fort. Infraestructura Educativa',     val:  2147.79 },
+          { label: 'Emergencia Social y Seg. Alimentaria',val:  3178.44 },
+          { label: 'Primera Infancia y Jardines',         val:  2371.92 },
+          { label: 'MESA Bonaerense',                     val:  2078.20 },
+          { label: 'SAE - Servicio Alimentario Escolar',  val:  1043.04 },
+          { label: 'Promoción Cultural y Patrimonial',    val:  1589.24 },
+        ]
+      },
+      { label: 'Obras Públicas y Des. Urbano', val: 15092.52, nota: 'Obras Viales + Serv. Generales + Movilidad — Q1×4',
+        programas: [
+          { label: 'Obras Viales y de Infraestructura',  val: 10796.55 },
+          { label: 'Servicios Generales (Obras Púb.)',   val:  2470.53 },
+          { label: 'Plan Integral de Movilidad',         val:   715.40 },
+          { label: 'Licencias de Conducir',              val:   333.28 },
+          { label: 'Desarrollo Urbano y Hábitat Sust.',  val:   570.23 },
+          { label: 'Plan Urbano Estratégico',            val:    87.17 },
+          { label: 'Ord. Centralidades y Estacionamiento',val:  119.42 },
+        ]
+      },
+      { label: 'Secretaría de Salud', val: 10283.04, nota: 'Complejo hospitalario + APS + SAME — Q1×4',
+        programas: [
+          { label: 'Fort. Sistema Atención Primaria', val:  5252.11 },
+          { label: 'Fort. Compl. Hospitalario',       val:  2047.47 },
+          { label: 'Fort. Sistema Atención Médica (SAME)', val: 1315.24 },
+          { label: 'Fort. Centro Especialidades',     val:   892.30 },
+          { label: 'Programa Salud Mental',           val:   247.43 },
+          { label: 'Determinantes Sociales de la Salud',val: 524.50 },
+        ]
+      },
+      { label: 'Secretaría de Seguridad', val: 6836.84, nota: 'Q1×4',
+        programas: [
+          { label: 'Fort. Sistema Protección Ciudadana',val: 2514.32 },
+          { label: 'Servicios Seguridad y Emergencias', val: 1218.06 },
+          { label: 'Fort. Sistema Video Vigilancia',    val: 1436.52 },
+          { label: 'Fort. Sistema Seguridad Vial',      val:  858.21 },
+          { label: 'Center Atención a las Víctimas',    val:  360.17 },
+          { label: 'Planificación Seguridad Local',     val:  449.60 },
+        ]
+      },
+      { label: 'Trabajo y Producción', val: 3755.24, nota: 'Q1×4',
+        programas: [
+          { label: 'Plan Anual Seg., Higiene y Ord. Esp. Púb.', val: 2779.62 },
+          { label: 'Fort. de Inversiones y Emprendedores',      val:  490.19 },
+          { label: 'Desarrollo Comercial y Prom. Industrial',   val:  156.53 },
+          { label: 'Desarrollo Parque Industrial',              val:   18.10 },
+          { label: 'Microcréditos 3F Emprende',                 val:    4.80 },
+        ]
+      },
+      { label: 'Coordinación de Gabinete', val: 3608.20, nota: 'Q1×4',
+        programas: [
+          { label: 'Comunicación y Prensa',          val: 1227.67 },
+          { label: 'Coordinación y Adm. de Gastos',  val:  893.76 },
+          { label: 'Legal y Técnica',                val:  884.99 },
+          { label: 'Asuntos Institucionales',        val:  292.88 },
+          { label: 'Juventud',                       val:  308.88 },
+        ]
+      },
+      { label: 'Finanzas y Efic. del Estado', val: 4765.80, nota: 'Q1×4',
+        programas: [
+          { label: 'Coordinación y Adm. de Ingresos',        val: 1640.41 },
+          { label: 'Coordinación y Adm. de Gastos',          val:  769.99 },
+          { label: 'Coordinación y Adm. de la Modernización',val: 1253.91 },
+          { label: 'Coordinación y Adm. de Recursos Humanos',val: 1100.41 },
+        ]
+      },
+      { label: 'Secretaría General', val: 2024.56, nota: 'Q1×4',
+        programas: [
+          { label: 'Gobierno Cercano y Accesible',  val: 1513.11 },
+          { label: 'Protocolo y Ceremonial',        val:  162.58 },
+          { label: 'Coord. General de la Gestión', val:  348.89 },
+        ]
+      },
+      { label: 'H.C.D.', val: 2736.68, nota: 'Q1×4',
+        programas: [
+          { label: 'HCD - Actividades Centrales', val: 2736.68 },
+        ]
+      },
+    ],
+
+    personal: {
+      total: null,
+      permanente: null,
+      mensualizado: null,
+      gastoTotal: 46439.72,
+      paritaria: null,
+      porSecretaria: [],
+      componentes: [
+        { label: 'Personal permanente', val: 17628.55 },
+        { label: 'Personal temporario', val: 23085.00 },
+        { label: 'Servicios extraordinarios (HE)', val: 4437.36 },
+        { label: 'Asignaciones familiares', val: 1288.87 },
+      ],
+    },
   },
 
   /* ─────────────── 2027 ─────────────── */
