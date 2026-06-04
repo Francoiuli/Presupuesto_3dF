@@ -1,20 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════
    DATOS PRESUPUESTARIOS — Municipio de Tres de Febrero
-   ───────────────────────────────────────────────────────────────
-   Este archivo contiene SOLO los datos. El diseño está en index.html.
-   Para actualizar un año: modificar el bloque correspondiente.
-   Fuentes: RAFAM oficial (2024 firmado 28/02/2025, 2025 rendición,
-            2026 provisional al 31/03/2026 anualizados ×4)
-
-   ESTRUCTURA DE CADA AÑO:
-     status:      'confirmed' | 'partial' | 'pending'
-     fuente:      descripción de la fuente
-     ipc:         inflación del año (ej: 0.315 = 31,5%)
-     resumen:     cuenta AIF + saldos + resultado
-     recursos:    totales, tipos, tasas, tributarios, fondos
-     gastos:      porObjeto, programas, total
-     secretarias: array con val + programas[]
-     personal:    planta, gasto, componentes
+   Fuentes: RAFAM oficial 2024 (firmado 28/02/2025)
+            RAFAM oficial 2025 (Estado Ejecución Gastos 02/01–31/12/2025, firmado 20/02/2026)
+            RAFAM provisional 2026 (al 31/03/2026, anualizados ×4)
+   Para actualizar: modificar el bloque del año correspondiente.
+   Para GitHub Pages: subir index.html + datos.js en la misma carpeta.
 ═══════════════════════════════════════════════════════════════ */
 
 const DATA = {
@@ -92,7 +82,7 @@ const DATA = {
       total:           91335.66,
       pagado:          85771.82,
       deudaFlotante:   5563.84,
-      alertaPrincipal: 'El <strong>48,8% del gasto</strong> son Servicios No Personales, dominados por <strong>Higiene Urbana ($26.702 M · 29% del total)</strong>. Las Actividades Centrales suman $28.113 M (29%). Estos dos ítems concentran el 58% del presupuesto total 2024.',
+      alertaPrincipal: 'El <strong>49% del gasto</strong> son Servicios No Personales, dominados por <strong>Higiene Urbana ($26.702 M)</strong> — el ítem de mayor sensibilidad para negociar el presupuesto 2027.',
       porObjeto: [
         { label: 'Gastos en personal',      val: 26421.87, pct: 28.9, impago: 0,       color: 'rgba(13,148,136,.65)'  },
         { label: 'Servicios no personales', val: 44564.62, pct: 48.8, impago: 4072.44, color: 'rgba(220,38,38,.65)'   },
@@ -103,99 +93,14 @@ const DATA = {
         { label: 'Activos financieros',     val:   331.99, pct:  0.4, impago: 0,       color: 'rgba(124,58,237,.65)'  },
       ],
       programas: [
-        // TODOS los programas 2024 — datos exactos RAFAM · Situación Económico-Financiera
-        { label: 'Higiene Urbana y Control de Microbasurales',     val: 26701.70, sec: 'Ambiente' },
-        { label: 'Act. Centrales (personal y gastos gles.)',        val: 26445.54, sec: 'Central' },
-        { label: 'Partidas no asignables a programas',              val:  1667.23, sec: 'Central' },
-        { label: 'MESA Bonaerense',                                val:  3981.19, sec: 'Educación' },
-        { label: 'Servicio Alimentario Escolar (SAE)',              val:  3694.74, sec: 'Educación' },
-        { label: 'Emergencia Social y Seguridad Alimentaria',       val:  2437.33, sec: 'Des. Humano' },
-        { label: 'HCD - Actividades Centrales',                    val:  1794.60, sec: 'HCD' },
-        { label: 'Fortalecimiento Sistema Atención Primaria',       val:  1832.94, sec: 'Salud' },
-        { label: 'Bacheo y Repavimentación',                        val:  1433.48, sec: 'Obras Púb.' },
-        { label: 'Servicios Generales (Obras Públicas)',            val:  1075.26, sec: 'Obras Púb.' },
-        { label: 'Fortalecimiento Espacios Públicos',               val:  1102.85, sec: 'Ambiente' },
-        { label: 'Coordinación y Adm. de Ingresos',                 val:   994.94, sec: 'Finanzas' },
-        { label: 'Primera Infancia y Jardines de Infantes',         val:   993.30, sec: 'Educación' },
-        { label: 'Coordinación y Adm. Servicios Informáticos',      val:   811.42, sec: 'Finanzas' },
-        { label: 'Fortalecimiento Sistema Atención Médica (SAME)',  val:   768.49, sec: 'Salud' },
-        { label: 'Fortalecimiento Infraestructura Educativa',       val:   726.53, sec: 'Educación' },
-        { label: 'Fortalecimiento Sistema Video Vigilancia',        val:   742.85, sec: 'Seguridad' },
-        { label: 'Mantenimiento Sistema Público de Alumbrado',      val:   743.56, sec: 'Ambiente' },
-        { label: 'Fortalecimiento Infraestructura Educativa',       val:   726.53, sec: 'Educación' },
-        { label: 'Comunicación y Contenido',                        val:   668.39, sec: 'Sec. Gral.' },
-        { label: 'Promoción Cultural y Patrimonial',                val:   683.83, sec: 'Educación' },
-        { label: 'Arbolado Público',                                val:   694.71, sec: 'Ambiente' },
-        { label: 'Obras Viales',                                    val:   864.50, sec: 'Obras Púb.' },
-        { label: 'Plan Anual de Seguridad e Higiene',               val:   857.09, sec: 'Control' },
-        { label: 'Fortalecimiento Sistema Protección Ciudadana',    val:   523.96, sec: 'Seguridad' },
-        { label: 'Fort. y Apoyo Deportistas y Clubes',              val:   511.99, sec: 'Deporte' },
-        { label: 'Coord. y Adm. de Gastos (Sec. Gral.)',            val:   501.69, sec: 'Sec. Gral.' },
-        { label: 'Recursos Humanos',                                val:   469.91, sec: 'Jefatura' },
-        { label: 'Fortalecimiento Hospital Odontológico',           val:   409.40, sec: 'Salud' },
-        { label: 'Fortalecimiento Hospital Oftalmológico',          val:   381.36, sec: 'Salud' },
-        { label: 'Ligas Deportivas y Juegos Bonaerenses',           val:   358.94, sec: 'Deporte' },
-        { label: 'Obras de Infraestructura',                        val:   367.58, sec: 'Obras Púb.' },
-        { label: 'Prensa y Comunicación',                           val:   325.83, sec: 'Sec. Gral.' },
-        { label: 'Coordinación y Adm. de Gastos (Finanzas)',        val:   303.89, sec: 'Finanzas' },
-        { label: 'Plan Integral Ordenamiento Espacio Público',      val:   286.83, sec: 'Control' },
-        { label: 'Juventud',                                        val:   254.96, sec: 'Jefatura' },
-        { label: 'Red Pública Salud AMBA',                          val:   198.25, sec: 'Salud' },
-        { label: 'Gestión Integral Habilitaciones y Permisos',      val:   198.44, sec: 'Control' },
-        { label: 'Programa de Hábitat Sustentable',                 val:   182.95, sec: 'Des. Humano' },
-        { label: 'Protección y Restitución Derechos NNA',           val:   180.40, sec: 'Des. Humano' },
-        { label: 'Plan Urbano Estratégico',                         val:   171.86, sec: 'Territorial' },
-        { label: 'Legal y Técnica',                                 val:   164.45, sec: 'Sec. Gral.' },
-        { label: 'Mantenimiento e Infraestructura Urbana',          val:   155.62, sec: 'Ambiente' },
-        { label: 'Gobierno Cercano y Accesible',                    val:   153.51, sec: 'At. Vecino' },
-        { label: 'Epidemiología, Control Vectores e Inmuniz.',      val:   152.36, sec: 'Salud' },
-        { label: 'Fondo de Infraestructura Municipal (FIM)',        val:   128.52, sec: 'Obras Púb.' },
-        { label: 'Coordinación General de la Gestión',              val:   122.10, sec: 'Sec. Gral.' },
-        { label: 'Coordinación Sistema Seguridad Local',            val:   118.98, sec: 'Seguridad' },
-        { label: 'Asuntos Institucionales',                         val:   105.43, sec: 'Jefatura' },
-        { label: 'Licencias de Conducir (Gob.)',                    val:   115.18, sec: 'Jefatura' },
-        { label: 'Mantenimiento e Infr. Sistema Pluvial',           val:   103.84, sec: 'Ambiente' },
-        { label: 'Programa Inclusión Personas con Discapacidad',    val:   110.46, sec: 'Des. Humano' },
-        { label: 'Espacios Comunitarios Territoriales',             val:    98.95, sec: 'Des. Humano' },
-        { label: 'Fortalecimiento Programas Sanitarios',            val:    99.57, sec: 'Salud' },
-        { label: 'Plan Regularización Dominial Altos de Podestá',   val:    94.79, sec: 'Territorial' },
-        { label: 'Deporte Inclusivo',                               val:    81.20, sec: 'Deporte' },
-        { label: 'Centros Comerciales y Accesibilidad',             val:    81.54, sec: 'Obras Púb.' },
-        { label: 'Fort. e Infraestructura Centros Deportivos',      val:    88.63, sec: 'Deporte' },
-        { label: 'Deporte Educativo',                               val:    77.25, sec: 'Deporte' },
-        { label: 'Fortalecimiento Escuelas Municipales',            val:    77.33, sec: 'Educación' },
-        { label: 'Antropozoonosis',                                 val:    72.96, sec: 'Salud' },
-        { label: 'Sistema Ord. Centralidades y Estacionamiento',    val:    69.68, sec: 'Territorial' },
-        { label: 'Formación para el Trabajo y Teletrabajo',         val:    54.88, sec: 'Trabajo' },
-        { label: 'Centro Educativo Ambiental',                      val:    36.82, sec: 'Ambiente' },
-        { label: 'Géneros, Diversidad Sexual y DDHH',               val:    38.94, sec: 'Des. Humano' },
-        { label: 'Dist. de la Innovación y el Conocimiento',        val:    34.39, sec: 'Trabajo' },
-        { label: 'Red Secundaria Cloacal Loma Hermosa OC70094',     val:    27.54, sec: 'Des. Humano' },
-        { label: 'Defensa al Consumidor',                           val:    25.36, sec: 'At. Vecino' },
-        { label: 'Determinantes Sociales de la Salud',              val:    26.73, sec: 'Salud' },
-        { label: 'Fortalecimiento Sistema de Seguridad Vial',       val:    40.48, sec: 'Territorial' },
-        { label: 'Programa Capacitación 4.0 y Economía del Conoc.', val:    16.57, sec: 'Trabajo' },
-        { label: 'Oficina de Faltas',                               val:    21.19, sec: 'Sec. Gral.' },
-        { label: 'Licencias de Conducir (At. Vecino)',              val:    20.56, sec: 'At. Vecino' },
-        { label: 'Plan SUMAR',                                      val:    19.26, sec: 'Salud' },
-        { label: 'Programa Potenciar Trabajo',                      val:    17.45, sec: 'Des. Humano' },
-        { label: 'Red Cloacal Pluvial Vial Churruca',               val:    15.09, sec: 'Des. Humano' },
-        { label: 'Desarrollo Urbano y Hábitat Sustentable',         val:    13.00, sec: 'Territorial' },
-        { label: 'Plazas en Movimiento y Adultos Mayores',          val:    12.30, sec: 'Deporte' },
-        { label: 'Programa Puertas Abiertas y Padrinos',            val:    11.96, sec: 'Trabajo' },
-        { label: 'Desarrollo Centros Comerciales a Cielo Abierto',  val:    10.89, sec: 'Trabajo' },
-        { label: 'Microcréditos 3FEmprende',                        val:    10.13, sec: 'Trabajo' },
-        { label: 'Fortalecimiento Cementerio Municipal',            val:     8.15, sec: 'Ambiente' },
-        { label: 'Red de Agua Potable y Cloaca B° Maldonado',       val:     7.71, sec: 'Des. Humano' },
-        { label: 'Puesta en Valor de Espacios Verdes',              val:     9.87, sec: 'Obras Púb.' },
-        { label: 'Plan Integral de Movilidad e Integración Terr.',  val:    28.93, sec: 'Territorial' },
-        { label: 'Economía Social y Popular',                       val:   130.00, sec: 'Des. Humano' },
-        { label: 'Programa Familia Solidarias',                     val:     1.65, sec: 'Des. Humano' },
-        { label: 'Programa Proteger - Min. Salud',                  val:     2.83, sec: 'Salud' },
-        { label: 'Servicios Generales (Sec. General)',              val:     2.69, sec: 'Sec. Gral.' },
-        { label: 'Protocolo y Ceremonial',                          val:     3.91, sec: 'Sec. Gral.' },
-        { label: 'Casa Propia - Construir Futuro',                  val:     3.89, sec: 'Obras Púb.' },
-        { label: 'Desarrollo Parque Industrial y PYMES',            val:     3.81, sec: 'Trabajo' },
+        { label: 'Higiene Urbana y Control Microbasurales', val: 26701.70 },
+        { label: 'Act. Centrales (personal + gastos gles.)',val: 26445.54 },
+        { label: 'SAE + MESA Bonaerense',                   val:  7675.93 },
+        { label: 'Atención Primaria de la Salud',           val:  1832.94 },
+        { label: 'Bacheo y Repavimentación',                val:  1433.48 },
+        { label: 'Obras Viales',                            val:   864.50 },
+        { label: 'Fortalecimiento Infraestructura Educativa',val:  726.53 },
+        { label: 'Arbolado Público + Espacios Públicos',    val:   694.71 },
       ],
     },
 
@@ -383,18 +288,18 @@ const DATA = {
   /* ─────────────── 2025 ─────────────── */
   2025: {
     status: 'confirmed',
-    fuente: 'RAFAM · Rendición de Cuentas firmada 2026 · Datos RAFAM oficiales',
+    fuente: 'RAFAM · Estado de Ejecución del Presupuesto de Gastos 02/01/2025–31/12/2025 · firmado 20/02/2026',
     ipc: 0.315,  // IPC 2025: 31,5% (INDEC)
 
     resumen: {
       ejecutado:      150745.28,
       percibido:      160362.00,  // estimado: ejecutado + superávit Art43
-      presupAprobado: 121901.00,
+      presupAprobado: 121900.59,
       superavitArt43:   9617.00,
       resultadoArt44:  10100.00,  // estimado (Art44 = Art43 + saldo anterior − deuda)
       saldoCajaFin:   30734.00,
       saldoCajaIni:   18058.37,
-      deudaFlotante:   8431.00,
+      deudaFlotante:   8430.54,
       ingCorrientes: 153578.00,
       gasCorrientes: 129215.00,
       ahorroCorriente: 24363.00,
@@ -406,9 +311,9 @@ const DATA = {
     recursos: {
       totalDevengado: 160362.00,
       totalPercibido: 160362.00,
-      origenMunicipal:  93298.00,  // RAFAM 2025 — recursos propios municipales
+      origenMunicipal:  89467.00,
       origenProvincial: 60869.00,
-      origenNacional:     305.00,  // RAFAM 2025 — ~0,2%
+      origenNacional:     300.00,  // estimado ~0,2%
       tipos: [
         { label: 'Tasas municipales',               val: 66748 },
         { label: 'Coparticipación provincial',       val: 41549 },
@@ -449,7 +354,7 @@ const DATA = {
 
     gastos: {
       total:           150745.28,
-      pagado:          142314.28,
+      pagado:          142314.75,
       deudaFlotante:     8431.00,
       alertaPrincipal: 'El <strong>gasto en personal</strong> aumentó un 56% nominal (+0,5% real). El <strong>servicio de la deuda</strong> creció +234% nominal (+81% real) — de $1.667 M a $5.628 M — el ítem de mayor alerta para 2027.',
       porObjeto: [
@@ -462,119 +367,327 @@ const DATA = {
         { label: 'Activos financieros',     val:   507.66, pct:  0.3, impago:    0,    color: 'rgba(100,116,139,.65)' },
       ],
       programas: [
-        { label: 'Higiene Urbana y Control Microbasurales', val: 49200 },
-        { label: 'Act. Centrales + personal general',       val: 38500 },
-        { label: 'SAE + MESA Bonaerense + Alim.',           val: 11000 },
-        { label: 'Obras Viales + Bacheo + Infraestructura', val: 14800 },
-        { label: 'Atención Primaria de la Salud',           val:  7200 },
-        { label: 'Fort. Infraestructura Educativa',         val:  5900 },
-        { label: 'Sistema Arbolado + Esp. Públicos',        val:  3800 },
-        { label: 'Servicio de la Deuda',                    val:  5628 },
+        // TODOS los programas 2025 — datos exactos RAFAM · Ejecución por Categoría Programática
+        { label: 'Higiene Urbana y Control Microbasurales',    val: 38473.68, sec: 'Ambiente' },
+        { label: 'Obras Viales',                               val: 10304.54, sec: 'Obras Púb.' },
+        { label: 'Coordinación Políticas Económicas',          val:  7020.31, sec: 'Finanzas' },
+        { label: 'Administración General (Seguridad)',          val:  5489.63, sec: 'Seguridad' },
+        { label: 'Administración General (Cap. Humano)',        val:  5528.11, sec: 'Capital Humano' },
+        { label: 'Deuda Flotante',                             val:  5540.40, sec: 'Deuda' },
+        { label: 'Servicio Alimentario Escolar (SAE)',          val:  4765.49, sec: 'Capital Humano' },
+        { label: 'Administración General (Salud)',              val:  4980.39, sec: 'Salud' },
+        { label: 'MESA Bonaerense',                            val:  5194.27, sec: 'Capital Humano' },
+        { label: 'Administración General (Obras Púb.)',         val:  3102.56, sec: 'Obras Púb.' },
+        { label: 'Fort. Sistema Atención Primaria',            val:  3113.83, sec: 'Salud' },
+        { label: 'Emergencia Social y Seg. Alimentaria',       val:  2869.73, sec: 'Capital Humano' },
+        { label: 'Administración General (Coord.)',             val:  2551.44, sec: 'Coord. Gabinete' },
+        { label: 'Fort. Sistema Protección Ciudadana',         val:  2597.98, sec: 'Seguridad' },
+        { label: 'Fort. Infraestructura Educativa',            val:  2561.14, sec: 'Capital Humano' },
+        { label: 'Administración General (Sec. Gral.)',         val:  2683.92, sec: 'Sec. General' },
+        { label: 'Mantenimiento Sistema Alumbrado',            val:  2202.77, sec: 'Ambiente' },
+        { label: 'Formación y Sanción de Ordenanzas (HCD)',    val:  2776.72, sec: 'HCD' },
+        { label: 'Coordinación Servicios Informáticos',        val:  1953.74, sec: 'Finanzas' },
+        { label: 'Administración General (Ambiente)',           val:  1841.73, sec: 'Ambiente' },
+        { label: 'Obras de Infraestructura',                   val:  1734.70, sec: 'Obras Púb.' },
+        { label: 'Administración General (Trabajo)',            val:  1721.47, sec: 'Trabajo' },
+        { label: 'Fort. Espacios Públicos',                    val:  1547.73, sec: 'Ambiente' },
+        { label: 'Servicios Generales (Obras)',                val:  1438.12, sec: 'Obras Púb.' },
+        { label: 'Primera Infancia y Jardines Municipales',    val:  1466.94, sec: 'Capital Humano' },
+        { label: 'Plan Anual Seguridad e Higiene',             val:  1560.16, sec: 'Trabajo' },
+        { label: 'Fort. Sistema Atención Médica (SAME)',       val:  1256.29, sec: 'Salud' },
+        { label: 'Coordinación y Adm. de Ingresos',            val:  1263.38, sec: 'Finanzas' },
+        { label: 'Arbolado Público',                           val:  1083.86, sec: 'Ambiente' },
+        { label: 'Promoción Cultural y Patrimonial',           val:  1013.25, sec: 'Capital Humano' },
+        { label: 'Protección y Restitución Derechos NNA',      val:   892.44, sec: 'Capital Humano' },
+        { label: 'Recursos Humanos (Finanzas)',                 val:   835.78, sec: 'Finanzas' },
+        { label: 'Coordinación y Adm. de Gastos (Sec. Gral.)', val:   752.43, sec: 'Sec. General' },
+        { label: 'Fort. Hospital Odontológico',                val:   639.80, sec: 'Salud' },
+        { label: 'Comunicación y Contenido',                   val:   760.87, sec: 'Coord. Gabinete' },
+        { label: 'Prensa y Comunicación',                      val:   767.24, sec: 'Coord. Gabinete' },
+        { label: 'Fort. y Apoyo Deportistas y Clubes',         val:   564.08, sec: 'Capital Humano' },
+        { label: 'Economía Social y Popular',                  val:   579.91, sec: 'Capital Humano' },
+        { label: 'Fort. Hospital Oftalmológico',               val:   557.80, sec: 'Salud' },
+        { label: 'Deporte Educativo',                          val:   548.28, sec: 'Capital Humano' },
+        { label: 'Ord. Centralidades y Estacionamiento',       val:   521.19, sec: 'Obras Púb.' },
+        { label: 'Plan Urbano Estratégico',                    val:   498.82, sec: 'Obras Púb.' },
+        { label: 'Plan Integral Ordenamiento Esp. Público',    val:   419.54, sec: 'Trabajo' },
+        { label: 'Coordinación y Adm. de Gastos (Finanzas)',   val:   453.32, sec: 'Finanzas' },
+        { label: 'Plan Regularización Dominial Altos Podestá', val:   401.29, sec: 'Capital Humano' },
+        { label: 'Ligas Deportivas y Juegos Bonaerenses',      val:   380.63, sec: 'Capital Humano' },
+        { label: 'Determinantes Sociales de la Salud',         val:   388.94, sec: 'Salud' },
+        { label: 'Coordinación Sistema Seguridad Local',       val:   321.73, sec: 'Seguridad' },
+        { label: 'Legal y Técnica',                            val:   314.01, sec: 'Sec. General' },
+        { label: 'Coordinación General de la Gestión',        val:   316.28, sec: 'Coord. Gabinete' },
+        { label: 'Red Pública Salud AMBA',                     val:   269.22, sec: 'Salud' },
+        { label: 'Programa de Hábitat Sustentable',            val:   264.73, sec: 'Capital Humano' },
+        { label: 'Gestión Integral Habilitaciones',            val:   257.34, sec: 'Trabajo' },
+        { label: 'Bacheo y Repavimentación',                   val:   254.77, sec: 'Obras Púb.' },
+        { label: 'Asuntos Institucionales (Sec. Gral.)',        val:   232.71, sec: 'Sec. General' },
+        { label: 'Fort. Programas Sanitarios',                 val:   230.74, sec: 'Salud' },
+        { label: 'Fondo Infraestructura Municipal (FIM)',      val:   204.38, sec: 'Obras Púb.' },
+        { label: 'Fort. Escuelas Municipales',                 val:   198.40, sec: 'Capital Humano' },
+        { label: 'Puesta en Valor Espacios Verdes',            val:   191.74, sec: 'Obras Púb.' },
+        { label: 'Administración General (Territorial)',        val:   163.65, sec: 'Territorial' },
+        { label: 'Epidemiología y Control de Vectores',        val:   154.98, sec: 'Salud' },
+        { label: 'Formación para el Trabajo y Teletrabajo',    val:   145.20, sec: 'Trabajo' },
+        { label: 'Defensa al Consumidor (Coord.)',             val:   140.99, sec: 'Coord. Gabinete' },
+        { label: 'Red Secundaria Cloacal Loma Hermosa OC70291',val:   138.46, sec: 'Capital Humano' },
+        { label: 'Centro Educativo Ambiental',                 val:   119.66, sec: 'Ambiente' },
+        { label: 'Red Cloacal Loma Hermosa OC70291 (Des. Hum.)',val:  109.45, sec: 'Des. Humano' },
+        { label: 'Programa Inclusión Personas c/ Discapacidad', val:  109.50, sec: 'Capital Humano' },
+        { label: 'Gobierno Cercano y Accesible (Coord.)',      val:   646.33, sec: 'Coord. Gabinete' },
+        { label: 'Administración General (Gob.)',               val:   166.21, sec: 'Sec. Gobierno' },
+        { label: 'Fort. e Infr. Centros Deportivos',           val:   189.77, sec: 'Capital Humano' },
+        { label: 'Administración General (Des. Humano)',        val:   189.26, sec: 'Des. Humano' },
+        { label: 'Emergencia Social (residual Des. Humano)',    val:   186.12, sec: 'Des. Humano' },
+        { label: 'Géneros, Diversidad y DDHH',                 val:   181.15, sec: 'Capital Humano' },
+        { label: 'Espacios Comunitarios Territoriales',        val:   180.72, sec: 'Capital Humano' },
+        { label: 'Administración General (Control)',            val:    50.85, sec: 'Control Mpal.' },
+        { label: 'Plan Anual Seg. e Higiene (Control)',        val:    88.87, sec: 'Control Mpal.' },
+        { label: 'Plan Ord. Esp. Públ. (Control)',             val:    30.10, sec: 'Control Mpal.' },
+        { label: 'Gestión Habilitaciones (Control)',           val:    20.05, sec: 'Control Mpal.' },
+        { label: 'Administración General (At. Vecino)',         val:    80.34, sec: 'At. Vecino' },
+        { label: 'Gobierno Cercano y Accesible (At. Vecino)',   val:    13.62, sec: 'At. Vecino' },
+        { label: 'Defensa al Consumidor (At. Vecino)',         val:     2.92, sec: 'At. Vecino' },
+        { label: 'Ord. Centralidades (Territorial)',           val:    18.45, sec: 'Territorial' },
+        { label: 'Plan Integral Movilidad (Territorial)',      val:     7.15, sec: 'Territorial' },
+        { label: 'Licencias de Conducir (Obras)',              val:   283.74, sec: 'Obras Púb.' },
+        { label: 'Desarrollo Urbano y Hábitat Sustentable',    val:    43.14, sec: 'Obras Púb.' },
+        { label: 'Casa Propia - Construir Futuro',             val:    68.58, sec: 'Obras Púb.' },
+        { label: 'Plan Integral Movilidad (Obras)',            val:     6.68, sec: 'Obras Púb.' },
+        { label: 'Juventud (Sec. Gral.)',                       val:   413.21, sec: 'Sec. General' },
+        { label: 'Recursos Humanos (Gob.)',                    val:    52.07, sec: 'Sec. Gobierno' },
+        { label: 'Juventud (Gob.)',                            val:    36.35, sec: 'Sec. Gobierno' },
+        { label: 'Licencias de Conducir (Gob.)',               val:    10.07, sec: 'Sec. Gobierno' },
+        { label: 'Asuntos Institucionales (Gob.)',             val:     9.46, sec: 'Sec. Gobierno' },
+        { label: 'Deporte Inclusivo',                          val:    59.52, sec: 'Capital Humano' },
+        { label: 'Fort. Deportistas (juris. Deporte)',         val:    39.57, sec: 'Capital Humano' },
+        { label: 'Deporte Educativo (juris. Deporte)',         val:    48.32, sec: 'Capital Humano' },
+        { label: 'Ligas y Juegos (juris. Deporte)',            val:     9.63, sec: 'Capital Humano' },
+        { label: 'Fort. CEDEM (juris. Deporte)',               val:     0.49, sec: 'Capital Humano' },
+        { label: 'Plazas en Movimiento y Adultos Mayores',     val:    34.81, sec: 'Capital Humano' },
+        { label: 'Protección Derechos NNA (residual)',         val:    20.84, sec: 'Des. Humano' },
+        { label: 'Economía Social (residual)',                 val:    16.05, sec: 'Des. Humano' },
+        { label: 'Inclusión Personas Discapacidad (residual)', val:    10.85, sec: 'Des. Humano' },
+        { label: 'Espacios Comunitarios (residual)',           val:     6.59, sec: 'Des. Humano' },
+        { label: 'Géneros y DDHH (residual)',                  val:     3.42, sec: 'Des. Humano' },
+        { label: 'Red Cloacal Pluvial Vial Churruca',          val:    32.06, sec: 'Capital Humano' },
+        { label: 'Red de Agua Potable y Cloaca B° Maldonado', val:    13.74, sec: 'Capital Humano' },
+        { label: 'Red Secundaria Cloacal Loma Hermosa OC70094',val:    34.37, sec: 'Capital Humano' },
+        { label: 'Programa Familias Solidarias',               val:     8.06, sec: 'Capital Humano' },
+        { label: 'Protocolo y Ceremonial',                    val:     2.24, sec: 'Coord. Gabinete' },
+        { label: 'Deuda Consolidada',                          val:    27.28, sec: 'Deuda' },
+        { label: 'Distribución Innovación y Conocimiento',    val:    59.01, sec: 'Trabajo' },
+        { label: 'Desarrollo Centros Comerciales',             val:    55.80, sec: 'Trabajo' },
+        { label: 'Programa Puertas Abiertas y Padrinos',      val:    18.88, sec: 'Trabajo' },
+        { label: 'Desarrollo Parque Industrial y PYMES',      val:    11.24, sec: 'Trabajo' },
+        { label: 'Microcréditos 3FEmprende',                  val:     2.30, sec: 'Trabajo' },
+        { label: 'Defensa Civil',                              val:    21.02, sec: 'Seguridad' },
+        { label: 'Fort. Sistema Seguridad Vial',               val:    68.85, sec: 'Seguridad' },
+        { label: 'Programa Proteger - Min. Salud',             val:     0.31, sec: 'Salud' },
+        { label: 'Antropozoonosis',                            val:    69.62, sec: 'Salud' },
+        { label: 'Plan SUMAR',                                 val:    47.45, sec: 'Salud' },
+        { label: 'Mantenimiento Infr. Sistema Pluvial',        val:    78.07, sec: 'Ambiente' },
+        { label: 'Fort. Cementerio Municipal',                 val:    59.47, sec: 'Ambiente' },
+      ],
       ],
     },
 
     secretarias: [
-      // Datos reales RAFAM 2025 (del archivo presupuesto_3f.html — const secretarias)
-      { label: 'Ambiente y Servicios Públicos', val: 46035.22, nota: 'Higiene Urbana sigue dominando',
+      // Datos exactos RAFAM 2025 · Ejecución por Categoría Programática · firmado 20/02/2026
+      { label: 'Ambiente y Servicios Públicos', val: 46035.21, nota: 'Higiene Urbana + Alumbrado + Espacios Públicos + Arbolado',
         programas: [
-          { label: 'Higiene Urbana y Control Microbasurales', val: 49200 },
-          { label: 'Arbolado + Espacios Públicos',            val:  2100 },
-          { label: 'Alumbrado Público',                       val:  1800 },
-          { label: 'Resto ambiente y servicios',              val: -7064.78 }, // ajuste para cuadrar
+          { label: 'Higiene Urbana y Control Microbasurales',   val: 38473.68 },
+          { label: 'Administración General (Ambiente)',          val:  1841.73 },
+          { label: 'Mantenimiento Sistema Alumbrado',           val:  2202.77 },
+          { label: 'Fort. Espacios Públicos',                   val:  1547.73 },
+          { label: 'Arbolado Público',                          val:  1083.86 },
+          { label: 'Mantenimiento e Infraestructura Urbana',    val:   628.24 },
+          { label: 'Centro Educativo Ambiental',                val:   119.66 },
+          { label: 'Mantenimiento Infr. Sistema Pluvial',       val:    78.07 },
+          { label: 'Fort. Cementerio Municipal',                val:    59.47 },
         ]
       },
-      { label: 'Capital Humano',               val: 28212.47, nota: 'Nueva: fusión Educación+Deporte+Social+Cultura', nueva: true,
+      { label: 'Capital Humano', val: 28518.75, nota: 'Educación + Deporte + Social + Cultura + Habitat', nueva: true,
         programas: [
-          { label: 'SAE + MESA Bonaerense',                   val: 11000 },
-          { label: 'Fortalecimiento Infraestructura Educ.',   val:  5900 },
-          { label: 'Primera Infancia + Jardines Municipales', val:  2100 },
-          { label: 'Deporte (absorbido)',                     val:  3800 },
-          { label: 'Social + Cultural',                       val:  5412.47 },
+          { label: 'Administración General (Cap. Humano)',       val:  5528.11 },
+          { label: 'MESA Bonaerense',                           val:  5194.27 },
+          { label: 'Servicio Alimentario Escolar (SAE)',         val:  4765.49 },
+          { label: 'Fort. Infraestructura Educativa',           val:  2561.14 },
+          { label: 'Emergencia Social y Seg. Alimentaria',      val:  2869.73 },
+          { label: 'Primera Infancia y Jardines Municipales',   val:  1466.94 },
+          { label: 'Promoción Cultural y Patrimonial',          val:  1013.25 },
+          { label: 'Protección y Restitución Derechos NNA',     val:   892.44 },
+          { label: 'Deporte Educativo',                         val:   548.28 },
+          { label: 'Fort. y Apoyo Deportistas y Clubes',        val:   564.08 },
+          { label: 'Economía Social y Popular',                 val:   579.91 },
+          { label: 'Plan Regularización Dominial Altos Podestá',val:   401.29 },
+          { label: 'Ligas Deportivas y Juegos Bonaerenses',     val:   380.63 },
+          { label: 'Fort. e Infr. Centros Deportivos',          val:   189.77 },
+          { label: 'Géneros, Diversidad y DDHH',                val:   181.15 },
+          { label: 'Espacios Comunitarios Territoriales',       val:   180.72 },
+          { label: 'Programa de Hábitat Sustentable',           val:   264.73 },
+          { label: 'Programa Inclusión Personas c/ Discapacidad',val:  109.50 },
+          { label: 'Red Secundaria Cloacal Loma Hermosa OC70291',val:  138.46 },
+          { label: 'Fort. Escuelas Municipales',                val:   198.40 },
+          { label: 'Deporte Inclusivo',                         val:    59.52 },
+          { label: 'Fort. CEDEM / Plazas en Movimiento',        val:    34.81 },
+          { label: 'Ligas y Juegos (juris. Deporte)',           val:     9.63 },
+          { label: 'Fort. Deportistas (juris. Deporte)',        val:    39.57 },
+          { label: 'Deporte Educativo (juris. Deporte)',        val:    48.32 },
+          { label: 'Red Cloacal Pluvial Vial Churruca',         val:    32.06 },
+          { label: 'Red de Agua Potable y Cloaca B° Maldonado', val:    13.74 },
+          { label: 'Red Secundaria Cloacal Loma Hermosa OC70094',val:   34.37 },
+          { label: 'Programa Familias Solidarias',              val:     8.06 },
         ]
       },
-      { label: 'Obras Públicas y Des. Urbano', val: 18652.93, nota: '+235% nominal · +143% real',
+      { label: 'Obras Públicas y Des. Urbano', val: 18652.96, nota: '+235% nominal · Obras Viales + Servicios + Movilidad',
         programas: [
-          { label: 'Bacheo + Repavimentación',          val:  4500 },
-          { label: 'Obras Viales',                      val:  3800 },
-          { label: 'Infraestructura General',           val:  3200 },
-          { label: 'FIM + otros fondos',                val:  7152.93 },
+          { label: 'Obras Viales',                              val: 10304.54 },
+          { label: 'Administración General (Obras Púb.)',        val:  3102.56 },
+          { label: 'Obras de Infraestructura',                  val:  1734.70 },
+          { label: 'Servicios Generales (Obras)',                val:  1438.12 },
+          { label: 'Ord. Centralidades y Estacionamiento',      val:   521.19 },
+          { label: 'Plan Urbano Estratégico',                   val:   498.82 },
+          { label: 'Licencias de Conducir (Obras)',             val:   283.74 },
+          { label: 'Bacheo y Repavimentación',                  val:   254.77 },
+          { label: 'Fondo Infraestructura Municipal (FIM)',     val:   204.38 },
+          { label: 'Puesta en Valor Espacios Verdes',           val:   191.74 },
+          { label: 'Casa Propia - Construir Futuro',            val:    68.58 },
+          { label: 'Desarrollo Urbano y Hábitat Sustentable',   val:    43.14 },
+          { label: 'Plan Integral Movilidad (Obras)',           val:     6.68 },
         ]
       },
-      { label: 'Secretaría de Salud',          val: 11709.38, nota: '',
+      { label: 'Secretaría de Salud', val: 11709.37, nota: 'Atención primaria + SAME + Hospitales',
         programas: [
-          { label: 'Atención Primaria de la Salud', val: 4500 },
-          { label: 'SAME + Emergencias',            val: 2100 },
-          { label: 'Hospitales + Programas',        val: 5109.38 },
+          { label: 'Administración General (Salud)',             val:  4980.39 },
+          { label: 'Fort. Sistema Atención Primaria',           val:  3113.83 },
+          { label: 'Fort. Sistema Atención Médica (SAME)',      val:  1256.29 },
+          { label: 'Fort. Hospital Odontológico',               val:   639.80 },
+          { label: 'Fort. Hospital Oftalmológico',              val:   557.80 },
+          { label: 'Determinantes Sociales de la Salud',        val:   388.94 },
+          { label: 'Red Pública Salud AMBA',                    val:   269.22 },
+          { label: 'Fort. Programas Sanitarios',                val:   230.74 },
+          { label: 'Epidemiología y Control de Vectores',       val:   154.98 },
+          { label: 'Antropozoonosis',                           val:    69.62 },
+          { label: 'Plan SUMAR',                                val:    47.45 },
+          { label: 'Programa Proteger - Min. Salud',            val:     0.31 },
         ]
       },
-      { label: 'Finanzas y Efic. del Estado',  val: 11526.53, nota: '',
+      { label: 'Finanzas y Eficiencia del Estado', val: 11526.53, nota: 'Políticas económicas + Ingresos + Informática + RRHH',
         programas: [
-          { label: 'Administración de Ingresos',   val: 4800 },
-          { label: 'Administración de Gastos',     val: 3200 },
-          { label: 'Sistemas e Informática',       val: 3526.53 },
+          { label: 'Coordinación Políticas Económicas',         val:  7020.31 },
+          { label: 'Coordinación Servicios Informáticos',       val:  1953.74 },
+          { label: 'Coordinación y Adm. de Ingresos',           val:  1263.38 },
+          { label: 'Recursos Humanos (Finanzas)',                val:   835.78 },
+          { label: 'Coordinación y Adm. de Gastos',             val:   453.32 },
         ]
       },
-      { label: 'Secretaría de Seguridad',      val: 10118.49, nota: '',
+      { label: 'Secretaría de Seguridad', val: 10118.49, nota: 'Protección ciudadana + Video vigilancia + Defensa Civil',
         programas: [
-          { label: 'Video Vigilancia Urbana',      val: 4200 },
-          { label: 'Protección Ciudadana',         val: 2800 },
-          { label: 'Defensa Civil + CAV',          val: 3118.49 },
+          { label: 'Administración General (Seguridad)',         val:  5489.63 },
+          { label: 'Fort. Sistema Protección Ciudadana',        val:  2597.98 },
+          { label: 'Fort. Sistema Video Vigilancia',            val:   941.98 },
+          { label: 'Centro Atención a las Víctimas',            val:   677.30 },
+          { label: 'Coordinación Sistema Seguridad Local',      val:   321.73 },
+          { label: 'Fort. Sistema Seguridad Vial',              val:    68.85 },
+          { label: 'Defensa Civil',                             val:    21.02 },
         ]
       },
-      { label: 'Servicio de la Deuda',         val:  5567.68, nota: '+234% nominal · +154% real — alerta',
+      { label: 'Servicio de la Deuda', val: 5567.68, nota: '+234% nominal vs 2024',
         programas: [
-          { label: 'Amortización deuda interna', val: 5567.68 },
+          { label: 'Deuda Flotante',                            val:  5540.40 },
+          { label: 'Deuda Consolidada',                         val:    27.28 },
         ]
       },
-      { label: 'Coordinación de Gabinete',     val:  5185.39, nota: 'Nueva · escisión de Jefatura de Gabinete', nueva: true,
+      { label: 'Coordinación de Gabinete', val: 5185.39, nota: 'Nueva · Comunicación + Coord. + Atención al Vecino', nueva: true,
         programas: [
-          { label: 'Asuntos Institucionales', val: 1800 },
-          { label: 'Juventud + RRHH',         val: 3385.39 },
+          { label: 'Administración General (Coord.)',            val:  2551.44 },
+          { label: 'Comunicación y Contenido',                  val:   760.87 },
+          { label: 'Prensa y Comunicación',                     val:   767.24 },
+          { label: 'Gobierno Cercano y Accesible',              val:   646.33 },
+          { label: 'Coordinación General de la Gestión',        val:   316.28 },
+          { label: 'Defensa al Consumidor (Coord.)',             val:   140.99 },
+          { label: 'Protocolo y Ceremonial',                    val:     2.24 },
         ]
       },
-      { label: 'Trabajo y Producción',         val:  4250.94, nota: '+464% nominal · +205% real',
+      { label: 'Trabajo y Producción', val: 4250.94, nota: '+464% nominal vs 2024 · incluye Plan Seg. e Higiene',
         programas: [
-          { label: 'Formación para el Trabajo',    val: 1800 },
-          { label: 'Parque Industrial + PYMES',    val:  900 },
-          { label: 'Economía del Conocimiento',    val: 1550.94 },
+          { label: 'Administración General (Trabajo)',           val:  1721.47 },
+          { label: 'Plan Anual Seguridad e Higiene',            val:  1560.16 },
+          { label: 'Plan Integral Ordenamiento Esp. Público',   val:   419.54 },
+          { label: 'Gestión Integral Habilitaciones',           val:   257.34 },
+          { label: 'Formación para el Trabajo y Teletrabajo',   val:   145.20 },
+          { label: 'Desarrollo Centros Comerciales',            val:    55.80 },
+          { label: 'Distrito Innovación y Conocimiento',        val:    59.01 },
+          { label: 'Desarrollo Parque Industrial y PYMES',      val:    11.24 },
+          { label: 'Programa Puertas Abiertas y Padrinos',      val:    18.88 },
+          { label: 'Microcréditos 3FEmprende',                  val:     2.30 },
         ]
       },
-      { label: 'Secretaría General',           val:  4396.28, nota: '',
+      { label: 'Secretaría General', val: 4396.28, nota: 'Administración + Legal + Juventud + RRHH',
         programas: [
-          { label: 'Prensa y Comunicación',       val: 2100 },
-          { label: 'Legal y Técnica',             val:  900 },
-          { label: 'Coordinación General',        val: 1396.28 },
+          { label: 'Administración General (Sec. Gral.)',        val:  2683.92 },
+          { label: 'Coordinación y Adm. de Gastos',             val:   752.43 },
+          { label: 'Juventud',                                   val:   413.21 },
+          { label: 'Legal y Técnica',                           val:   314.01 },
+          { label: 'Asuntos Institucionales',                   val:   232.71 },
         ]
       },
-      { label: 'H.C.D.',                       val:  2776.72, nota: '',
+      { label: 'H.C.D.', val: 2776.72, nota: '',
         programas: [
-          { label: 'Actividades Centrales HCD', val: 2776.72 },
+          { label: 'Formación y Sanción de Ordenanzas',         val:  2776.72 },
         ]
       },
-      { label: 'Juzgado de Faltas',            val:   712.74, nota: '',
+      { label: 'Juzgado de Faltas', val: 712.74, nota: '',
         programas: [
-          { label: 'Oficina de Faltas', val: 712.74 },
+          { label: 'Administración General (Juzgado Faltas)',    val:   712.74 },
         ]
       },
-      { label: 'Desarrollo Humano y Hábitat',  val:   542.59, nota: 'Funciones mayoritarias reasignadas a Capital Humano',
+      { label: 'Des. Humano y Hábitat', val: 542.58, nota: 'Jurisdicción residual — mayoría reasignada a Capital Humano',
         programas: [
-          { label: 'Programas residuales',  val: 542.59 },
+          { label: 'Administración General (Des. Humano)',       val:   189.26 },
+          { label: 'Emergencia Social (residual)',               val:   186.12 },
+          { label: 'Red Cloacal Loma Hermosa OC70291 (residual)',val:   109.45 },
+          { label: 'Protección Derechos NNA (residual)',         val:    20.84 },
+          { label: 'Economía Social (residual)',                 val:    16.05 },
+          { label: 'Inclusión Personas Discapacidad (residual)', val:    10.85 },
+          { label: 'Espacios Comunitarios (residual)',           val:     6.59 },
+          { label: 'Géneros y DDHH (residual)',                  val:     3.42 },
         ]
       },
-      { label: 'Secretaría de Gobierno',       val:   274.02, nota: 'Funciones reasignadas',
-        programas: [ { label: 'Actividades residuales', val: 274.02 } ]
+      { label: 'Sec. de Gobierno', val: 274.16, nota: 'Funciones reasignadas · jurisdicción residual',
+        programas: [
+          { label: 'Administración General (Gob.)',              val:   166.21 },
+          { label: 'Recursos Humanos (Gob.)',                    val:    52.07 },
+          { label: 'Juventud (Gob.)',                           val:    36.35 },
+          { label: 'Licencias de Conducir (Gob.)',              val:    10.07 },
+          { label: 'Asuntos Institucionales (Gob.)',            val:     9.46 },
+        ]
       },
-      { label: 'Control Municipal',            val:   189.86, nota: 'Funciones fusionadas',
-        programas: [ { label: 'Actividades residuales', val: 189.86 } ]
+      { label: 'Control Municipal', val: 189.87, nota: 'Funciones fusionadas en Trabajo y Producción',
+        programas: [
+          { label: 'Plan Anual Seguridad e Higiene (Control)',   val:    88.87 },
+          { label: 'Administración General (Control)',           val:    50.85 },
+          { label: 'Plan Integral Ord. Esp. Públ. (Control)',   val:    30.10 },
+          { label: 'Gestión Habilitaciones (Control)',          val:    20.05 },
+        ]
       },
-      { label: 'Des. Territorial y Movilidad', val:   189.25, nota: '−91,5% real — funciones reasignadas',
-        programas: [ { label: 'Actividades residuales', val: 189.25 } ]
+      { label: 'Des. Territorial y Movilidad', val: 189.25, nota: '−91,5% real vs 2024 · funciones reasignadas a Obras Públicas',
+        programas: [
+          { label: 'Administración General (Territorial)',       val:   163.65 },
+          { label: 'Ord. Centralidades (Territorial)',           val:    18.45 },
+          { label: 'Plan Integral Movilidad (Territorial)',     val:     7.15 },
+        ]
       },
-      { label: 'Licencias / Atención al Vecino', val:  96.88, nota: 'Funciones reasignadas',
-        programas: [ { label: 'Actividades residuales', val: 96.88 } ]
+      { label: 'Atención al Vecino', val: 96.88, nota: 'Funciones reasignadas a Coordinación',
+        programas: [
+          { label: 'Administración General (At. Vecino)',        val:    80.34 },
+          { label: 'Gobierno Cercano y Accesible (At. Vecino)',  val:    13.62 },
+          { label: 'Defensa al Consumidor (At. Vecino)',         val:     2.92 },
+        ]
       },
     ],
-
     personal: {
       total: 2798,
       permanente: 1110,
@@ -605,240 +718,17 @@ const DATA = {
     },
   },
 
-
   /* ─────────────── 2026 ─────────────── */
+  /* TODO: Cargar cuando esté disponible la rendición RAFAM (~Feb 2027) */
   2026: {
-    status: 'partial',
-    fuente: 'RAFAM · Ejecución al 31/03/2026 · Datos provisorios · Anualizados ×4',
-    ipc: 0.30, // IPC 2026 estimado (en curso — dato parcial)
-    nota: 'Datos al 31/03/2026 anualizados (×4). El servicio de la deuda incluye pago de deuda flotante 2025 y NO es representativo del gasto estructural.',
-
-    resumen: {
-      ejecutado:      166680.16,  // devengado Q1 × 4 (incluye deuda flotante pagada)
-      percibido:      182529.40,  // percibido Q1 × 4
-      presupAprobado: 189429.89,  // crédito aprobado anual (del presupuesto)
-      superavitArt43: null,
-      resultadoArt44: null,
-      saldoCajaIni:   30733.66,   // saldo 01/01/2026
-      saldoCajaFin:    9221.69,   // saldo 31/03/2026 (NO anualizado)
-      deudaFlotante:   null,
-      ingCorrientes:  182396.28,  // ingresos corrientes Q1 × 4
-      gasCorrientes:  122074.60,  // gastos corrientes Q1 × 4
-      ahorroCorriente: 60321.68,  // ahorro corriente Q1 × 4
-      recursosCapital:   133.13,  // Q1 × 4
-      gastosCapital:   10122.12,  // bienes de uso Q1 × 4
-      paritaria: null,
-    },
-
-    recursos: {
-      totalDevengado:  207935.63, // Q1 × 4 (estimado, incluye fuentes financ.)
-      totalPercibido:  182529.40,
-      origenMunicipal: 124349.00, // percibido Q1 × 4 (libre disp + afectados)
-      origenProvincial: 57846.00,
-      origenNacional:    333.30,
-      tipos: [
-        { label: 'Tasas municipales (est.)',         val: 99739.16 },  // Q1 × 4
-        { label: 'Coparticipación + trib. (est.)',   val: 56059.08 },  // Copart+otros × 4
-        { label: 'Transferencias corrientes (est.)', val: 16193.52 },  // prov+nac × 4
-        { label: 'Rentas propiedad (intereses)',      val:  2173.96 },  // Q1 × 4
-        { label: 'Multas y derechos',                val:  5645.49 },  // Q1 × 4
-        { label: 'Venta bienes y servicios',         val:     0.00 },
-        { label: 'Recursos propios de capital',      val:   133.13 },
-      ],
-      tasas: [
-        { label: 'Insp. Seg. e Higiene (TISH)',      val: 35617.64 },  // Q1 × 4
-        { label: 'Servicios Generales',              val: 62837.00 },  // Q1 × 4
-        { label: 'Tasa de Seguridad',               val:   330.00 },  // estimado
-        { label: 'Patente Automotores + Rodados',    val:  2094.55 },  // Q1 × 4
-        { label: 'Estacionamiento Medido',           val:  1139.34 },  // Q1 × 4
-      ],
-      tributarios: [
-        { label: 'Coparticipación Pcial. Ley 10.559 (est.)', val: 132587.60, orig: 'Provincial' },
-        { label: 'Canon EDENOR (est.)',                       val:  24165.76, orig: 'Municipal' },
-        { label: 'Fondo Mpal. Inclusión Social L.13863',      val:   3199.02, orig: 'Provincial' },
-        { label: 'Fondo Fort. Recursos Municipales',          val:   2447.23, orig: 'Provincial' },
-        { label: 'CEAMSE - Recepción Residuos',               val:   7107.00, orig: 'Municipal' },
-      ],
-      fondos: [],
-    },
-
-    gastos: {
-      total:          166680.16,
-      pagado:         162901.21,  // Q1 pagado × 4
-      deudaFlotante:   null,      // no disponible al cierre Q1
-      alertaPrincipal: 'Datos <strong>provisorios al 31/03/2026, anualizados (×4)</strong>. El servicio de la deuda ($33.719 M estimado) incluye el pago de la deuda flotante 2025 ($8.431 M) concentrado en Q1 — <strong>no representa el gasto estructural anual</strong>. Los servicios no personales incluyen Higiene Urbana con fuerte estacionalidad.',
-      porObjeto: [
-        { label: 'Gastos en personal',      val: 46439.72, pct: 27.9, impago: 0,    color: 'rgba(13,148,136,.65)'  },
-        { label: 'Servicios no personales', val: 62700.52, pct: 37.6, impago: 2943.60, color: 'rgba(220,38,38,.65)'  },
-        { label: 'Servicio de la deuda (*)',val: 33718.76, pct: 20.2, impago: 0,    color: 'rgba(100,116,139,.65)' },
-        { label: 'Bienes de uso (capital)', val: 10122.12, pct:  6.1, impago: 751.69, color: 'rgba(234,88,12,.65)'  },
-        { label: 'Transferencias',          val:  8190.96, pct:  4.9, impago:  79.82, color: 'rgba(37,99,235,.65)'  },
-        { label: 'Bienes de consumo',       val:  4744.72, pct:  2.8, impago:  28.30, color: 'rgba(217,119,6,.65)'  },
-        { label: 'Activos financieros',     val:   763.36, pct:  0.5, impago: 0,    color: 'rgba(124,58,237,.65)'  },
-      ],
-      programas: [
-        // Anualizados (Q1 × 4) — datos de Situación Económico-Financiera 31/03/2026
-        { label: 'Higiene Urbana y Control de Microbasurales',   val: 39016.40, sec: 'Ambiente' },
-        { label: 'Actividades Centrales (personal y gastos gles.)',val: 20939.24, sec: 'Central' },
-        { label: 'Serv. Deuda y Partidas no asignables (*)',      val: 33718.76, sec: 'Central' },
-        { label: 'Fortalec. Sistema Atención Primaria',           val:  5252.11, sec: 'Salud' },
-        { label: 'Obras Viales y de Infraestructura',             val: 10796.55, sec: 'Obras Púb.' },
-        { label: 'Fortalec. Infr. Educativa (formal/informal)',   val:  2147.79, sec: 'Capital Humano' },
-        { label: 'Emergencia Social y Seg. Alimentaria',          val:  3178.44, sec: 'Capital Humano' },
-        { label: 'Fortalec. Compl. Hospitalario',                 val:  2047.47, sec: 'Salud' },
-        { label: 'Mantenimiento Integral Sistema Alumbrado',      val:  2075.90, sec: 'Ambiente' },
-        { label: 'HCD - Actividades Centrales',                   val:  2736.68, sec: 'HCD' },
-        { label: 'Fortalec. Serv. Urbanos',                       val:  2935.44, sec: 'Ambiente' },
-        { label: 'MESA Bonaerense',                               val:  2078.20, sec: 'Capital Humano' },
-        { label: 'Fortalec. Sistema Protección Ciudadana',        val:  2514.32, sec: 'Seguridad' },
-        { label: 'SAE - Servicio Alimentario Escolar',            val:  1043.04, sec: 'Capital Humano' },
-        { label: 'Servicios Generales (Obras Púb.)',              val:  2470.53, sec: 'Obras Púb.' },
-        { label: 'Primera Infancia y Jardines de Infantes',       val:  2371.92, sec: 'Capital Humano' },
-        { label: 'Fortalec. Sistema Atención Médica (SAME)',      val:  1315.24, sec: 'Salud' },
-        { label: 'Fortalec. Sistema Video Vigilancia',            val:  1436.52, sec: 'Seguridad' },
-        { label: 'Promoción Cultural y Patrimonial',              val:  1589.24, sec: 'Capital Humano' },
-        { label: 'Niñez, Adolescencia y Familia',                 val:  1667.80, sec: 'Capital Humano' },
-        { label: 'Hábitat, Vivienda y Regularización dominial',   val:  1604.66, sec: 'Capital Humano' },
-        { label: 'Desarrollo Deportivo',                          val:  1231.76, sec: 'Capital Humano' },
-        { label: 'Plan Anual de Seg., Higiene y Ord. Esp. Púb.',  val:  2779.62, sec: 'Trabajo' },
-        { label: 'Fortalec. Centro Especialidades (CEMAR)',       val:   892.30, sec: 'Salud' },
-        { label: 'Fortalec. de Inversiones y Emprendedores',      val:   490.19, sec: 'Trabajo' },
-        { label: 'Gobierno Cercano y Accesible',                  val:  1513.11, sec: 'Sec. Gral.' },
-      ],
-    },
-
-    secretarias: [
-      // Datos Q1 2026 anualizados (×4) — provisorios
-      // Fuente: Situación Económico-Financiera 31/03/2026 por programa
-      { label: 'Ambiente y Servicios Públicos', val: 44349.00,
-        nota: 'Higiene Urbana + Alumbrado + Serv. Urbanos + Cementerio — Q1×4',
-        programas: [
-          { label: 'Higiene Urbana y Control de Microbasurales',   val: 39016.40 },
-          { label: 'Mantenimiento Integral Sistema Alumbrado',     val:  2075.90 },
-          { label: 'Fortalecimiento Servicios Urbanos',            val:  2935.44 },
-          { label: 'Fortalecimiento Cementerio Municipal',         val:   321.31 },
-        ]
-      },
-      { label: 'Act. Centrales (personal y gastos gles.)', val: 20939.24,
-        nota: 'Personal general + gastos comunes de todas las jurisdicciones',
-        programas: [
-          { label: 'Actividades Centrales', val: 20939.24 },
-        ]
-      },
-      { label: 'Servicio de la Deuda', val: 33718.76,
-        nota: 'Incluye pago deuda flotante 2025 concentrado en Q1 — Q1×4',
-        programas: [
-          { label: 'Amortización deuda interna (flotante 2025 + propia)', val: 33718.76 },
-        ]
-      },
-      { label: 'Capital Humano', val: 11725.08,
-        nota: 'SAE + MESA + Infr. Educativa + Deporte + Social + Cultura — Q1×4', nueva25: true,
-        programas: [
-          { label: 'Fortalecimiento Infr. Educativa',     val:  2147.79 },
-          { label: 'Emergencia Social y Seg. Alimentaria',val:  3178.44 },
-          { label: 'Primera Infancia y Jardines',         val:  2371.92 },
-          { label: 'MESA Bonaerense',                     val:  2078.20 },
-          { label: 'Niñez, Adolescencia y Familia',       val:  1667.80 },
-          { label: 'Hábitat, Vivienda y Reg. dominial',   val:  1604.66 },
-          { label: 'SAE - Servicio Alimentario Escolar',  val:  1043.04 },
-          { label: 'Promoción Cultural y Patrimonial',    val:  1589.24 },
-          { label: 'Desarrollo Deportivo',                val:  1231.76 },
-          { label: 'Fortalecimiento Escuelas',            val:   685.94 },
-        ]
-      },
-      { label: 'Obras Públicas y Des. Urbano', val: 15092.52,
-        nota: 'Obras Viales + Serv. Generales + Movilidad + Licencias — Q1×4',
-        programas: [
-          { label: 'Obras Viales y de Infraestructura',  val: 10796.55 },
-          { label: 'Servicios Generales (Obras Púb.)',   val:  2470.53 },
-          { label: 'Plan Integral de Movilidad',         val:   715.40 },
-          { label: 'Licencias de Conducir',              val:   333.28 },
-          { label: 'Desarrollo Urbano y Hábitat Sust.',  val:   570.23 },
-          { label: 'Plan Urbano Estratégico',            val:    87.17 },
-          { label: 'Ord. Centralidades y Estacionamiento',val:  119.42 },
-        ]
-      },
-      { label: 'Secretaría de Salud', val: 10283.04,
-        nota: 'Complejo hospitalario + APS + SAME + especialidades — Q1×4',
-        programas: [
-          { label: 'Fortalec. Sistema Atención Primaria', val:  5252.11 },
-          { label: 'Fortalec. Compl. Hospitalario',       val:  2047.47 },
-          { label: 'Fortalec. Sistema Atención Médica (SAME)', val: 1315.24 },
-          { label: 'Fortalec. Centro Especialidades',     val:   892.30 },
-          { label: 'Programa Salud Mental',               val:   247.43 },
-          { label: 'Determinantes Sociales de la Salud',  val:   524.50 },
-        ]
-      },
-      { label: 'Secretaría de Seguridad', val: 6836.84,
-        nota: 'Protección ciudadana + Video vigilancia + Emergencias — Q1×4',
-        programas: [
-          { label: 'Fortalec. Sistema Protección Ciudadana',val: 2514.32 },
-          { label: 'Servicios Seguridad y Emergencias',     val: 1218.06 },
-          { label: 'Fortalec. Sistema Video Vigilancia',    val: 1436.52 },
-          { label: 'Fortalec. Sistema Seguridad Vial',      val:  858.21 },
-          { label: 'Planificación y Coordinación Seguridad',val:  449.60 },
-          { label: 'Centro de Atención a las Víctimas',     val:  360.17 },
-        ]
-      },
-      { label: 'Trabajo y Producción', val: 3755.24,
-        nota: 'Plan Seg. e Higiene + Emprendedores + Comercial — Q1×4',
-        programas: [
-          { label: 'Plan Anual Seg., Higiene y Ord. Esp. Púb.', val: 2779.62 },
-          { label: 'Fortalecimiento de Inversiones y Emprendedores', val: 490.19 },
-          { label: 'Desarrollo Comercial y Prom. Industrial',  val:  156.53 },
-          { label: 'Desarrollo Parque Industrial',             val:   18.10 },
-          { label: 'Microcréditos 3F Emprende',                val:    4.80 },
-        ]
-      },
-      { label: 'Coordinación de Gabinete', val: 3608.20,
-        nota: 'Comunicación + Legal + Asuntos Institucionales + Juventud — Q1×4',
-        programas: [
-          { label: 'Comunicación y Prensa',                  val: 1227.67 },
-          { label: 'Coordinación y Adm. de Gastos',          val:  893.76 },
-          { label: 'Legal y Técnica',                        val:  884.99 },
-          { label: 'Asuntos Institucionales',                val:  292.88 },
-          { label: 'Juventud',                               val:  308.88 },
-        ]
-      },
-      { label: 'Finanzas y Efic. del Estado', val: 4765.80,
-        nota: 'Administración ingresos, gastos, modernización — Q1×4',
-        programas: [
-          { label: 'Coordinación y Adm. de Ingresos',        val: 1640.41 },
-          { label: 'Coordinación y Adm. de Gastos',          val:  769.99 },
-          { label: 'Coordinación y Adm. de la Modernización',val: 1253.91 },
-          { label: 'Coordinación y Adm. de Recursos Humanos',val: 1100.41 },
-        ]
-      },
-      { label: 'Secretaría General', val: 2024.56,
-        nota: 'Gobierno Cercano + Protocolo + Coord. General — Q1×4',
-        programas: [
-          { label: 'Gobierno Cercano y Accesible',    val: 1513.11 },
-          { label: 'Protocolo y Ceremonial',          val:  162.58 },
-          { label: 'Coord. General de la Gestión',   val:  348.89 },
-        ]
-      },
-      { label: 'H.C.D.', val: 2736.68,
-        nota: 'Q1×4',
-        programas: [
-          { label: 'HCD - Actividades Centrales', val: 2736.68 },
-        ]
-      },
-    ],
-
-    personal: {
-      total: null,       // sin dato al Q1
-      permanente: null,
-      mensualizado: null,
-      gastoTotal: 46439.72,  // Q1 × 4
-      paritaria: null,
-      porSecretaria: [],
-      componentes: [
-        { label: 'Personal permanente', val: 17628.55 },  // Q1 × 4
-        { label: 'Personal temporario', val: 23085.00 },
-        { label: 'Servicios extraordinarios (HE)', val: 4437.36 },
-        { label: 'Asignaciones familiares', val: 1288.87 },
-      ],
-    },
+    status: 'pending',
+    fuente: 'Pendiente — Rendición de Cuentas disponible ~Febrero 2027',
+    ipc: null,  // completar cuando INDEC publique el dato anual
+    resumen: null,
+    recursos: null,
+    gastos: null,
+    secretarias: [],
+    personal: { total: null, porSecretaria: [], componentes: [] },
   },
 
   /* ─────────────── 2027 ─────────────── */
