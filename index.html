@@ -330,26 +330,28 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 .sec-detail-row.show { display: table-row }
 .sec-detail-row td { background: var(--card2) !important; padding: 0 }
 .sec-detail-inner {
-  padding: .5rem 1rem .75rem 2.5rem;
-  display: flex; flex-direction: column; gap: 3px;
+  padding: .75rem 1.25rem .875rem 2rem;
+  display: flex; flex-direction: column; gap: 6px;
 }
 .sec-prog-row {
-  display: grid; gap: .5rem; align-items: center;
-  font-size: 11px; color: var(--ink2);
-  grid-template-columns: 200px 1fr 80px 80px;
+  display: grid; gap: .75rem; align-items: center;
+  font-size: 12px; color: var(--ink2);
+  grid-template-columns: minmax(150px, 2fr) 3fr 90px 90px;
+  padding: 3px 0;
 }
-.sec-prog-bar-wrap { display: flex; gap: 3px; flex-direction: column }
+.sec-prog-bar-wrap { display: flex; gap: 4px; flex-direction: column }
 .sec-prog-bar {
-  height: 7px; border-radius: 2px; transition: width .4s ease;
+  height: 11px; border-radius: 3px;
 }
-.sec-prog-label { font-weight: 500 }
-.sec-prog-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: right; color: var(--navy) }
-.sec-prog-cmp { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: right; color: var(--mist) }
+.sec-prog-label { font-weight: 600; color: var(--ink); line-height: 1.3 }
+.sec-prog-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--navy); font-weight: 700 }
+.sec-prog-cmp { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--mist) }
+.sec-prog-var { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; font-weight: 700 }
 .sec-detail-header {
-  display: grid; gap: .5rem; font-size: 9px; font-weight: 700;
-  letter-spacing: .06em; text-transform: uppercase; color: var(--mist);
-  grid-template-columns: 200px 1fr 80px 80px;
-  padding: .4rem 0; border-bottom: 1px solid var(--borde); margin-bottom: 4px;
+  display: grid; gap: .75rem; font-size: 10px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--mist);
+  grid-template-columns: minmax(150px, 2fr) 3fr 90px 90px;
+  padding: .5rem 0; border-bottom: 2px solid var(--borde); margin-bottom: 6px;
 }
 
 /* ── COMPARATIVA GASTOS TABLA ── */
@@ -506,6 +508,28 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 }
 .export-btn:hover { background: var(--green); color: #fff }
 .export-btn svg { width: 13px; height: 13px; flex-shrink: 0 }
+
+
+/* ── PIE CHARTS ── */
+.pie-section { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem }
+@media(max-width:800px){ .pie-section { grid-template-columns: 1fr } }
+.pie-card {
+  background: var(--card); border-radius: var(--r2);
+  border: 1.5px solid var(--borde); padding: 1.25rem;
+}
+.pie-card-title {
+  font-size: .75rem; font-weight: 700; color: var(--ink2);
+  margin-bottom: .75rem; text-transform: uppercase; letter-spacing: .04em;
+}
+.pie-wrap { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap }
+.pie-canvas-wrap { width: 130px; height: 130px; flex-shrink: 0 }
+.pie-legend { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 120px }
+.pie-legend-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--ink2);
+}
+.pie-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0 }
+.pie-legend-pct { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--mist); margin-left: auto }
 
 /* ── FOOTER ── */
 footer {
@@ -716,6 +740,23 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <div style="margin-bottom:1rem"><button class="export-btn" onclick="exportGastos()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Exportar a Excel</button></div>
   <div class="kpi-grid" id="kpi-gastos"></div>
     <div class="alert warn" id="gas-alerta"></div>
+  <!-- Tortas Gastos -->
+  <div class="pie-section" id="pie-gas-section">
+    <div class="pie-card">
+      <div class="pie-card-title" id="pie-objeto-title">Gastos por objeto</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-objeto"></canvas></div>
+        <div class="pie-legend" id="pie-objeto-legend"></div>
+      </div>
+    </div>
+    <div class="pie-card">
+      <div class="pie-card-title" id="pie-sec-title">Por secretaría (top 8)</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-secretarias"></canvas></div>
+        <div class="pie-legend" id="pie-sec-legend"></div>
+      </div>
+    </div>
+  </div>
     <div class="card-grid g2">
       <div class="card v3">
         <div class="card-title">Gastos por objeto · comparativa</div>
@@ -2337,6 +2378,140 @@ function renderGastos() {
   }).join('');
 }
 
+
+// Equivalencias de nombres de secretarías entre años
+const SEC_EQUIV = {
+  'Educación y Cultura':         'Capital Humano',
+  'Secretaría de Deporte':       'Capital Humano',
+  'Jefatura de Gabinete':        'Coordinación de Gabinete',
+  'Jefatura de Gabinete (*)':    'Coordinación de Gabinete',
+  'Des. Humano y Hábitat':       'Capital Humano',
+  'Desarrollo Humano y Hábitat': 'Capital Humano',
+  'Licencias de Conducir / Atención al Vecino': 'Atención al Vecino',
+  'Atención al Vecino':          'Coordinación de Gabinete',
+  'Des. Territorial y Movilidad':'Obras Públicas y Des. Urbano',
+  'Control Municipal':            'Trabajo y Producción',
+  'Finanzas y Eficiencia del Estado': 'Finanzas y Efic. del Estado',
+};
+
+function findSecCmp(label, secs) {
+  if (!secs || !secs.length) return null;
+  // Exacto
+  let found = secs.find(s => s.label === label);
+  if (found) return found;
+  // Via tabla equivalencias
+  const equiv = SEC_EQUIV[label];
+  if (equiv) { found = secs.find(s => s.label === equiv); if (found) return found; }
+  // Búsqueda inversa
+  const reverseEquiv = Object.entries(SEC_EQUIV).find(([k,v]) => v === label);
+  if (reverseEquiv) { found = secs.find(s => s.label === reverseEquiv[0]); if (found) return found; }
+  // Fuzzy — palabras clave
+  const norm = l => l.toLowerCase().replace(/secretar[íi]a\s+(de|del)\s+/g,'').replace(/\s+/g,' ').trim();
+  found = secs.find(s => norm(s.label) === norm(label));
+  return found || null;
+}
+
+
+/* ── PIE CHARTS ── */
+const PIE_COLORS = [
+  'rgba(29,111,164,.80)','rgba(180,83,9,.75)','rgba(21,128,61,.75)',
+  'rgba(185,28,28,.75)', 'rgba(109,40,217,.75)','rgba(194,65,12,.75)',
+  'rgba(15,23,42,.70)',  'rgba(217,119,6,.75)', 'rgba(6,95,70,.75)',
+  'rgba(29,78,216,.75)',
+];
+
+function drawPie(canvasId, items) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const size = 130;
+  canvas.width = size; canvas.height = size;
+  const cx = size/2, cy = size/2, r = size/2 - 4, ir = r * 0.52;
+  const total = items.reduce((s,i)=>s+i.val,0);
+  if (!total) return;
+  let angle = -Math.PI/2;
+  ctx.clearRect(0,0,size,size);
+  items.forEach((item,i) => {
+    const slice = (item.val/total)*2*Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angle,angle+slice);
+    ctx.closePath();
+    ctx.fillStyle = PIE_COLORS[i % PIE_COLORS.length];
+    ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    angle += slice;
+  });
+  // Donut hole
+  ctx.beginPath();
+  ctx.arc(cx,cy,ir,0,2*Math.PI);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--card').trim() || '#fff';
+  ctx.fill();
+}
+
+function buildPieLegend(legendId, items, total) {
+  const el = document.getElementById(legendId);
+  if (!el) return;
+  el.innerHTML = items.map((item,i) => `
+    <div class="pie-legend-item">
+      <div class="pie-legend-dot" style="background:${PIE_COLORS[i%PIE_COLORS.length]}"></div>
+      <span style="flex:1;font-size:10px;line-height:1.3">${item.label}</span>
+      <span class="pie-legend-pct">${((item.val/total)*100).toFixed(1)}%</span>
+    </div>`).join('');
+}
+
+function renderTortas() {
+  const d = DATA[activeYear];
+  if (!d) return;
+
+  // Torta 1: Gastos por objeto
+  if (d.gastos?.porObjeto) {
+    const items = d.gastos.porObjeto.filter(o=>o.val>0);
+    const total = items.reduce((s,i)=>s+i.val,0);
+    drawPie('pie-objeto', items);
+    buildPieLegend('pie-objeto-legend', items, total);
+    const el = document.getElementById('pie-objeto-title');
+    if(el) el.textContent = `Gastos por objeto · ${activeYear}`;
+  }
+
+  // Torta 2: Por secretaría top 8
+  if (d.secretarias?.length) {
+    const all  = d.secretarias.filter(s=>s.val>0).sort((a,b)=>b.val-a.val);
+    const top  = all.slice(0,8);
+    const rest = all.slice(8);
+    const items = rest.length ? [...top,{label:'Resto secretarías',val:rest.reduce((s,r)=>s+r.val,0)}] : top;
+    const total = items.reduce((s,i)=>s+i.val,0);
+    drawPie('pie-secretarias', items);
+    buildPieLegend('pie-sec-legend', items, total);
+    const el = document.getElementById('pie-sec-title');
+    if(el) el.textContent = `Por secretaría · ${activeYear}`;
+  }
+
+  // Torta 3: Recursos por tipo
+  if (d.recursos?.tipos?.length) {
+    const items = d.recursos.tipos.filter(t=>t.val>0);
+    const total = items.reduce((s,i)=>s+i.val,0);
+    drawPie('pie-recursos', items);
+    buildPieLegend('pie-rec-legend', items, total);
+    const el = document.getElementById('pie-rec-title');
+    if(el) el.textContent = `Recursos por tipo · ${activeYear}`;
+  }
+
+  // Torta 4: Por procedencia
+  if (d.recursos) {
+    const items = [
+      {label:'Origen municipal',  val:d.recursos.origenMunicipal||0},
+      {label:'Origen provincial', val:d.recursos.origenProvincial||0},
+      {label:'Origen nacional',   val:d.recursos.origenNacional||0},
+    ].filter(i=>i.val>0);
+    const total = items.reduce((s,i)=>s+i.val,0);
+    drawPie('pie-origen', items);
+    buildPieLegend('pie-origen-legend', items, total);
+    const el = document.getElementById('pie-origen-title');
+    if(el) el.textContent = `Por procedencia · ${activeYear}`;
+  }
+}
+
 /* ╔══════════════════════════════════════════════════════╗
    ║  RENDER — SECRETARÍAS (con desglose expandible)     ║
    ╚══════════════════════════════════════════════════════╝ */
@@ -2430,35 +2605,46 @@ function renderSecretarias() {
       const maxProgCmp = cmpProgs.length ? Math.max(...cmpProgs.filter(p=>p.val>0).map(p=>p.val)) : 0;
       const maxAll = Math.max(maxProg, maxProgCmp);
 
+      const legenda = showCmp ? `<div style="display:flex;gap:1.5rem;margin-bottom:.5rem;font-size:11px;font-weight:600">
+        <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:14px;height:8px;border-radius:2px;background:rgba(13,148,136,.75)"></span>${activeYear}</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:14px;height:8px;border-radius:2px;background:rgba(180,83,9,.55)"></span>${cmpYear}</span>
+      </div>` : '';
       detailContent = `<div class="sec-detail-inner">
+        ${legenda}
         <div class="sec-detail-header">
           <span>Programa</span>
-          <span>Ejecución comparativa</span>
-          <span style="text-align:right">${activeYear}</span>
-          <span style="text-align:right">${showCmp ? cmpYear : ''}</span>
+          <span>Ejecución${showCmp ? ' comparativa' : ''}</span>
+          <span style="text-align:right">${activeYear} ($M)</span>
+          <span style="text-align:right">${showCmp ? cmpYear+' / var. real' : ''}</span>
         </div>
         ${s.programas.filter(p => p.val > 0).map(p => {
-          // Matching por label exacto o por palabras clave comunes
-        const normLabel = l => l.toLowerCase()
-          .replace(/fort\.?\s+/g,'').replace(/fortalecimiento\s+/g,'')
-          .replace(/\s+de\s+(la|el|los|las)\s+/g,' ')
-          .replace(/\s+/g,' ').trim();
-        const pc = cmpProgs.find(c => c.label === p.label)
-          || cmpProgs.find(c => normLabel(c.label) === normLabel(p.label))
-          || cmpProgs.find(c => {
-              const a = normLabel(p.label), b = normLabel(c.label);
-              const wordsA = a.split(' ').filter(w=>w.length>4);
-              return wordsA.length > 0 && wordsA.every(w => b.includes(w));
-            });
+          const normLabel = l => l.toLowerCase()
+            .replace(/fort\.?\s+/g,'').replace(/fortalecimiento\s+/g,'')
+            .replace(/\s+de\s+(la|el|los|las)\s+/g,' ')
+            .replace(/\s+/g,' ').trim();
+          const pc = cmpProgs.find(c => c.label === p.label)
+            || cmpProgs.find(c => normLabel(c.label) === normLabel(p.label))
+            || cmpProgs.find(c => {
+                const a = normLabel(p.label), b = normLabel(c.label);
+                const wordsA = a.split(' ').filter(w=>w.length>4);
+                return wordsA.length > 0 && wordsA.every(w => b.includes(w));
+              });
           const pvn = (pc?.val) ? ((p.val - pc.val)/pc.val*100) : null;
+          const pvr = (pvn !== null && ipc) ? ((1+pvn/100)/(1+ipc)-1)*100 : null;
+          const vrCol = pvr!==null?(pvr>2?'#15803d':pvr>-5?'#b45309':'#b91c1c'):'var(--mist)';
+          const pct   = s.val ? (p.val/s.val*100).toFixed(1) : '';
           return `<div class="sec-prog-row">
-            <span class="sec-prog-label">${p.label}</span>
+            <span class="sec-prog-label">${p.label}<br><span style="font-size:10px;color:var(--mist);font-weight:400">${pct}% de la sec.</span></span>
             <div class="sec-prog-bar-wrap">
-              <div class="sec-prog-bar" style="width:${p.val/maxAll*100}%;background:rgba(13,148,136,.6)"></div>
-              ${pc ? `<div class="sec-prog-bar" style="width:${pc.val/maxAll*100}%;background:rgba(217,119,6,.5)"></div>` : ''}
+              <div style="display:flex;align-items:center;gap:4px">
+                <div class="sec-prog-bar" style="width:${p.val/maxAll*100}%;background:rgba(13,148,136,.72);flex:none"></div>
+              </div>
+              ${pc ? `<div style="display:flex;align-items:center;gap:4px">
+                <div class="sec-prog-bar" style="width:${pc.val/maxAll*100}%;background:rgba(180,83,9,.55);flex:none"></div>
+              </div>` : ''}
             </div>
             <span class="sec-prog-val">$${fmt(p.val)}M</span>
-            <span class="sec-prog-cmp">${pc ? '$'+fmt(pc.val)+'M' : (showCmp ? '—' : '')}${pvn !== null ? ` <span style="color:${pvn>0?'var(--green)':pvn>-15?'var(--amber)':'var(--red)'};font-size:9px">${pvn>0?'+':''}${pvn.toFixed(0)}%</span>` : ''}</span>
+            <span class="sec-prog-cmp" style="color:${pvr!==null?vrCol:'var(--mist)'}">${pc ? '$'+fmt(pc.val)+'M' : (showCmp ? '<span style="color:var(--mist)">sin par</span>' : '')}${pvr!==null?`<br><span style="font-weight:700;font-size:11px;color:${vrCol}">${pvr>0?'+':''}${pvr.toFixed(1)}%r</span>`:''}</span>
           </div>`;
         }).join('')}
       </div>`;
@@ -3025,8 +3211,8 @@ function setCmp(val) {
 function renderCurrentView() {
   switch (activeView) {
     case 'resumen':     renderResumen(); break;
-    case 'recursos':    renderRecursos(); break;
-    case 'gastos':      renderGastos(); break;
+    case 'recursos':    renderRecursos(); renderTortas(); break;
+    case 'gastos':      renderGastos(); renderTortas(); break;
     case 'secretarias': renderSecretarias(); break;
     case 'personal':    renderPersonal(); break;
     case 'metodologia': renderMetodologia(); break;
@@ -3036,6 +3222,7 @@ function renderCurrentView() {
 /* ═══════ INIT ═══════ */
 renderResumen();
 initCalc();
+// Tortas se renderizan al entrar a Gastos/Recursos
 
 /* ╔══════════════════════════════════════════════════════╗
    ║  EXPORTACIÓN A EXCEL                                 ║
