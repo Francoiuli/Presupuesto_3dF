@@ -629,11 +629,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
       <span class="sh-n" id="resumen-fuente">Fuente: RAFAM · Rendición de Cuentas firmada 28/02/2025</span>
     </div>
 
-    <div class="alert info" id="resumen-nota">
-      <strong>¿Cómo leer estos datos?</strong> Todos los importes están en millones de pesos corrientes. 
-      El ejercicio 2024 cerró con <strong>superávit presupuestario de $10.204 M</strong> (Art. 43) y un resultado del ejercicio de <strong>$10.865 M</strong> (Art. 44). 
-      La inflación 2024 fue del 117,8% (IPC INDEC). Paritaria municipal acumulada: 139%.
-    </div>
+
 
     <div class="kpi-grid" id="kpi-resumen"></div>
 
@@ -749,11 +745,25 @@ footer a:hover { color: rgba(94,234,212,.85) }
         <div class="pie-legend" id="pie-objeto-legend"></div>
       </div>
     </div>
+    <div class="pie-card" style="display:none">
+      <div class="pie-card-title" id="pie-objeto-title-2">Gastos por objeto (comp.)</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-objeto-2"></canvas></div>
+        <div class="pie-legend" id="pie-objeto-legend-2"></div>
+      </div>
+    </div>
     <div class="pie-card">
-      <div class="pie-card-title" id="pie-sec-title">Por secretaría (top 8)</div>
+      <div class="pie-card-title" id="pie-sec-title">Por secretaría (top 6)</div>
       <div class="pie-wrap">
         <div class="pie-canvas-wrap"><canvas id="pie-secretarias"></canvas></div>
         <div class="pie-legend" id="pie-sec-legend"></div>
+      </div>
+    </div>
+    <div class="pie-card" style="display:none">
+      <div class="pie-card-title" id="pie-sec-title-2">Por secretaría (comp.)</div>
+      <div class="pie-wrap">
+        <div class="pie-canvas-wrap"><canvas id="pie-secretarias-2"></canvas></div>
+        <div class="pie-legend" id="pie-sec-legend-2"></div>
       </div>
     </div>
   </div>
@@ -2046,23 +2056,35 @@ function renderResumen() {
   document.getElementById('resumen-titulo').textContent = `Resumen ejecutivo · ${activeYear}`;
   document.getElementById('resumen-fuente').textContent = d.fuente;
 
-  // KPIs
+  // KPIs con comparativa
+  const rc_res = cmpYear !== 'none' ? DATA[parseInt(cmpYear)]?.resumen : null;
+  const ipc_res = d.ipc || 0;
+  const mkDeltaRes = (val, valC, label) => {
+    if (!valC || !val) return '';
+    const vn = (val-valC)/valC*100;
+    const vr = ipc_res ? ((1+vn/100)/(1+ipc_res)-1)*100 : null;
+    const col = (vr??vn)>2?'up':(vr??vn)>-5?'warn':'down';
+    const txt = vr!==null
+      ? `vs ${cmpYear}: ${vn>0?'+':''}${vn.toFixed(1)}% nom · ${vr>0?'+':''}${vr.toFixed(1)}% real`
+      : `vs ${cmpYear}: ${vn>0?'+':''}${vn.toFixed(1)}%`;
+    return `<div class="kpi-delta ${col}">${txt}</div>`;
+  };
   const kpis = [
-    { cl:'amber', label:'Ejecutado (devengado)',     val:`$${fmt(r.ejecutado)} M`,  sub:`Presup. aprobado: $${fmt(r.presupAprobado)} M`,  delta:{cl:'warn',txt:`+${((r.ejecutado/r.presupAprobado-1)*100).toFixed(0)}% sobre original`}},
-    { cl:'green', label:'Resultado Art. 43',         val:`$${fmt(r.superavitArt43)} M`, sub:'Percibido − Devengado corriente y capital', delta:{cl:'up',txt:'Superávit'}},
-    { cl:'green', label:'Resultado Art. 44 (LOM)',   val:`$${fmt(r.resultadoArt44)} M`, sub:`${((r.resultadoArt44/r.percibido)*100).toFixed(1)}% del percibido`, delta:{cl:'up',txt:'Equilibrio fiscal'}},
-    { cl:'blue',  label:'Saldo de caja final',       val:`$${fmt(r.saldoCajaFin)} M`,  sub:`Inicio del año: $${fmt(r.saldoCajaIni)} M`, delta:{cl:'up',txt:`+${fmt(r.saldoCajaFin - r.saldoCajaIni)} M en el año`}},
-    { cl:'amber', label:'Deuda flotante',            val:`$${fmt(r.deudaFlotante)} M`,  sub:`${((r.deudaFlotante/r.ejecutado)*100).toFixed(1)}% del devengado`, delta:{cl:'warn',txt:'A pagar año siguiente'}},
-    { cl:'',      label:'Ingresos corrientes perc.',  val:`$${fmt(r.ingCorrientes)} M`, sub:'Base real de gestión',    delta:{cl:'info',txt:`Ahorro cte: $${fmt(r.ahorroCorriente)} M`}},
-    { cl:'red',   label:'Gastos corrientes',          val:`$${fmt(r.gasCorrientes)} M`, sub:'Incluye personal y servicios', delta:null},
-    { cl:'orange',label:'Gastos de capital (bienes)', val:`$${fmt(r.gastosCapital)} M`, sub:`${((r.gastosCapital/r.ejecutado)*100).toFixed(1)}% del total ejecutado`, delta:null},
+    { cl:'amber', label:'Ejecutado (devengado)',     val:`$${fmt(r.ejecutado)} M`,        sub:`Presup. aprobado: $${fmt(r.presupAprobado)} M`, extra: mkDeltaRes(r.ejecutado, rc_res?.ejecutado) },
+    { cl:'green', label:'Resultado Art. 43',         val:`$${fmt(r.superavitArt43)} M`,   sub:'Percibido − Devengado corriente y capital',      extra: mkDeltaRes(r.superavitArt43, rc_res?.superavitArt43) },
+    { cl:'green', label:'Resultado Art. 44 (LOM)',   val:`$${fmt(r.resultadoArt44)} M`,   sub:`${((r.resultadoArt44/r.percibido)*100).toFixed(1)}% del percibido`, extra: mkDeltaRes(r.resultadoArt44, rc_res?.resultadoArt44) },
+    { cl:'blue',  label:'Saldo de caja final',       val:`$${fmt(r.saldoCajaFin)} M`,     sub:`Inicio del año: $${fmt(r.saldoCajaIni)} M`,      extra: mkDeltaRes(r.saldoCajaFin, rc_res?.saldoCajaFin) },
+    { cl:'amber', label:'Deuda flotante',            val:`$${fmt(r.deudaFlotante)} M`,    sub:`${((r.deudaFlotante/r.ejecutado)*100).toFixed(1)}% del devengado`, extra: mkDeltaRes(r.deudaFlotante, rc_res?.deudaFlotante) },
+    { cl:'',      label:'Ingresos corrientes perc.', val:`$${fmt(r.ingCorrientes)} M`,    sub:`Ahorro cte: $${fmt(r.ahorroCorriente)} M`,       extra: mkDeltaRes(r.ingCorrientes, rc_res?.ingCorrientes) },
+    { cl:'red',   label:'Gastos corrientes',         val:`$${fmt(r.gasCorrientes)} M`,    sub:'Incluye personal y servicios',                   extra: mkDeltaRes(r.gasCorrientes, rc_res?.gasCorrientes) },
+    { cl:'orange',label:'Gastos de capital',         val:`$${fmt(r.gastosCapital)} M`,    sub:`${((r.gastosCapital/r.ejecutado)*100).toFixed(1)}% del total ejecutado`, extra: mkDeltaRes(r.gastosCapital, rc_res?.gastosCapital) },
   ];
   document.getElementById('kpi-resumen').innerHTML = kpis.map(k => `
     <div class="kpi ${k.cl}">
       <div class="kpi-label">${k.label}</div>
       <div class="kpi-value">${k.val}</div>
       <div class="kpi-sub">${k.sub}</div>
-      ${k.delta ? `<div class="kpi-delta ${k.delta.cl}">${k.delta.txt}</div>` : ''}
+      ${k.extra||''}
     </div>
   `).join('');
 
@@ -2268,8 +2290,11 @@ function renderRecursos() {
       <td class="mono-hi yr-col">$${fmt(t.val)} M</td>
       <td class="pct yr-col">${((t.val/total)*100).toFixed(1)}%</td>
       ${showCmp?`<td class="mono yr-cmp">${tc?'$'+fmt(tc.val)+' M':'—'}</td>
-      <td class="yr-cmp" style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${vr!==null?(vr>0?'+':'')+vr.toFixed(1)+'%r':'—'}</td>`:''}
-      <td><span class="badge ${t.orig==='Provincial'?'badge-warn':'badge-ok'}">${t.orig}</span></td>
+      <td class="yr-cmp" style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:${col}">
+        ${vn!==null?`<span style="font-size:10px;font-weight:400;color:var(--ink3)">${vn>0?'+':''}${vn.toFixed(1)}% nom</span><br>`:''}
+        <span style="font-weight:700">${vr!==null?(vr>0?'+':'')+vr.toFixed(1)+'% real':'—'}</span>
+      </td>`:''}
+      <td><span class="badge ${t.orig?.includes('Provincial')?'badge-warn':t.orig?.includes('Nacional')?'badge-info':'badge-ok'}">${t.orig?.replace(' Afectado','')||'—'}</span></td>
     </tr>`;
   }).join('');
 
@@ -2339,7 +2364,8 @@ function renderGastos() {
           <th style="text-align:left;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600;letter-spacing:.03em">Objeto del gasto</th>
           <th style="text-align:right;padding:8px 12px;background:rgba(13,148,136,.85);color:#fff;font-weight:700">${activeYear}<br><span style="font-size:9px;font-weight:400;opacity:.8">$M · %</span></th>
           <th style="text-align:right;padding:8px 12px;background:rgba(180,83,9,.80);color:#fff;font-weight:700">${cmpYear}<br><span style="font-size:9px;font-weight:400;opacity:.8">$M · %</span></th>
-          <th style="text-align:right;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600">Variación real</th>
+          <th style="text-align:right;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600">Var. nominal</th>
+          <th style="text-align:right;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600">Var. real</th>
         </tr>
       </thead>
       <tbody>
@@ -2352,6 +2378,7 @@ function renderGastos() {
             <td style="padding:9px 12px;font-weight:600;color:var(--ink)">${o.label}</td>
             <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy)">$${fmt(o.val)}M<br><span style="font-size:10px;color:var(--mist);font-weight:400">${o.pct}%</span></td>
             <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--ink2)">${oc?`$${fmt(oc.val)}M<br><span style="font-size:10px;color:var(--mist)">${oc.pct}%</span>`:'—'}</td>
+            <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--ink2)">${vn!==null?(vn>0?'+':'')+vn.toFixed(1)+'%':'—'}</td>
             <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:${vr!==null?vrCls:'var(--mist)'}">${vr!==null?(vr>0?'+':'')+vr.toFixed(1)+'%':'—'}</td>
           </tr>`;
         }).join('')}
@@ -2470,7 +2497,8 @@ function renderTortas() {
   const d = DATA[activeYear];
   if (!d) return;
 
-  // Torta 1: Gastos por objeto
+  // Torta 1: Gastos por objeto (activo vs comparado)
+  const dc_t = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
   if (d.gastos?.porObjeto) {
     const items = d.gastos.porObjeto.filter(o=>o.val>0);
     const total = items.reduce((s,i)=>s+i.val,0);
@@ -2479,18 +2507,47 @@ function renderTortas() {
     const el = document.getElementById('pie-objeto-title');
     if(el) el.textContent = `Gastos por objeto · ${activeYear}`;
   }
+  if (dc_t?.gastos?.porObjeto) {
+    const items = dc_t.gastos.porObjeto.filter(o=>o.val>0);
+    const total = items.reduce((s,i)=>s+i.val,0);
+    const el2 = document.getElementById('pie-objeto-2');
+    const el2t = document.getElementById('pie-objeto-title-2');
+    const el2l = document.getElementById('pie-objeto-legend-2');
+    if(el2){ el2.closest('.card').style.display=''; drawPie('pie-objeto-2', items); }
+    if(el2t) el2t.textContent = `Gastos por objeto · ${cmpYear}`;
+    if(el2l) buildPieLegend('pie-objeto-legend-2', items, total);
+  } else {
+    const el2 = document.getElementById('pie-objeto-2');
+    if(el2) el2.closest('.card').style.display='none';
+  }
 
-  // Torta 2: Por secretaría top 8
+  // Torta 2: Por secretaría top 6 activo vs comparado
   if (d.secretarias?.length) {
     const all  = d.secretarias.filter(s=>s.val>0).sort((a,b)=>b.val-a.val);
-    const top  = all.slice(0,8);
-    const rest = all.slice(8);
-    const items = rest.length ? [...top,{label:'Resto secretarías',val:rest.reduce((s,r)=>s+r.val,0)}] : top;
+    const top  = all.slice(0,6);
+    const rest = all.slice(6);
+    const items = rest.length ? [...top,{label:'Resto',val:rest.reduce((s,r)=>s+r.val,0)}] : top;
     const total = items.reduce((s,i)=>s+i.val,0);
     drawPie('pie-secretarias', items);
     buildPieLegend('pie-sec-legend', items, total);
     const el = document.getElementById('pie-sec-title');
     if(el) el.textContent = `Por secretaría · ${activeYear}`;
+  }
+  if (dc_t?.secretarias?.length) {
+    const all  = dc_t.secretarias.filter(s=>s.val>0).sort((a,b)=>b.val-a.val);
+    const top  = all.slice(0,6);
+    const rest = all.slice(6);
+    const items = rest.length ? [...top,{label:'Resto',val:rest.reduce((s,r)=>s+r.val,0)}] : top;
+    const total = items.reduce((s,i)=>s+i.val,0);
+    const el2 = document.getElementById('pie-secretarias-2');
+    const el2t = document.getElementById('pie-sec-title-2');
+    const el2l = document.getElementById('pie-sec-legend-2');
+    if(el2){ el2.closest('.card').style.display=''; drawPie('pie-secretarias-2', items); }
+    if(el2t) el2t.textContent = `Por secretaría · ${cmpYear}`;
+    if(el2l) buildPieLegend('pie-sec-legend-2', items, total);
+  } else {
+    const el2 = document.getElementById('pie-secretarias-2');
+    if(el2) el2.closest('.card').style.display='none';
   }
 
   // Torta 3: Recursos por tipo
@@ -2768,7 +2825,7 @@ function renderSecretarias() {
           <span>Programa</span>
           <span>Ejecución${showCmp ? ' comparativa' : ''}</span>
           <span style="text-align:right">${activeYear} ($M)</span>
-          <span style="text-align:right">${showCmp ? cmpYear+' / var. real' : ''}</span>
+          <span style="text-align:right">${showCmp ? cmpYear+' · var.' : ''}</span>
         </div>
         ${s.programas.filter(p => p.val > 0).map(p => {
           const pc = findProgCmp(p.label, cmpProgs);
@@ -2787,7 +2844,14 @@ function renderSecretarias() {
               </div>` : ''}
             </div>
             <span class="sec-prog-val">$${fmt(p.val)}M</span>
-            <span class="sec-prog-cmp" style="color:${pvr!==null?vrCol:'var(--mist)'}">${pc ? '$'+fmt(pc.val)+'M' : (showCmp ? '<span style="color:var(--mist)">sin par</span>' : '')}${pvr!==null?`<br><span style="font-weight:700;font-size:11px;color:${vrCol}">${pvr>0?'+':''}${pvr.toFixed(1)}%r</span>`:''}</span>
+            <span class="sec-prog-cmp">
+              ${pc
+                ? `<span style="color:var(--ink2);font-size:10px">$${fmt(pc.val)}M</span>`
+                  + (pvn!==null ? `<br><span style="font-size:10px;color:var(--ink3)">${pvn>0?'+':''}${pvn.toFixed(1)}% nom</span>` : '')
+                  + (pvr!==null ? `<br><span style="font-weight:700;font-size:11px;color:${vrCol}">${pvr>0?'+':''}${pvr.toFixed(1)}% real</span>` : '')
+                : (showCmp ? `<span style="color:var(--mist);font-size:10px">sin par</span>` : '')
+              }
+            </span>
           </div>`;
         }).join('')}
       </div>`;
