@@ -1,10 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════
-   DATOS PRESUPUESTARIOS — Municipio de Tres de Febrero
-   Fuentes: RAFAM oficial 2024 (firmado 28/02/2025)
-            RAFAM oficial 2025 (firmado 20/02/2026 + Recursos firmado 03/02/2026)
-            RAFAM provisional 2026 (al 31/03/2026, anualizados x4)
-   Para GitHub Pages: subir index.html + datos.js en la misma carpeta.
-======================================================= */
+/* Datos presupuestarios Tres de Febrero — para GitHub Pages subir junto con index.html */
 
 const DATA = {
 
