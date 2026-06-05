@@ -433,18 +433,45 @@ function renderGastos() {
       </div>
     </div>`).join('');
 
-  // ── PROGRAMAS ──
-  const maxP = Math.max(...g.programas.map(p=>p.val), ...(gc?.programas?.map(p=>p.val)||[0]));
-  document.getElementById('bars-programas').innerHTML = g.programas.map((p, i) => {
-    const pc = gc?.programas?.[i];
-    return `<div style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--ink2);margin-bottom:3px">
-        <span>${p.label}</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--navy)">$${fmt(p.val)}M</span>
+  // ── PROGRAMAS — top 20, con matching, % del total, leyenda ──
+  const allProgs = g.programas || [];
+  const top20 = [...allProgs].sort((a,b) => b.val - a.val).slice(0, 20);
+  const totalGasto = g.total || g.programas.reduce((s,p)=>s+p.val,0);
+  const gcProgs = gc?.programas || [];
+  const maxP = Math.max(...top20.map(p=>p.val), ...(gcProgs.map(p=>p.val)||[0]));
+
+  const leyendaProgHTML = gc ? `
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:10px;font-size:11px">
+      <span style="display:flex;align-items:center;gap:5px">
+        <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(13,148,136,.80)"></span>
+        <strong>${activeYear}</strong>
+      </span>
+      <span style="display:flex;align-items:center;gap:5px">
+        <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,83,9,.60)"></span>
+        <strong>${cmpYear}</strong>
+      </span>
+      <span style="color:var(--mist)">· top 20 por monto · % del total ejecutado</span>
+    </div>` : `<div style="font-size:11px;color:var(--mist);margin-bottom:10px">Top 20 programas por monto · % del total ejecutado</div>`;
+
+  document.getElementById('bars-programas').innerHTML = leyendaProgHTML + top20.map((p) => {
+    const pc = findProgCmp(p.label, gcProgs);
+    const vn = pc ? ((p.val - pc.val)/pc.val*100) : null;
+    const vr = (vn !== null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const vrCol = vr!==null ? semaforoColor(vr) : 'var(--mist)';
+    const pctTotal = ((p.val / totalGasto) * 100).toFixed(1);
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;margin-bottom:3px;gap:8px">
+        <span style="color:var(--ink2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.label}">${p.label}</span>
+        <span style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+          ${pc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(180,83,9,.85)">$${fmt(pc.val)}M</span>` : (gc ? `<span style="font-size:10px;color:var(--mist)">sin par</span>` : '')}
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1)">$${fmt(p.val)}M</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pctTotal}%</span>
+          ${vr!==null ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${vrCol}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>` : ''}
+        </span>
       </div>
-      <div style="background:var(--bg2);border-radius:3px;height:11px;overflow:hidden;position:relative">
-        ${pc ? `<div style="position:absolute;top:0;left:0;width:${pc.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(217,119,6,.35)"></div>` : ''}
-        <div style="position:absolute;top:0;left:0;width:${p.val/maxP*100}%;height:100%;border-radius:3px;background:var(--navy)"></div>
+      <div style="background:var(--bg2);border-radius:3px;height:10px;overflow:hidden;position:relative">
+        ${pc ? `<div style="position:absolute;top:0;left:0;width:${pc.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(180,83,9,.50)"></div>` : ''}
+        <div style="position:absolute;top:0;left:0;width:${p.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(13,148,136,.80)"></div>
       </div>
     </div>`;
   }).join('');
@@ -1673,4 +1700,3 @@ function exportPersonal() {
 
   xlsxDownload(wb, `3F_Personal_${activeYear}.xlsx`);
 }
-
