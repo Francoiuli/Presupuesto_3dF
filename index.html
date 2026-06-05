@@ -2513,12 +2513,12 @@ function renderTortas() {
     const el2 = document.getElementById('pie-objeto-2');
     const el2t = document.getElementById('pie-objeto-title-2');
     const el2l = document.getElementById('pie-objeto-legend-2');
-    if(el2){ el2.closest('.card').style.display=''; drawPie('pie-objeto-2', items); }
+    if(el2){ el2.closest('.pie-card').style.display='flex'; drawPie('pie-objeto-2', items); }
     if(el2t) el2t.textContent = `Gastos por objeto · ${cmpYear}`;
     if(el2l) buildPieLegend('pie-objeto-legend-2', items, total);
   } else {
     const el2 = document.getElementById('pie-objeto-2');
-    if(el2) el2.closest('.card').style.display='none';
+    if(el2) el2.closest('.pie-card').style.display='none';
   }
 
   // Torta 2: Por secretaría top 6 activo vs comparado
@@ -2542,12 +2542,12 @@ function renderTortas() {
     const el2 = document.getElementById('pie-secretarias-2');
     const el2t = document.getElementById('pie-sec-title-2');
     const el2l = document.getElementById('pie-sec-legend-2');
-    if(el2){ el2.closest('.card').style.display=''; drawPie('pie-secretarias-2', items); }
+    if(el2){ el2.closest('.pie-card').style.display='flex'; drawPie('pie-secretarias-2', items); }
     if(el2t) el2t.textContent = `Por secretaría · ${cmpYear}`;
     if(el2l) buildPieLegend('pie-sec-legend-2', items, total);
   } else {
     const el2 = document.getElementById('pie-secretarias-2');
-    if(el2) el2.closest('.card').style.display='none';
+    if(el2) el2.closest('.pie-card').style.display='none';
   }
 
   // Torta 3: Recursos por tipo
@@ -2693,6 +2693,81 @@ const PROG_EQUIV = {
 
   'Licencias de Conducir':                   'Licencias de Conducir (Obras)',
   'Ordenamiento Espacio Público':            'Plan Integral Ordenamiento Esp. Público',
+  // ── Pares adicionales 2025 → 2026 (completos) ──
+  'Higiene Urbana y Control Microbasurales':        'Higiene Urbana y Control de Microbasurales',
+  'Mantenimiento Sistema Alumbrado':                'Mantenimiento Integral Sistema Alumbrado',
+  'Fort. Espacios Públicos':                        'Fort. Servicios Urbanos',
+  'Mantenimiento e Infraestructura Urbana':         'Fort. Servicios Urbanos',
+  'MESA Bonaerense':                                'MESA Bonaerense',
+  'Servicio Alimentario Escolar (SAE)':             'SAE - Servicio Alimentario Escolar',
+  'Primera Infancia y Jardines Municipales':        'Primera Infancia y Jardines',
+  'Obras Viales':                                   'Obras Viales y de Infraestructura',
+  'Obras de Infraestructura':                       'Obras Viales y de Infraestructura',
+  'Fondo Infraestructura Municipal (FIM)':          'Obras Viales y de Infraestructura',
+  'Bacheo y Repavimentación':                       'Obras Viales y de Infraestructura',
+  'Servicios Generales (Obras)':                    'Servicios Generales (Obras Púb.)',
+  'Plan Integral Movilidad (Obras)':                'Plan Integral de Movilidad',
+  'Licencias de Conducir (Obras)':                  'Licencias de Conducir',
+  'Licencias de Conducir (Gob.)':                   'Licencias de Conducir',
+  'Desarrollo Urbano y Hábitat Sustentable':        'Desarrollo Urbano y Hábitat Sust.',
+  'Fort. Hospital Odontológico':                    'Fort. Compl. Hospitalario',
+  'Fort. Hospital Oftalmológico':                   'Fort. Compl. Hospitalario',
+  'Centro Atención a las Víctimas':                 'Center Atención a las Víctimas',
+  'Coordinación Sistema Seguridad Local':           'Planificación Seguridad Local',
+  'Defensa Civil':                                  'Servicios Seguridad y Emergencias',
+  'Coordinación Políticas Económicas':              'Coordinación y Adm. de Ingresos',
+  'Coordinación Servicios Informáticos':            'Coordinación y Adm. de la Modernización',
+  'Recursos Humanos (Finanzas)':                    'Coordinación y Adm. de Recursos Humanos',
+  'Comunicación y Contenido':                       'Comunicación y Prensa',
+  'Prensa y Comunicación':                          'Comunicación y Prensa',
+  'Coordinación General de la Gestión':             'Coord. General de la Gestión',
+  'Gobierno Cercano y Accesible':                   'Gobierno Cercano y Accesible',
+  'Gobierno Cercano y Accesible (At. Vecino)':      'Gobierno Cercano y Accesible',
+  'Plan Anual Seguridad e Higiene':                 'Plan Anual Seg., Higiene y Ord. Esp. Púb.',
+  'Plan Integral Ordenamiento Esp. Público':        'Plan Anual Seg., Higiene y Ord. Esp. Púb.',
+  'Plan Anual Seguridad e Higiene (Control)':       'Plan Anual Seg., Higiene y Ord. Esp. Púb.',
+  'Plan Integral Ord. Esp. Públ. (Control)':        'Plan Anual Seg., Higiene y Ord. Esp. Púb.',
+  'Gestión Integral Habilitaciones':                'Fort. de Inversiones y Emprendedores',
+  'Gestión Habilitaciones (Control)':               'Fort. de Inversiones y Emprendedores',
+  'Formación para el Trabajo y Teletrabajo':        'Fort. de Inversiones y Emprendedores',
+  'Distrito Innovación y Conocimiento':             'Fort. de Inversiones y Emprendedores',
+  'Desarrollo Centros Comerciales':                 'Desarrollo Comercial y Prom. Industrial',
+  'Desarrollo Parque Industrial y PYMES':           'Desarrollo Parque Industrial',
+  'Microcréditos 3FEmprende':                       'Microcréditos 3F Emprende',
+  'Formación y Sanción de Ordenanzas':              'HCD - Actividades Centrales',
+  'Formación y Sanción de Ordenanzas (HCD)':        'HCD - Actividades Centrales',
+  'Deuda Flotante':                                 'Amortización deuda interna (flotante 2025 + propia)',
+  'Deuda Consolidada':                              'Amortización deuda interna (flotante 2025 + propia)',
+  'Asuntos Institucionales (Sec. Gral.)':           'Asuntos Institucionales',
+  'Asuntos Institucionales (Gob.)':                 'Asuntos Institucionales',
+  'Juventud (Gob.)':                                'Juventud',
+  'Legal y Técnica':                                'Legal y Técnica',
+  'Protocolo y Ceremonial':                         'Protocolo y Ceremonial',
+  'Ord. Centralidades (Territorial)':               'Ord. Centralidades y Estacionamiento',
+  'Sistema Ord. Centralidades y Estac.':            'Ord. Centralidades y Estacionamiento',
+  'SAE - Servicio Alimentario Escolar':             'Servicio Alimentario Escolar (SAE)',
+  'Primera Infancia y Jardines':                    'Primera Infancia y Jardines Municipales',
+  'Obras Viales y de Infraestructura':              'Obras Viales',
+  'Servicios Generales (Obras Púb.)':               'Servicios Generales (Obras)',
+  'Plan Integral de Movilidad':                     'Plan Integral Movilidad (Obras)',
+  'Fort. Compl. Hospitalario':                      'Fort. Hospital Odontológico',
+  'Center Atención a las Víctimas':                 'Centro Atención a las Víctimas',
+  'Plan Anual Seg., Higiene y Ord. Esp. Púb.':      'Plan Anual Seguridad e Higiene',
+  'Fort. de Inversiones y Emprendedores':           'Gestión Integral Habilitaciones',
+  'Desarrollo Comercial y Prom. Industrial':        'Desarrollo Centros Comerciales',
+  'Microcréditos 3F Emprende':                      'Microcréditos 3FEmprende',
+  'HCD - Actividades Centrales':                    'Formación y Sanción de Ordenanzas',
+  'Amortización deuda interna (flotante 2025 + propia)': 'Deuda Flotante',
+  'Coord. General de la Gestión':                   'Coordinación General de la Gestión',
+  'Comunicación y Prensa':                          'Comunicación y Contenido',
+  'Desarrollo Urbano y Hábitat Sust.':              'Desarrollo Urbano y Hábitat Sustentable',
+  'Fort. Infraestructura Educativa':                'Fort. Infraestructura Educativa',
+  'Mantenimiento Integral Sistema Alumbrado':       'Mantenimiento Sistema Alumbrado',
+  'Planificación Seguridad Local':                  'Coordinación Sistema Seguridad Local',
+  'Coordinación y Adm. de Ingresos':                'Coordinación Políticas Económicas',
+  'Coordinación y Adm. de la Modernización':        'Coordinación Servicios Informáticos',
+  'Coordinación y Adm. de Recursos Humanos':        'Recursos Humanos (Finanzas)',
+
 };
 
 // Matching mejorado de programas con tabla de equivalencias
