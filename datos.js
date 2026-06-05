@@ -825,11 +825,7 @@ const DATA = {
           { label: 'Fort. Cementerio Municipal',                   val:   321.31 },
         ]
       },
-      { label: 'Actividades Centrales y Gastos Generales', val: 20939.24, nota: 'Personal general + gastos comunes',
-        programas: [
-          { label: 'Actividades Centrales', val: 20939.24 },
-        ]
-      },
+
       { label: 'Servicio de la Deuda', val: 33718.76, nota: 'Incluye pago deuda flotante 2025 concentrado en Q1 — Q1×4',
         programas: [
           { label: 'Amortización deuda interna (flotante 2025 + propia)', val: 33718.76 },
