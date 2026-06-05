@@ -835,34 +835,34 @@ function renderPersonal() {
   const d   = DATA[activeYear];
   const p   = d.personal;
   const pc  = cmpYear !== 'none' ? DATA[parseInt(cmpYear)]?.personal : null;
-  const ipc = d.ipc || 0;  // inflación del año activo
+  const ipc = d.ipc || 0;
   const showCmp = !!pc;
   document.getElementById('pers-titulo').textContent = `Planta de personal · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
 
-  // ── Helper variación ──
-  const vReal = (val, valC) => {
-    if (!val || !valC) return null;
-    const vn = (val - valC) / valC * 100;
-    const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
-    return { vn, vr };
-  };
-  const badge = (v) => {
-    if (!v) return '';
-    const cls = v.vr !== null ? (v.vr > 2 ? '#15803d' : v.vr > -5 ? '#b45309' : '#b91c1c')
-                              : (v.vn > 2 ? '#15803d' : v.vn > -5 ? '#b45309' : '#b91c1c');
-    const txt = v.vr !== null
-      ? `${v.vn>0?'+':''}${v.vn.toFixed(1)}% nom · ${v.vr>0?'+':''}${v.vr.toFixed(1)}% real`
-      : `${v.vn>0?'+':''}${v.vn.toFixed(1)}%`;
-    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${cls}">${txt}</span>`;
+  // Variación solo nominal (para cantidades de personas)
+  const vNom = (va, vb) => {
+    if (!va || !vb) return null;
+    const vn = (va - vb) / vb * 100;
+    const col = vn > 2 ? '#15803d' : vn > -5 ? '#b45309' : '#b91c1c';
+    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${vn>0?'+':''}${vn.toFixed(1)}%</span>`;
   };
 
-  // ── TABLA RESUMEN (más clara que KPIs) ──
+  // Variación nominal + real (para montos $)
+  const vNomReal = (va, vb) => {
+    if (!va || !vb) return null;
+    const vn = (va - vb) / vb * 100;
+    const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const col = (vr??vn) > 2 ? '#15803d' : (vr??vn) > -5 ? '#b45309' : '#b91c1c';
+    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${vn>0?'+':''}${vn.toFixed(1)}% nom${vr!==null?' · '+(vr>0?'+':'')+vr.toFixed(1)+'% real':''}</span>`;
+  };
+
+  // ── TABLA RESUMEN ──
   const rows = [
-    { label: 'Total empleados',    vA: p.total,       vC: pc?.total,       fmt: fmtInt, unit: '' },
-    { label: 'Planta permanente',  vA: p.permanente,  vC: pc?.permanente,  fmt: fmtInt, unit: '' },
-    { label: 'Planta mensualizada',vA: p.mensualizado,vC: pc?.mensualizado,fmt: fmtInt, unit: '' },
-    { label: 'Gasto total personal',vA:p.gastoTotal,  vC: pc?.gastoTotal,  fmt: v=>`$${fmt(v)} M`, unit:'' },
-    { label: 'Paritaria acumulada',vA: p.paritaria,   vC: pc?.paritaria,   fmt: v=>`${v}%`, unit: '' },
+    { label: 'Total empleados',     vA: p.total,        vC: pc?.total,        fmt: fmtInt, isMoney: false },
+    { label: 'Planta permanente',   vA: p.permanente,   vC: pc?.permanente,   fmt: fmtInt, isMoney: false },
+    { label: 'Planta mensualizada', vA: p.mensualizado, vC: pc?.mensualizado, fmt: fmtInt, isMoney: false },
+    { label: 'Gasto total personal',vA: p.gastoTotal,   vC: pc?.gastoTotal,   fmt: v=>`$${fmt(v)} M`, isMoney: true },
+    { label: 'Paritaria acumulada', vA: p.paritaria,    vC: pc?.paritaria,    fmt: v=>`${v}%`, isMoney: false },
   ].filter(r => r.vA);
 
   document.getElementById('kpi-personal').innerHTML = `
@@ -870,20 +870,20 @@ function renderPersonal() {
       <table style="width:100%;border-collapse:collapse;font-size:13px">
         <thead>
           <tr>
-            <th style="text-align:left;padding:8px 12px;background:var(--navy);color:#fff;border-radius:var(--r) 0 0 0;font-weight:600;letter-spacing:.03em">Concepto</th>
+            <th style="text-align:left;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600;letter-spacing:.03em">Concepto</th>
             <th style="text-align:right;padding:8px 12px;background:rgba(13,148,136,.85);color:#fff;font-weight:700">${activeYear}</th>
             ${showCmp ? `<th style="text-align:right;padding:8px 12px;background:rgba(180,83,9,.80);color:#fff;font-weight:700">${cmpYear}</th>
-            <th style="text-align:right;padding:8px 12px;background:var(--navy);color:#fff;border-radius:0 var(--r) 0 0;font-weight:600">Variación</th>` : ''}
+            <th style="text-align:right;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600">Variación</th>` : ''}
           </tr>
         </thead>
         <tbody>
           ${rows.map((r,i) => {
-            const v = vReal(r.vA, r.vC);
+            const varHTML = showCmp && r.vC ? (r.isMoney ? vNomReal(r.vA, r.vC) : vNom(r.vA, r.vC)) : '';
             return `<tr style="border-bottom:1px solid var(--borde);${i%2===1?'background:var(--card2)':''}">
               <td style="padding:9px 12px;font-weight:600;color:var(--ink)">${r.label}</td>
-              <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy)">${r.fmt(r.vA)}</td>
-              ${showCmp ? `<td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--ink2)">${r.vC ? r.fmt(r.vC) : '—'}</td>
-              <td style="padding:9px 12px;text-align:right">${badge(v)}</td>` : ''}
+              <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1)">${r.fmt(r.vA)}</td>
+              ${showCmp ? `<td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;color:rgba(180,83,9,.85)">${r.vC ? r.fmt(r.vC) : '—'}</td>
+              <td style="padding:9px 12px;text-align:right">${varHTML||'—'}</td>` : ''}
             </tr>`;
           }).join('')}
         </tbody>
@@ -898,30 +898,27 @@ function renderPersonal() {
     const allVals = [...p.porSecretaria.map(s=>s.val||0), ...(pc?.porSecretaria?.map(s=>s.val||0)||[])];
     const maxS = Math.max(...allVals, 1);
     const legHTML = showCmp ? `<div style="display:flex;gap:1.5rem;margin-bottom:.875rem;font-size:12px;font-weight:600">
-      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(29,111,164,.75)"></span>${activeYear}</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(13,148,136,.80)"></span>${activeYear}</span>
       <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--mist);font-weight:400">% = de la planta total</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--mist);font-weight:400">% = de la planta total · var. = solo nominal (cant. personas)</span>
     </div>` : '';
     secEl.innerHTML = legHTML + p.porSecretaria.map(s => {
       const sc = pc?.porSecretaria?.find(c=>c.label===s.label);
       const pct = ((s.val||0)/totalPlanta*100).toFixed(1);
-      const v = sc ? vReal(s.val, sc.val) : null;
       return `<div style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
           <span style="font-size:12px;font-weight:500;color:var(--ink)">${s.label}</span>
           <div style="display:flex;gap:.75rem;align-items:baseline;flex-shrink:0">
-            ${sc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.8)">${sc.val}</span>` : ''}
-            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:12px">${s.val}</span>
+            ${sc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.85)">${sc.val}</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1);font-size:12px">${s.val}</span>
             <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
-            ${badge(v)}
+            ${sc ? (vNom(s.val, sc.val)||'') : ''}
           </div>
         </div>
-        <div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative;margin-bottom:${sc?'2':'0'}px">
-          <div style="position:absolute;top:0;left:0;width:${(s.val||0)/maxS*100}%;height:100%;background:rgba(29,111,164,.70);border-radius:3px"></div>
+        <div style="height:11px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
+          ${sc ? `<div style="position:absolute;top:0;left:0;width:${(sc.val||0)/maxS*100}%;height:100%;background:rgba(180,83,9,.55);border-radius:3px"></div>` : ''}
+          <div style="position:absolute;top:0;left:0;width:${(s.val||0)/maxS*100}%;height:100%;background:rgba(13,148,136,.80);border-radius:3px"></div>
         </div>
-        ${sc ? `<div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
-          <div style="position:absolute;top:0;left:0;width:${(sc.val||0)/maxS*100}%;height:100%;background:rgba(180,83,9,.55);border-radius:3px"></div>
-        </div>` : ''}
       </div>`;
     }).join('');
   } else {
@@ -935,26 +932,28 @@ function renderPersonal() {
     const totalComp = p.componentes.reduce((s,c)=>s+(c.val||0),0);
     const allC = [...p.componentes.map(c=>c.val||0), ...(pc?.componentes?.map(c=>c.val||0)||[])];
     const maxC = Math.max(...allC, 1);
-    document.getElementById('bars-componentes').innerHTML = p.componentes.map(c => {
+    const legCompHTML = showCmp ? `<div style="display:flex;gap:1.5rem;margin-bottom:.875rem;font-size:12px;font-weight:600">
+      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(13,148,136,.80)"></span>${activeYear}</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--mist);font-weight:400">var. nominal + real</span>
+    </div>` : '';
+    document.getElementById('bars-componentes').innerHTML = legCompHTML + p.componentes.map(c => {
       const cc = pc?.componentes?.find(x=>x.label===c.label);
       const pct = ((c.val||0)/totalComp*100).toFixed(1);
-      const v = cc ? vReal(c.val, cc.val) : null;
       return `<div style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
           <span style="font-size:12px;font-weight:500;color:var(--ink)">${c.label}</span>
           <div style="display:flex;gap:.75rem;align-items:baseline;flex-shrink:0">
-            ${cc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.8)">$${fmt(cc.val)}M</span>` : ''}
-            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--navy);font-size:12px">$${fmt(c.val)}M</span>
+            ${cc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.85)">$${fmt(cc.val)}M</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1);font-size:12px">$${fmt(c.val)}M</span>
             <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
-            ${badge(v)}
+            ${cc ? (vNomReal(c.val, cc.val)||'') : ''}
           </div>
         </div>
-        <div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative;margin-bottom:${cc?'2':'0'}px">
-          <div style="position:absolute;top:0;left:0;width:${(c.val||0)/maxC*100}%;height:100%;background:rgba(217,119,6,.75);border-radius:3px"></div>
+        <div style="height:11px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
+          ${cc ? `<div style="position:absolute;top:0;left:0;width:${(cc.val||0)/maxC*100}%;height:100%;background:rgba(180,83,9,.55);border-radius:3px"></div>` : ''}
+          <div style="position:absolute;top:0;left:0;width:${(c.val||0)/maxC*100}%;height:100%;background:rgba(13,148,136,.80);border-radius:3px"></div>
         </div>
-        ${cc ? `<div style="height:12px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
-          <div style="position:absolute;top:0;left:0;width:${(cc.val||0)/maxC*100}%;height:100%;background:rgba(180,83,9,.50);border-radius:3px"></div>
-        </div>` : ''}
       </div>`;
     }).join('');
   } else {
