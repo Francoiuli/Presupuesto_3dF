@@ -722,10 +722,10 @@ const DATA = {
     status: 'partial',
     fuente: 'RAFAM · Ejecución al 31/03/2026 · Datos provisorios · Anualizados ×4',
     ipc: 0.30, // IPC 2026 estimado REM (30%)
-    nota: 'Datos al 31/03/2026 anualizados (×4). El servicio de la deuda incluye pago de deuda flotante 2025 concentrado en Q1.',
+    nota: 'Datos al 31/03/2026 anualizados (×4). El servicio de la deuda es Q1 real sin anualizar (incluye pago deuda flotante 2025).',
 
     resumen: {
-      ejecutado:      166680.16,
+      ejecutado:      141391.09,
       percibido:      182529.40,
       presupAprobado: 189429.89,
       superavitArt43: null,
@@ -773,14 +773,14 @@ const DATA = {
     },
 
     gastos: {
-      total:          166680.16,
-      pagado:         162901.21,
+      total:          141391.09,
+      pagado:         137612.14,
       deudaFlotante:   null,
-      alertaPrincipal: 'Datos <strong>provisorios al 31/03/2026, anualizados (×4)</strong>. El servicio de la deuda ($33.719 M est.) incluye pago de deuda flotante 2025 concentrado en Q1.',
+      alertaPrincipal: 'Datos <strong>provisorios al 31/03/2026, anualizados (×4)</strong>. El servicio de la deuda ($8.430 M) es el dato Q1 real sin anualizar — incluye pago de deuda flotante 2025 concentrado en Q1.',
       porObjeto: [
         { label: 'Gastos en personal',      val: 46439.72, pct: 27.9, impago: 0,       color: 'rgba(13,148,136,.65)'  },
         { label: 'Servicios no personales', val: 62700.52, pct: 37.6, impago: 2943.60, color: 'rgba(220,38,38,.65)'   },
-        { label: 'Servicio de la deuda (*)',val: 33718.76, pct: 20.2, impago: 0,       color: 'rgba(100,116,139,.65)' },
+        { label: 'Servicio de la deuda (*)',val: 8429.69, pct: 6.0, impago: 0,       color: 'rgba(100,116,139,.65)', nota: 'Dato Q1 real sin anualizar (incluye pago deuda flotante 2025)' },
         { label: 'Bienes de uso (capital)', val: 10122.12, pct:  6.1, impago:  751.69, color: 'rgba(234,88,12,.65)'   },
         { label: 'Transferencias',          val:  8190.96, pct:  4.9, impago:   79.82, color: 'rgba(37,99,235,.65)'   },
         { label: 'Bienes de consumo',       val:  4744.72, pct:  2.8, impago:   28.30, color: 'rgba(217,119,6,.65)'   },
@@ -789,7 +789,7 @@ const DATA = {
       programas: [
         { label: 'Higiene Urbana y Control de Microbasurales',   val: 39016.40, sec: 'Ambiente' },
         { label: 'Actividades Centrales (personal y gastos gles.)',val: 20939.24, sec: 'Central' },
-        { label: 'Serv. Deuda y Partidas no asignables (*)',      val: 33718.76, sec: 'Deuda' },
+        { label: 'Serv. Deuda y Partidas no asignables (*)',      val: 8429.69, sec: 'Deuda', nota: 'Q1 real sin anualizar' },
         { label: 'Fort. Sistema Atención Primaria',               val:  5252.11, sec: 'Salud' },
         { label: 'Obras Viales y de Infraestructura',             val: 10796.55, sec: 'Obras Púb.' },
         { label: 'Fort. Infr. Educativa (formal/informal)',       val:  2147.79, sec: 'Capital Humano' },
@@ -820,9 +820,9 @@ const DATA = {
         ]
       },
 
-      { label: 'Servicio de la Deuda', val: 33718.76, nota: 'Incluye pago deuda flotante 2025 concentrado en Q1 — Q1×4',
+      { label: 'Servicio de la Deuda', val: 8429.69, nota: 'Dato Q1 real sin anualizar — incluye pago deuda flotante 2025 concentrado en Q1',
         programas: [
-          { label: 'Amortización deuda interna (flotante 2025 + propia)', val: 33718.76 },
+          { label: 'Amortización deuda interna (flotante 2025 + propia)', val: 8429.69 },
         ]
       },
       { label: 'Capital Humano', val: 11725.08, nota: 'SAE + MESA + Infr. Educativa + Deporte + Social + Cultura — Q1×4', nueva25: true,
