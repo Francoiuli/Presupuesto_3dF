@@ -469,9 +469,10 @@ function renderGastos() {
           ${vr!==null ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${vrCol}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>` : ''}
         </span>
       </div>
-      <div style="background:var(--bg2);border-radius:3px;height:10px;overflow:hidden;position:relative">
-        ${pc ? `<div style="position:absolute;top:0;left:0;width:${pc.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(180,83,9,.50)"></div>` : ''}
-        <div style="position:absolute;top:0;left:0;width:${p.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(13,148,136,.80)"></div>
+      <div style="display:flex;align-items:center;gap:3px;height:10px">
+        ${pc ? `<div style="flex:${pc.val/maxP};height:8px;background:rgba(180,83,9,.55);border-radius:2px;min-width:0;transition:flex .4s"></div>` : ''}
+        <div style="flex:${p.val/maxP};height:10px;background:rgba(13,148,136,.80);border-radius:2px;min-width:0;transition:flex .4s"></div>
+        <div style="flex:${1 - Math.max(p.val, pc?.val||0)/maxP};min-width:0"></div>
       </div>
     </div>`;
   }).join('');
@@ -772,12 +773,11 @@ function renderSecretarias() {
           return `<div class="sec-prog-row">
             <span class="sec-prog-label">${p.label}<br><span style="font-size:10px;color:var(--mist);font-weight:400">${pct}% de la sec.</span></span>
             <div class="sec-prog-bar-wrap">
-              <div style="display:flex;align-items:center;gap:4px">
-                <div class="sec-prog-bar" style="width:${p.val/maxAll*100}%;background:rgba(13,148,136,.72);flex:none"></div>
+              <div style="display:flex;align-items:center;gap:3px;height:10px;position:relative">
+                ${pc ? `<div style="flex:${pc.val/maxAll};height:8px;background:rgba(180,83,9,.55);border-radius:2px;transition:flex .4s"></div>` : ''}
+                <div style="flex:${p.val/maxAll};height:10px;background:rgba(13,148,136,.80);border-radius:2px;transition:flex .4s"></div>
+                <div style="flex:${1 - Math.max(p.val,pc?.val||0)/maxAll};min-width:0"></div>
               </div>
-              ${pc ? `<div style="display:flex;align-items:center;gap:4px">
-                <div class="sec-prog-bar" style="width:${pc.val/maxAll*100}%;background:rgba(180,83,9,.55);flex:none"></div>
-              </div>` : ''}
             </div>
             <span class="sec-prog-val">$${fmt(p.val)}M</span>
             <span class="sec-prog-cmp">
