@@ -469,9 +469,10 @@ function renderGastos() {
           ${vr!==null ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${vrCol}">${vr>0?'+':''}${vr.toFixed(1)}%r</span>` : ''}
         </span>
       </div>
-      <div style="background:var(--bg2);border-radius:3px;height:10px;overflow:hidden;position:relative">
-        ${pc ? `<div style="position:absolute;top:0;left:0;width:${pc.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(180,83,9,.50)"></div>` : ''}
-        <div style="position:absolute;top:0;left:0;width:${p.val/maxP*100}%;height:100%;border-radius:3px;background:rgba(13,148,136,.80)"></div>
+      <div style="display:flex;align-items:center;gap:3px;height:10px">
+        ${pc ? `<div style="flex:${pc.val/maxP};height:8px;background:rgba(180,83,9,.55);border-radius:2px;min-width:0;transition:flex .4s"></div>` : ''}
+        <div style="flex:${p.val/maxP};height:10px;background:rgba(13,148,136,.80);border-radius:2px;min-width:0;transition:flex .4s"></div>
+        <div style="flex:${1 - Math.max(p.val, pc?.val||0)/maxP};min-width:0"></div>
       </div>
     </div>`;
   }).join('');
@@ -772,12 +773,11 @@ function renderSecretarias() {
           return `<div class="sec-prog-row">
             <span class="sec-prog-label">${p.label}<br><span style="font-size:10px;color:var(--mist);font-weight:400">${pct}% de la sec.</span></span>
             <div class="sec-prog-bar-wrap">
-              <div style="display:flex;align-items:center;gap:4px">
-                <div class="sec-prog-bar" style="width:${p.val/maxAll*100}%;background:rgba(13,148,136,.72);flex:none"></div>
+              <div style="display:flex;align-items:center;gap:3px;height:10px;position:relative">
+                ${pc ? `<div style="flex:${pc.val/maxAll};height:8px;background:rgba(180,83,9,.55);border-radius:2px;transition:flex .4s"></div>` : ''}
+                <div style="flex:${p.val/maxAll};height:10px;background:rgba(13,148,136,.80);border-radius:2px;transition:flex .4s"></div>
+                <div style="flex:${1 - Math.max(p.val,pc?.val||0)/maxAll};min-width:0"></div>
               </div>
-              ${pc ? `<div style="display:flex;align-items:center;gap:4px">
-                <div class="sec-prog-bar" style="width:${pc.val/maxAll*100}%;background:rgba(180,83,9,.55);flex:none"></div>
-              </div>` : ''}
             </div>
             <span class="sec-prog-val">$${fmt(p.val)}M</span>
             <span class="sec-prog-cmp">
@@ -1369,6 +1369,274 @@ function renderCurrentView() {
     case 'personal':    renderPersonal(); break;
     case 'metodologia': renderMetodologia(); break;
   }
+}
+
+function renderCurrentView() {
+  switch (activeView) {
+    case 'resumen':     renderResumen(); break;
+    case 'recursos':    renderRecursos(); renderTortas(); break;
+    case 'gastos':      renderGastos(); renderTortas(); break;
+    case 'secretarias': renderSecretarias(); break;
+    case 'personal':    renderPersonal(); break;
+    case 'deuda':       renderDeuda(); break;
+    case 'metodologia': renderMetodologia(); break;
+  }
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  DEUDA PÚBLICA                                       ║
+   ╚══════════════════════════════════════════════════════╝ */
+function renderDeuda() {
+  const years = [2024, 2025, 2026].filter(y => DATA[y]);
+
+  // Datos de deuda por año
+  const servicioDeuda = {
+    2024: DATA[2024]?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val || 0,
+    2025: DATA[2025]?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val || 0,
+    2026: DATA[2026]?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val || 0,
+  };
+  const deudaFlotante = {
+    2023: 1666.68,  // inferido del servicio de deuda 2024
+    2024: DATA[2024]?.resumen?.deudaFlotante || 0,
+    2025: DATA[2025]?.resumen?.deudaFlotante || 0,
+  };
+
+  // KPIs
+  const df24 = deudaFlotante[2024];
+  const df25 = deudaFlotante[2025];
+  const varDf = df24 ? ((df25 - df24) / df24 * 100) : null;
+  const colDf = varDf > 0 ? '#b91c1c' : '#15803d';  // deuda: rojo si sube
+
+  document.getElementById('kpi-deuda').innerHTML = `
+    <div class="kpi amber">
+      <div class="kpi-label">Deuda flotante 2023</div>
+      <div class="kpi-value">$${fmt(deudaFlotante[2023])} M</div>
+      <div class="kpi-sub">Pagada durante 2024</div>
+    </div>
+    <div class="kpi amber">
+      <div class="kpi-label">Deuda flotante 2024</div>
+      <div class="kpi-value">$${fmt(df24)} M</div>
+      <div class="kpi-sub">Pagada durante 2025</div>
+      <div class="kpi-delta warn">+${(((df24 - deudaFlotante[2023]) / deudaFlotante[2023]) * 100).toFixed(1)}% vs 2023</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-label">Deuda flotante 2025</div>
+      <div class="kpi-value">$${fmt(df25)} M</div>
+      <div class="kpi-sub">Pagada en Q1 2026</div>
+      ${varDf !== null ? `<div class="kpi-delta down">+${varDf.toFixed(1)}% vs 2024</div>` : ''}
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Servicio deuda 2025</div>
+      <div class="kpi-value">$${fmt(servicioDeuda[2025])} M</div>
+      <div class="kpi-sub">${((servicioDeuda[2025] / (DATA[2025]?.gastos?.total || 1)) * 100).toFixed(1)}% del gasto total</div>
+      <div class="kpi-delta down">+${(((servicioDeuda[2025] - servicioDeuda[2024]) / servicioDeuda[2024]) * 100).toFixed(1)}% vs 2024</div>
+    </div>
+  `;
+
+  // Barras evolución servicio deuda
+  const maxS = Math.max(servicioDeuda[2024], servicioDeuda[2025], servicioDeuda[2026]);
+  document.getElementById('bars-deuda-evol').innerHTML = [
+    { año: 2024, val: servicioDeuda[2024] },
+    { año: 2025, val: servicioDeuda[2025] },
+    { año: 2026, val: servicioDeuda[2026], nota: 'Q1 real sin anualizar' },
+  ].map(r => `
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span style="font-weight:600;color:var(--ink)">${r.año}${r.nota ? `<span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.nota}</span>` : ''}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1)">$${fmt(r.val)} M</span>
+      </div>
+      <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
+        <div style="width:${r.val/maxS*100}%;height:100%;background:rgba(220,38,38,.70);border-radius:3px;transition:width .4s"></div>
+      </div>
+    </div>`).join('');
+
+  // Barras deuda flotante
+  const maxF = Math.max(...Object.values(deudaFlotante));
+  document.getElementById('bars-deuda-flotante').innerHTML = [
+    { año: 2023, val: deudaFlotante[2023], nota: 'inferido' },
+    { año: 2024, val: deudaFlotante[2024] },
+    { año: 2025, val: deudaFlotante[2025] },
+  ].map(r => `
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span style="font-weight:600;color:var(--ink)">${r.año}${r.nota ? `<span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.nota}</span>` : ''}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(220,38,38,.85)">$${fmt(r.val)} M</span>
+      </div>
+      <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
+        <div style="width:${r.val/maxF*100}%;height:100%;background:rgba(220,38,38,.70);border-radius:3px;transition:width .4s"></div>
+      </div>
+    </div>`).join('');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  BUSCADOR DE PROGRAMAS                               ║
+   ╚══════════════════════════════════════════════════════╝ */
+function searchPrograms(query) {
+  const resultsEl = document.getElementById('prog-search-results');
+  const countEl   = document.getElementById('prog-search-count');
+  const q = query.trim().toLowerCase();
+
+  if (q.length < 2) {
+    resultsEl.style.display = 'none';
+    countEl.textContent = '';
+    return;
+  }
+
+  // Buscar en todos los años
+  const hits = [];
+  [2024, 2025, 2026].forEach(yr => {
+    const d = DATA[yr];
+    if (!d?.secretarias) return;
+    d.secretarias.forEach(sec => {
+      (sec.programas || []).forEach(prog => {
+        if (prog.label.toLowerCase().includes(q)) {
+          hits.push({ yr, sec: sec.label, prog: prog.label, val: prog.val });
+        }
+      });
+    });
+  });
+
+  countEl.textContent = hits.length ? `${hits.length} resultado${hits.length > 1 ? 's' : ''}` : 'Sin resultados';
+
+  if (!hits.length) {
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = `<div style="font-size:12px;color:var(--mist);padding:.5rem 0">Sin resultados para "${query}"</div>`;
+    return;
+  }
+
+  // Agrupar por programa
+  const porProg = {};
+  hits.forEach(h => {
+    if (!porProg[h.prog]) porProg[h.prog] = [];
+    porProg[h.prog].push(h);
+  });
+
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = Object.entries(porProg).map(([prog, rows]) => {
+    const highlighted = prog.replace(new RegExp(q, 'gi'), m => `<mark style="background:rgba(13,148,136,.2);border-radius:2px;padding:0 2px">${m}</mark>`);
+    return `<div style="border:1px solid var(--borde);border-radius:var(--r2);padding:.75rem 1rem;margin-bottom:.5rem;background:var(--card)">
+      <div style="font-weight:600;font-size:12.5px;color:var(--ink);margin-bottom:.4rem">${highlighted}</div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap">
+        ${rows.map(r => `
+          <span style="font-size:11px;color:var(--ink2)">
+            <strong style="color:var(--navy)">${r.yr}</strong>
+            · ${r.sec}
+            · <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1)">$${fmt(r.val)}M</span>
+          </span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  EXPORTAR A WORD                                     ║
+   ╚══════════════════════════════════════════════════════╝ */
+function exportWord() {
+  const d  = DATA[activeYear];
+  const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
+  const r  = d?.resumen;
+  const rc = dc?.resumen;
+  const g  = d?.gastos;
+  const ipc = d?.ipc || 0;
+  const today = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' });
+
+  const varStr = (va, vb) => {
+    if (!va || !vb) return '';
+    const vn = ((va-vb)/vb*100);
+    const vr = ipc ? (((1+vn/100)/(1+ipc))-1)*100 : null;
+    return vn > 0
+      ? `+${vn.toFixed(1)}% nom${vr !== null ? ` / +${vr.toFixed(1)}% real` : ''}`
+      : `${vn.toFixed(1)}% nom${vr !== null ? ` / ${vr.toFixed(1)}% real` : ''}`;
+  };
+
+  const tableStyle = 'border-collapse:collapse;width:100%;font-size:11pt;margin-bottom:14pt';
+  const thStyle    = 'background:#1e3a5f;color:#fff;padding:6pt 8pt;text-align:left;border:1px solid #ccc';
+  const tdStyle    = 'padding:5pt 8pt;border:1px solid #ccc;vertical-align:top';
+  const td2Style   = tdStyle + ';background:#f1f5f9';
+
+  const secTable = d?.secretarias?.filter(s=>s.val>0).sort((a,b)=>b.val-a.val).map((s,i) => {
+    const sc = dc?.secretarias?.find(c => c.label===s.label || (SEC_EQUIV[s.label]===c.label) || (SEC_EQUIV[c.label]===s.label));
+    const vs = varStr(s.val, sc?.val);
+    return `<tr>
+      <td style="${i%2===0?tdStyle:td2Style}">${s.label}</td>
+      <td style="${i%2===0?tdStyle:td2Style};text-align:right">${sc ? '$'+fmt(sc.val)+' M' : '—'}</td>
+      <td style="${i%2===0?tdStyle:td2Style};text-align:right;font-weight:bold">$${fmt(s.val)} M</td>
+      <td style="${i%2===0?tdStyle:td2Style};text-align:right">${vs}</td>
+    </tr>`;
+  }).join('') || '';
+
+  const objTable = g?.porObjeto?.map((o,i) => {
+    const oc = dc?.gastos?.porObjeto?.[i];
+    const vo = varStr(o.val, oc?.val);
+    return `<tr>
+      <td style="${i%2===0?tdStyle:td2Style}">${o.label}</td>
+      <td style="${i%2===0?tdStyle:td2Style};text-align:right">${oc ? '$'+fmt(oc.val)+' M' : '—'}</td>
+      <td style="${i%2===0?tdStyle:td2Style};text-align:right;font-weight:bold">$${fmt(o.val)} M</td>
+      <td style="${i%2===0?tdStyle:td2Style};text-align:right">${vo}</td>
+    </tr>`;
+  }).join('') || '';
+
+  const cmpHeader = dc ? `<th style="${thStyle}">${cmpYear} ($M)</th>` : '';
+  const cmpVarHeader = dc ? `<th style="${thStyle}">Variación</th>` : '';
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11pt; color: #1a1a2e; margin: 2cm }
+  h1 { font-size: 16pt; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 6pt }
+  h2 { font-size: 13pt; color: #1e3a5f; margin-top: 18pt; margin-bottom: 6pt }
+  .sub { font-size: 9pt; color: #64748b; margin-bottom: 4pt }
+  .footer { font-size: 8pt; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8pt; margin-top: 20pt }
+</style></head><body>
+
+<h1>Análisis Presupuestario · Municipio de Tres de Febrero</h1>
+<p class="sub">Período: ${activeYear}${dc ? ' vs ' + cmpYear : ''} · Elaborado: ${today} · Fuente: RAFAM oficial · Bloque HCD Tres de Febrero</p>
+${d?.resumen?.alertaPrincipal ? `<p style="background:#fef9c3;border:1px solid #fbbf24;border-radius:4pt;padding:8pt 12pt;font-size:10pt">${d.resumen.alertaPrincipal.replace(/<[^>]+>/g,'')}</p>` : ''}
+
+<h2>1. Resumen ejecutivo</h2>
+<table style="${tableStyle}"><thead><tr>
+  <th style="${thStyle}">Indicador</th>
+  ${cmpHeader}<th style="${thStyle}">${activeYear}</th>${cmpVarHeader}
+</tr></thead><tbody>
+${[
+  ['Ejecutado (devengado)', r?.ejecutado, rc?.ejecutado],
+  ['Ingresos corrientes (percibido)', r?.ingCorrientes, rc?.ingCorrientes],
+  ['Gastos corrientes', r?.gasCorrientes, rc?.gasCorrientes],
+  ['Gastos de capital', r?.gastosCapital, rc?.gastosCapital],
+  ['Resultado Art. 43', r?.superavitArt43, rc?.superavitArt43],
+  ['Resultado Art. 44 (LOM)', r?.resultadoArt44, rc?.resultadoArt44],
+  ['Deuda flotante', r?.deudaFlotante, rc?.deudaFlotante],
+  ['Saldo de caja final', r?.saldoCajaFin, rc?.saldoCajaFin],
+].filter(([,va]) => va != null).map(([label, va, vb], i) => `<tr>
+  <td style="${i%2===0?tdStyle:td2Style}">${label}</td>
+  ${dc ? `<td style="${i%2===0?tdStyle:td2Style};text-align:right">${vb ? '$'+fmt(vb)+' M' : '—'}</td>` : ''}
+  <td style="${i%2===0?tdStyle:td2Style};text-align:right;font-weight:bold">$${fmt(va)} M</td>
+  ${dc ? `<td style="${i%2===0?tdStyle:td2Style};text-align:right">${varStr(va,vb)}</td>` : ''}
+</tr>`).join('')}
+</tbody></table>
+
+<h2>2. Gastos por objeto</h2>
+<table style="${tableStyle}"><thead><tr>
+  <th style="${thStyle}">Objeto</th>${cmpHeader}<th style="${thStyle}">${activeYear} ($M)</th>${cmpVarHeader}
+</tr></thead><tbody>${objTable}</tbody></table>
+
+<h2>3. Gastos por secretaría</h2>
+<table style="${tableStyle}"><thead><tr>
+  <th style="${thStyle}">Secretaría</th>${cmpHeader}<th style="${thStyle}">${activeYear} ($M)</th>${cmpVarHeader}
+</tr></thead><tbody>${secTable}</tbody></table>
+
+<div class="footer">
+Valores en millones de pesos corrientes (M ARS). Variación real deflactada por IPC ${activeYear}: ${(ipc*100).toFixed(1)}% (INDEC).
+Datos: RAFAM Municipalidad de Tres de Febrero. Uso interno del Bloque HCD.
+</div>
+</body></html>`;
+
+  const blob = new Blob(['\ufeff' + html], { type: 'application/msword' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `presupuesto_3f_${activeYear}${dc ? '_vs_' + cmpYear : ''}.doc`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 /* ═══════ INIT ═══════ */
