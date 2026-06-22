@@ -34,8 +34,8 @@
   --amber-l: #fef3c7;
   --red:     #b91c1c;
   --red-l:   #fee2e2;
-  --green:   #15803d;
-  --green-l: #dcfce7;
+  --green:   #16a34a;
+  --green-l: #f0fdf4;
   --blue:    #1d4ed8;
   --blue-l:  #dbeafe;
   --orange:  #c2410c;
@@ -93,10 +93,10 @@ nav.main-nav {
 .nav-btn {
   font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
   letter-spacing: .03em;
-  padding: .7rem 1.1rem; color: var(--slate);
+  padding: .55rem .9rem; color: var(--slate);
   border: none; background: none; cursor: pointer;
   border-bottom: 3px solid transparent; margin-bottom: -2px;
-  white-space: nowrap;
+  white-space: nowrap; font-size: 11.5px;
 }
 .nav-btn:hover { color: var(--ink); background: var(--bg2) }
 .nav-btn.on { color: var(--teal); border-bottom-color: var(--teal); background: var(--teal-l) }
@@ -160,8 +160,8 @@ nav.main-nav {
 .kpi.blue  { border-left-color: var(--blue) }
 .kpi.orange{ border-left-color: var(--orange) }
 .kpi.violet{ border-left-color: var(--violet) }
-.kpi-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mist); margin-bottom: .6rem }
-.kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 1.65rem; font-weight: 700; color: var(--ink); line-height: 1; letter-spacing: -.02em }
+.kpi-label { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--mist); margin-bottom: .5rem; opacity: .8 }
+.kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; color: var(--ink); line-height: 1; letter-spacing: -.03em }
 .kpi-value.pending { color: var(--mist); font-size: 1.1rem; font-style: italic }
 .kpi-sub { font-size: 11px; color: var(--ink3); margin-top: .3rem }
 .kpi-delta {
@@ -225,7 +225,7 @@ nav.main-nav {
 table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; background: var(--card) }
 thead th {
   background: var(--navy); color: rgba(226,232,240,.85);
-  padding: 9px 10px; text-align: left;
+  padding: 10px 12px; text-align: left;
   font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 600;
   letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
   border-bottom: 1px solid rgba(255,255,255,.08);
@@ -239,7 +239,7 @@ tbody tr:hover { background: var(--teal-l) }
 tbody tr:nth-child(even) { background: var(--card2) }
 tbody tr:nth-child(even):hover { background: var(--teal-l) }
 tbody tr:last-child { border: none }
-td { padding: 9px 10px; vertical-align: middle; color: var(--ink) }
+td { padding: 11px 12px; vertical-align: middle; color: var(--ink) }
 td.name   { font-weight: 600; font-size: 12px; color: var(--navy) }
 td.mono   { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; color: var(--ink) }
 td.mono-hi{ font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right; color: var(--navy); font-weight: 600 }
@@ -307,23 +307,64 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
   .card-grid.g12, .card-grid.g21 { grid-template-columns: 1fr }
 }
 @media (max-width: 768px) {
-  .hdr-inner { grid-template-columns: 1fr; padding: 1.5rem 1rem 1.25rem }
+  .hdr-inner { grid-template-columns: 1fr; padding: 1rem 1rem .875rem }
   .hdr-chips { display: none }
-  .wrap { padding: 1rem }
+  h1 { font-size: 1.1rem }
+  .hdr-desc { font-size: 10px }
+  .wrap { padding: .875rem .75rem }
   .kpi-grid { grid-template-columns: 1fr 1fr; gap: .5rem }
+  .kpi { padding: 1rem 1.1rem }
+  .kpi-value { font-size: 1.5rem }
+  .kpi-label { font-size: 8px }
   .card-grid.g2 { grid-template-columns: 1fr }
-  .bar-label { width: 110px }
+  .card-grid.g3 { grid-template-columns: 1fr }
+  .card-grid.g21, .card-grid.g12 { grid-template-columns: 1fr }
+  .bar-label { width: 90px; font-size: 9.5px }
+  .bar-track { min-width: 0 }
+  .bar-amount { width: 60px; font-size: 9px }
   .input-row { grid-template-columns: 1fr }
-  .year-bar-inner { gap: .5rem }
+  .year-bar-inner { gap: .4rem; padding: .5rem .75rem }
+  .year-btn { font-size: 10px; padding: 3px 10px }
+  .compare-select { font-size: 10px }
+  .nav-inner { padding: 0 .75rem }
+  .nav-btn { font-size: 10.5px; padding: .5rem .7rem }
+  /* Tabla secretarías en mobile: scroll horizontal */
+  .table-wrap { border-radius: var(--r2) }
+  table { font-size: 11px }
+  td { padding: 9px 8px }
+  td.name { font-size: 11px }
+  /* Programas expandidos en mobile */
+  .sec-prog-row { grid-template-columns: 1fr 1fr; gap: .5rem }
+  .sec-prog-bar-wrap { display: none }
+  .sec-detail-header { grid-template-columns: 1fr 1fr }
+  /* Ocultar columnas no esenciales en mobile */
+  .sec-prog-cmp { text-align: left }
+  /* Calculadora en mobile */
+  .calc-card { grid-template-columns: 1fr }
+  .calc-side { padding: 1.25rem }
+  .calc-result-card { padding: 1.5rem 1.25rem }
+  .crc-val.crc-highlight { font-size: 1.7rem }
+  /* Pie charts */
+  .pie-section { grid-template-columns: 1fr }
+  /* Año activo chips más chicos */
+  .year-label { font-size: 9px }
+}
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr }
+  .kpi-value { font-size: 1.35rem }
+  .year-bar-inner { flex-wrap: wrap }
+  .year-sep { display: none }
+  h1 { font-size: 1rem }
 }
 
 
 /* ── FILAS EXPANDIBLES (secretarías) ── */
-.sec-row { cursor: pointer }
+.sec-row { cursor: pointer; transition: background .12s }
+.sec-row:hover td { background: var(--teal-l) !important }
 .sec-row td:first-child::before {
-  content: '▶'; font-size: 9px; color: var(--mist);
-  margin-right: 6px; display: inline-block;
-  transition: transform .15s;
+  content: '▶'; font-size: 9px; color: var(--teal);
+  margin-right: 8px; display: inline-block;
+  transition: transform .15s; opacity: .7;
 }
 .sec-row.open td:first-child::before { transform: rotate(90deg); color: var(--teal) }
 .sec-detail-row { display: none }
@@ -339,7 +380,7 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
   grid-template-columns: minmax(150px, 2fr) 3fr 90px 90px;
   padding: 3px 0;
 }
-.sec-prog-bar-wrap { display: flex; gap: 4px; flex-direction: column }
+.sec-prog-bar-wrap { display: flex; gap: 3px; flex-direction: column; position: relative }
 .sec-prog-bar {
   height: 11px; border-radius: 3px;
 }
@@ -461,7 +502,7 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 /* RESULTADO */
 .calc-result-card {
   background: var(--navy); border-radius: var(--r3);
-  padding: 1.75rem 2rem; margin-bottom: 1.25rem;
+  padding: 2.25rem 2.5rem; margin-bottom: 1.25rem;
   animation: fadeIn .25s ease;
 }
 @keyframes fadeIn { from { opacity:0; transform:translateY(-6px) } to { opacity:1; transform:none } }
@@ -472,8 +513,8 @@ tr.gone-row td { background: rgba(220,38,38,.04) }
 .crc-block { flex: 1; min-width: 110px; text-align: center }
 .crc-sep { color: rgba(255,255,255,.2); font-size: 1.5rem; flex-shrink: 0 }
 .crc-label { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: rgba(148,163,184,.6); margin-bottom: .3rem }
-.crc-val { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: #fff; line-height: 1 }
-.crc-val.crc-highlight { font-size: 1.8rem }
+.crc-val { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1 }
+.crc-val.crc-highlight { font-size: 2.2rem }
 .crc-val.cr-ok   { color: #34D399 }
 .crc-val.cr-warn { color: #FCD34D }
 .crc-val.cr-bad  { color: #F87171 }
@@ -580,6 +621,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <button class="nav-btn" onclick="setView('gastos',this)">Gastos</button>
     <button class="nav-btn" onclick="setView('secretarias',this)">Por secretaría</button>
     <button class="nav-btn" onclick="setView('personal',this)">Personal</button>
+    <button class="nav-btn" onclick="setView('deuda',this)">Deuda</button>
     <button class="nav-btn" onclick="setView('calc',this)">Calculadora 2027</button>
     <button class="nav-btn" onclick="setView('metodologia',this)">Metodología</button>
   </div>
@@ -607,6 +649,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <div class="year-sep"></div>
     <span id="year-status" style="font-size:11px;color:var(--mist)">Año activo: <strong style="color:var(--navy)">2024</strong> · <span style="color:var(--green)">Datos confirmados</span></span>
     <button id="btn-print-cmp" onclick="printComparativa()" style="display:none;margin-left:.75rem;padding:4px 10px;font-size:11px;font-weight:600;background:var(--navy);color:#fff;border:none;border-radius:5px;cursor:pointer">⎙ Imprimir comparativa</button>
+    <button onclick="exportWord()" style="margin-left:.5rem;padding:4px 10px;font-size:11px;font-weight:600;background:#1e3a5f;color:#fff;border:none;border-radius:5px;cursor:pointer">⬇ Word</button>
   </div>
 </div>
 
@@ -792,6 +835,17 @@ footer a:hover { color: rgba(94,234,212,.85) }
   </div>
   <div class="alert warn" id="sec-alerta" style="display:none"></div>
   <div class="card-grid g21">
+    <div>
+      <!-- Buscador de programas -->
+      <div style="margin-bottom:1rem;display:flex;gap:.5rem;align-items:center">
+        <div style="position:relative;flex:1;max-width:380px">
+          <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--mist)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="prog-search" type="text" placeholder="Buscar programa..." oninput="searchPrograms(this.value)"
+            style="width:100%;padding:7px 12px 7px 32px;border:1px solid var(--borde);border-radius:var(--r2);font-size:12px;background:var(--card);color:var(--ink);outline:none">
+        </div>
+        <span id="prog-search-count" style="font-size:11px;color:var(--mist)"></span>
+      </div>
+      <div id="prog-search-results" style="display:none;margin-bottom:1rem"></div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -807,6 +861,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
         </thead>
         <tbody id="tbody-sec"></tbody>
       </table>
+    </div>
     </div>
     <div class="card">
       <div class="card-title" id="sec-bars-title">Distribución por secretaría</div>
@@ -833,6 +888,27 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <div class="card v5">
       <div class="card-title">Gasto en personal por componente · 2024</div>
       <div id="bars-componentes"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DEUDA
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-deuda">
+  <div class="sh">
+    <span class="sh-t">Deuda pública municipal</span>
+    <span class="sh-n">Evolución del servicio de la deuda y deuda flotante</span>
+  </div>
+  <div class="kpi-grid" id="kpi-deuda"></div>
+  <div class="card-grid g2" style="margin-top:1rem">
+    <div class="card">
+      <div class="card-title">Evolución del servicio de la deuda</div>
+      <div id="bars-deuda-evol"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Deuda flotante (pasivo al cierre del ejercicio)</div>
+      <div id="bars-deuda-flotante"></div>
     </div>
   </div>
 </div>
@@ -1003,43 +1079,49 @@ footer a:hover { color: rgba(94,234,212,.85) }
       <div style="display:flex;flex-direction:column;gap:.5rem" id="data-status"></div>
     </div>
     <div class="card v4">
-      <div class="card-title">Glosario de términos RAFAM</div>
-      <div style="font-size:12.5px;color:var(--ink2);line-height:1.8">
-        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Devengado:</strong> Gasto o recurso reconocido contablemente, independientemente del pago.</div>
-        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Percibido:</strong> Recurso efectivamente cobrado en el ejercicio.</div>
-        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Deuda flotante:</strong> Gastos devengados no pagados al 31/12.</div>
-        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Art. 43:</strong> Resultado presupuestario = percibido − devengado corriente y capital.</div>
-        <div style="border-bottom:1px solid var(--borde);padding:.35rem 0"><strong>Art. 44:</strong> Resultado del ejercicio (LOM) = Art.43 + saldo caja anterior − servicio deuda.</div>
-        <div style="padding:.35rem 0"><strong>Variación real:</strong> Variación nominal descontada la inflación del período.</div>
+      <div class="card-title">Conceptos clave</div>
+      <div style="font-size:12.5px;color:var(--ink2);line-height:1.9">
+        <div style="border-bottom:1px solid var(--borde);padding:.4rem 0"><strong>Devengado:</strong> Gasto reconocido contablemente en el período, independientemente de si fue pagado. Es la base del presupuesto.</div>
+        <div style="border-bottom:1px solid var(--borde);padding:.4rem 0"><strong>Percibido:</strong> Recurso efectivamente ingresado a la tesorería en el ejercicio. Puede diferir del devengado por cobranzas pendientes.</div>
+        <div style="border-bottom:1px solid var(--borde);padding:.4rem 0"><strong>Deuda flotante:</strong> Gastos devengados no pagados al 31/12. Pasan como pasivo al ejercicio siguiente.</div>
+        <div style="border-bottom:1px solid var(--borde);padding:.4rem 0"><strong>Art. 43 (LOM):</strong> Resultado presupuestario = percibido − devengado corriente y capital. Mide el equilibrio del ejercicio.</div>
+        <div style="border-bottom:1px solid var(--borde);padding:.4rem 0"><strong>Art. 44 (LOM):</strong> Resultado del ejercicio = Art. 43 + saldo inicial − servicio deuda. Indicador de sostenibilidad fiscal.</div>
+        <div style="border-bottom:1px solid var(--borde);padding:.4rem 0"><strong>Variación nominal:</strong> Cambio porcentual en pesos corrientes entre dos períodos.</div>
+        <div style="padding:.4rem 0"><strong>Variación real:</strong> Variación nominal deflactada por el IPC del año activo (INDEC). Mide si el gasto creció o cayó en términos de poder adquisitivo.</div>
       </div>
     </div>
   </div>
-  <div class="card" style="margin-bottom:1rem">
+
+  <div class="card" style="margin:1rem 0">
+    <div class="card-title">Criterios metodológicos</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;font-size:12.5px;color:var(--ink2);line-height:1.8">
+      <div>
+        <p style="margin-bottom:.5rem"><strong>Datos 2024 y 2025</strong> — Provienen de la rendición de cuentas RAFAM firmada. Son datos definitivos y auditables.</p>
+        <p style="margin-bottom:.5rem"><strong>Datos 2026</strong> — Ejecución al 31/03/2026 (Q1) anualizada multiplicando por 4, excepto el servicio de la deuda que se toma como dato real de Q1 (incluye el pago concentrado de deuda flotante 2025).</p>
+        <p><strong>IPC utilizado</strong> — 2024: 117,8% · 2025: 31,5% · 2026: 30% (estimación REM). La variación real se calcula como: ((1 + var. nominal) / (1 + IPC) − 1) × 100.</p>
+      </div>
+      <div>
+        <p style="margin-bottom:.5rem"><strong>Recursos vs. gastos</strong> — En recursos se usa el dato percibido (dinero que entró a caja). En gastos se usa el devengado (gasto comprometido).</p>
+        <p style="margin-bottom:.5rem"><strong>Comparativa entre años</strong> — Los nombres de secretarías y programas cambian entre años. Se usa una tabla de equivalencias (SEC_EQUIV y PROG_EQUIV) para hacer el matching automático. Los programas sin par se indican como "sin par".</p>
+        <p><strong>Elaboración</strong> — Bloque opositor HCD Tres de Febrero · Uso interno · Los datos son públicos y provienen exclusivamente de fuentes oficiales RAFAM.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-title">Fuentes oficiales utilizadas</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.5rem;font-size:12px;color:var(--ink2)">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.5rem;font-size:12px;color:var(--ink2)">
       <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
-        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓</span><br>
-        Estado Ejecución Recursos RAFAM · 07/02/2025
-      </div>
-      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
-        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓</span><br>
-        Estado Ejecución Gastos por Objeto RAFAM · 27/02/2025
+        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓ RAFAM firmado</span><br>
+        Estado Ejecución Recursos · Estado Ejecución Gastos por Objeto · Situación Económico-Financiera · Resultado Art. 44 · Memoria Contaduría · Ejecución por Categoría Programática — firmados 28/02/2025
       </div>
       <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
-        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓</span><br>
-        Situación Económico-Financiera RAFAM · 26/02/2025
+        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2025 ✓ RAFAM firmado</span><br>
+        Estado Ejecución Recursos (percibidos) · Ejecución por Categoría Programática (126 programas reales) — firmados 03/02/2026 y 20/02/2026
       </div>
       <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
-        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓</span><br>
-        Resultado Art. 44 · Memoria Contaduría · 28/02/2025
-      </div>
-      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem;border-style:dashed">
-        <span class="badge badge-pend" style="margin-bottom:.3rem;display:inline-block">2025 pendiente</span><br>
-        Rendición de Cuentas 2025 (disponible ~Feb 2026)
-      </div>
-      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem;border-style:dashed">
-        <span class="badge badge-pend" style="margin-bottom:.3rem;display:inline-block">2026 pendiente</span><br>
-        Rendición de Cuentas 2026 (disponible ~Feb 2027)
+        <span class="badge badge-warn" style="margin-bottom:.3rem;display:inline-block">2026 ⚠ provisorio Q1</span><br>
+        Ejecución de Gastos al 31/03/2026 por categoría programática (2094+ registros RAFAM) · Datos anualizados ×4 · Rendición definitiva disponible ~Feb 2027
       </div>
     </div>
   </div>
