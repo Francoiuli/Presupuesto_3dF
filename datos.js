@@ -734,7 +734,7 @@ const DATA = {
   2026: {
     status: 'confirmed',
     fuente: 'RAFAM · Presupuesto de Gastos y Cálculo de Recursos 2026 (Aprobado/Original 15/10/2025)',
-    ipc: null,
+    ipc: 0.30,
 
     resumen: {
       ejecutado:     189429.89,
@@ -1021,7 +1021,7 @@ const DATA = {
   2027: {
     status: 'confirmed',
     fuente: 'RAFAM · Presupuesto de Gastos y Cálculo de Recursos 2027 (Aprobado/Original 02/11/2026)',
-    ipc: null,
+    ipc: 0.30,
 
     resumen: {
       ejecutado:     236336.49,
