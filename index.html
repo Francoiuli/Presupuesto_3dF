@@ -1139,9 +1139,164 @@ footer a:hover { color: rgba(94,234,212,.85) }
 </footer>
 
 
-<script src="datos.js"></script>
-<script src="render.js"></script>
+<script src="datos.js?v=2027b"></script>
+<script src="render.js?v=2027b"></script>
 
 
+
+<script>
+// Hotfix / override para asegurar renderDeuda dinámico sin depender de caché del navegador
+function renderDeuda() {
+  const d = DATA[activeYear];
+  const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
+  const ipc = d?.ipc || 0;
+  const showCmp = !!dc;
+
+  const subTit = document.querySelector('#v-deuda .sh-n');
+  if (subTit) {
+    subTit.textContent = showCmp
+      ? `Evolución del servicio de la deuda y deuda flotante · ${activeYear} vs ${cmpYear}`
+      : `Evolución del servicio de la deuda y deuda flotante · Año activo: ${activeYear}`;
+  }
+
+  const years = [2024, 2025, 2026, 2027].filter(y => DATA[y]);
+  const servicioDeuda = {};
+  const deudaFlotante = { 2023: 1666.68 };
+  const deudaConsolidada = {};
+
+  years.forEach(y => {
+    const dy = DATA[y];
+    servicioDeuda[y] = dy?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val
+                    || dy?.secretarias?.find(s => s.label.toLowerCase().includes('deuda'))?.val
+                    || 0;
+    if (dy?.resumen?.deudaFlotante) {
+      deudaFlotante[y] = dy.resumen.deudaFlotante;
+    }
+    const secDeuda = dy?.secretarias?.find(s => s.label.toLowerCase().includes('deuda'));
+    const progCons = secDeuda?.programas?.find(p => p.label.toLowerCase().includes('consolidada'));
+    deudaConsolidada[y] = progCons?.val || (y === 2026 ? 17.13 : y === 2027 ? 1.38 : y === 2025 ? 27.28 : 0);
+  });
+
+  const sActivo = servicioDeuda[activeYear] || 0;
+  const sComp   = showCmp ? (servicioDeuda[parseInt(cmpYear)] || 0) : (servicioDeuda[activeYear - 1] || 0);
+  const refYear = showCmp ? cmpYear : (activeYear > 2024 ? activeYear - 1 : null);
+
+  const dfActiva = deudaFlotante[activeYear] || 0;
+  const dfComp   = showCmp ? (deudaFlotante[parseInt(cmpYear)] || 0) : (deudaFlotante[activeYear - 1] || 0);
+  const dcActiva = deudaConsolidada[activeYear] || 0;
+  const totGasto = d?.gastos?.total || 1;
+  const pctServ  = ((sActivo / totGasto) * 100).toFixed(1);
+
+  const vnServ = sComp > 0 ? ((sActivo - sComp) / sComp * 100) : null;
+  const vrServ = (vnServ !== null && ipc) ? ((1 + vnServ/100) / (1 + ipc) - 1) * 100 : null;
+  const colServ = (vrServ ?? vnServ) > 0 ? 'down' : 'up';
+
+  const vnFlot = dfComp > 0 ? ((dfActiva - dfComp) / dfComp * 100) : null;
+  const colFlot = vnFlot > 0 ? 'down' : 'up';
+
+  const kpis = [
+    {
+      cl: 'red',
+      label: `Servicio de Deuda ${activeYear}`,
+      val: `$${fmt(sActivo)} M`,
+      sub: `${pctServ}% del gasto total · ${activeYear >= 2026 ? 'Presupuestado' : 'Ejecutado'}`,
+      delta: refYear && vnServ !== null
+        ? `<div class="kpi-delta ${colServ}">vs ${refYear}: ${vnServ > 0 ? '+' : ''}${vnServ.toFixed(1)}% nom${vrServ !== null ? ' · ' + (vrServ > 0 ? '+' : '') + vrServ.toFixed(1) + '% real' : ''}</div>`
+        : '',
+    },
+    {
+      cl: 'amber',
+      label: `Deuda Flotante ${activeYear}`,
+      val: `$${fmt(dfActiva)} M`,
+      sub: activeYear >= 2026 ? `Amortización prevista en presupuesto ${activeYear}` : `Pasivo impago al 31/12/${activeYear}`,
+      delta: refYear && vnFlot !== null
+        ? `<div class="kpi-delta ${colFlot}">vs ${refYear}: ${vnFlot > 0 ? '+' : ''}${vnFlot.toFixed(1)}%</div>`
+        : '',
+    },
+    {
+      cl: 'blue',
+      label: `Deuda Consolidada ${activeYear}`,
+      val: `$${fmt(dcActiva)} M`,
+      sub: dcActiva > 0 ? 'Préstamos y convenios provinciales' : 'Sin pasivo consolidado significativo',
+      delta: showCmp && deudaConsolidada[parseInt(cmpYear)]
+        ? `<div class="kpi-delta warn">vs ${cmpYear}: $${fmt(deudaConsolidada[parseInt(cmpYear)])} M</div>`
+        : '',
+    },
+    {
+      cl: '',
+      label: `Deuda Flotante Previa (${activeYear - 1})`,
+      val: deudaFlotante[activeYear - 1] ? `$${fmt(deudaFlotante[activeYear - 1])} M` : '—',
+      sub: `Pasivo arrastrado al inicio de ${activeYear}`,
+      delta: activeYear === 2026
+        ? '<div class="kpi-delta down">+51.5% acumulado al 31/12/2025</div>'
+        : activeYear === 2027
+        ? '<div class="kpi-delta warn">Absorbida en presupuesto 2027</div>'
+        : '',
+    },
+  ];
+
+  document.getElementById('kpi-deuda').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cl}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      ${k.delta || ''}
+    </div>
+  `).join('');
+
+  const maxS = Math.max(...Object.values(servicioDeuda).filter(v => v > 0));
+  const evolList = [
+    { año: 2024, val: servicioDeuda[2024], tipo: 'Ejecutado (Rendición 2024)' },
+    { año: 2025, val: servicioDeuda[2025], tipo: 'Ejecutado (Rendición 2025)' },
+    { año: 2026, val: servicioDeuda[2026], tipo: 'Presupuesto Oficial 2026' },
+    { año: 2027, val: servicioDeuda[2027], tipo: 'Presupuesto Oficial 2027' },
+  ].filter(r => r.val > 0);
+
+  document.getElementById('bars-deuda-evol').innerHTML = evolList.map(r => {
+    const isAct = r.año === activeYear;
+    return `
+      <div style="margin-bottom:12px;padding:6px 8px;border-radius:4px;${isAct ? 'background:rgba(29,78,216,.08);border:1px solid rgba(29,78,216,.25)' : ''}">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="font-weight:600;color:${isAct ? 'var(--navy)' : 'var(--ink)'}">
+            ${r.año} ${isAct ? '★ (Año activo)' : ''}
+            <span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.tipo}</span>
+          </span>
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:${isAct ? 'var(--navy)' : 'rgba(13,148,136,1)'}">$${fmt(r.val)} M</span>
+        </div>
+        <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
+          <div style="width:${(r.val/maxS)*100}%;height:100%;background:${isAct ? 'var(--navy)' : 'rgba(220,38,38,.70)'};border-radius:3px;transition:width .4s"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const flotanteList = [
+    { año: 2023, val: deudaFlotante[2023], tipo: 'Cierre 2023 (pagada en 2024)' },
+    { año: 2024, val: deudaFlotante[2024], tipo: 'Cierre 2024 (pagada en 2025)' },
+    { año: 2025, val: deudaFlotante[2025], tipo: 'Cierre 2025 (pagada en 2026)' },
+    { año: 2026, val: deudaFlotante[2026], tipo: 'Prevista en Presupuesto 2026' },
+    { año: 2027, val: deudaFlotante[2027], tipo: 'Prevista en Presupuesto 2027' },
+  ].filter(r => r.val > 0);
+
+  const maxF = Math.max(...flotanteList.map(f => f.val));
+  document.getElementById('bars-deuda-flotante').innerHTML = flotanteList.map(r => {
+    const isAct = r.año === activeYear;
+    return `
+      <div style="margin-bottom:12px;padding:6px 8px;border-radius:4px;${isAct ? 'background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.25)' : ''}">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="font-weight:600;color:${isAct ? 'var(--amber)' : 'var(--ink)'}">
+            ${r.año} ${isAct ? '★ (Año activo)' : ''}
+            <span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.tipo}</span>
+          </span>
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(220,38,38,.85)">$${fmt(r.val)} M</span>
+        </div>
+        <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
+          <div style="width:${(r.val/maxF)*100}%;height:100%;background:${isAct ? 'var(--amber)' : 'rgba(220,38,38,.70)'};border-radius:3px;transition:width .4s"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+</script>
 </body>
 </html>
