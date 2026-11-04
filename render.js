@@ -165,12 +165,17 @@ function renderResumen() {
     `;
   }).join('');
 
-  // Origen recursos
+  // Origen recursos (dinámico según datos reales de cada año)
   const gastos_d = d.gastos;
+  const rec = d.recursos;
+  const totRec = rec?.totalPercibido || (r.ingCorrientes || 1);
+  const munRec = rec?.origenMunicipal ?? (r.ingCorrientes * 0.587);
+  const proRec = rec?.origenProvincial ?? (r.ingCorrientes * 0.414);
+  const nacRec = rec?.origenNacional ?? (r.ingCorrientes * 0.0004);
   const origenData = [
-    { label: 'Municipal',  val: r.ingCorrientes * 0.587, color: 'var(--teal)',   pct: 58.7 },
-    { label: 'Provincial', val: r.ingCorrientes * 0.414, color: 'var(--amber)',  pct: 41.4 },
-    { label: 'Nacional',   val: r.ingCorrientes * 0.0004, color: 'var(--mist)', pct: 0.0  },
+    { label: 'Municipal',  val: munRec, color: 'var(--teal)',   pct: ((munRec / totRec) * 100).toFixed(1) },
+    { label: 'Provincial', val: proRec, color: 'var(--amber)',  pct: ((proRec / totRec) * 100).toFixed(1) },
+    { label: 'Nacional',   val: nacRec, color: 'var(--mist)',   pct: ((nacRec / totRec) * 100).toFixed(2) },
   ];
   document.getElementById('chart-origen').innerHTML = origenData.map(o => `
     <div style="margin-bottom:7px">
@@ -702,10 +707,7 @@ function renderSecretarias() {
   // Filas de la tabla — cada secretaría tiene fila principal + fila detalle
   const rows = secActivo.map((s, idx) => {
     // Buscar equivalente en año comparado (por label o aproximación)
-    const secCmp = showCmp ? dc.secretarias.find(c =>
-      c.label === s.label ||
-      c.label.replace(/\s*\(.*?\)/g,'').trim() === s.label.replace(/\s*\(.*?\)/g,'').trim()
-    ) : null;
+    const secCmp = showCmp ? findSecCmp(s.label, dc.secretarias) : null;
 
     const vn = (s.val && secCmp?.val) ? ((s.val - secCmp.val) / secCmp.val * 100) : null;
     const vr = (vn !== null && ipc) ? ((1+vn/100)/(1+ipc)-1)*100 : null;
@@ -810,10 +812,10 @@ function renderSecretarias() {
 
   document.getElementById('sec-bars-title').textContent = `Distribución · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
   const topSec = [...secActivo].filter(s=>s.val>0).sort((a,b)=>b.val-a.val).slice(0,12);
-  const maxB = Math.max(...topSec.map(s=>s.val||0), ...(showCmp ? topSec.map(s => dc.secretarias.find(c=>c.label===s.label)?.val||0) : [0]));
+  const maxB = Math.max(...topSec.map(s=>s.val||0), ...(showCmp ? topSec.map(s => findSecCmp(s.label, dc.secretarias)?.val||0) : [0]));
 
   document.getElementById('bars-sec').innerHTML = legend + topSec.map(s => {
-    const sc = showCmp ? dc.secretarias.find(c=>c.label===s.label) : null;
+    const sc = showCmp ? findSecCmp(s.label, dc.secretarias) : null;
     return `<div style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink2);margin-bottom:3px">
         <span style="font-weight:500;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.label}</span>
@@ -1127,7 +1129,6 @@ function renderProgSelector(side) {
 
 function selectProgItem(side, key, el) {
   calcState[side].key = key;
-  // deselect all in list
   el.closest('div[style*="flex-direction:column"]').querySelectorAll('[data-key]').forEach(d => {
     d.style.background = ''; d.style.color = 'var(--ink2)';
     d.querySelector('span:last-child').style.color = 'var(--mist)';
@@ -1143,6 +1144,39 @@ function selectProgItem(side, key, el) {
     document.getElementById(`c${side}-val`).value = '';
     document.getElementById(`c${side}-hint`).textContent = 'Sin dato · ingresá el valor manualmente';
   }
+
+  // AUTO-SYNC SIDE B PARA PROGRAMAS
+  if (side === 'a') {
+    const yrB = document.getElementById('cb-year').value;
+    const catA = 'programas';
+    if (calcState.b.cat !== catA) {
+      const tabB = document.querySelector(`#cb-cats button[onclick*="'programas'"]`);
+      if (tabB) setCat('b', catA, tabB);
+    }
+    const lblA = getLabelFromKey(yr, key);
+    buildDynamicCats(yrB);
+    const progsB = CATS.programas || [];
+    let matchB = progsB.find(p => p.label === lblA);
+    if (!matchB && typeof findProgCmp === 'function') {
+      matchB = findProgCmp(lblA, progsB);
+    }
+    if (matchB) {
+      progState.b = matchB.sec;
+      renderProgSelector('b');
+      calcState.b.key = matchB.key;
+      const elB = document.querySelector(`#cb-items [data-key="${matchB.key}"]`);
+      if (elB) {
+        elB.style.background = 'var(--teal)'; elB.style.color = '#fff';
+        elB.querySelector('span:last-child').style.color = 'rgba(255,255,255,.8)';
+      }
+      const valB = getValFromKey(yrB, matchB.key);
+      if (valB !== null) {
+        document.getElementById('cb-val').value = valB;
+        document.getElementById('cb-hint').textContent = '← emparejado automáticamente';
+      }
+    }
+  }
+
   calcRun();
 }
 
@@ -1186,7 +1220,6 @@ function setCat(side, cat, btn) {
 }
 
 function selectItem(side, key, btn) {
-  // deselect if already on
   if (calcState[side].key === key) {
     calcState[side].key = null;
     btn.classList.remove('on');
@@ -1207,6 +1240,35 @@ function selectItem(side, key, btn) {
     document.getElementById(`c${side}-val`).value = '';
     document.getElementById(`c${side}-hint`).textContent = 'Sin dato · ingresá el valor manualmente';
   }
+
+  // AUTO-SYNC SIDE B: al elegir en lado A, busca el equivalente por nombre en lado B
+  if (side === 'a') {
+    const yrB = document.getElementById('cb-year').value;
+    const catA = calcState.a.cat;
+    if (calcState.b.cat !== catA) {
+      const tabB = document.querySelector(`#cb-cats button[onclick*="'${catA}'"]`);
+      if (tabB) setCat('b', catA, tabB);
+    }
+    const lblA = getLabelFromKey(yr, key);
+    buildDynamicCats(yrB);
+    const itemsB = CATS[catA] || [];
+    let matchB = itemsB.find(it => it.label === lblA);
+    if (!matchB && catA === 'secretarias' && typeof findSecCmp === 'function') {
+      const dSecB = DATA[parseInt(yrB)]?.secretarias || [];
+      const foundS = findSecCmp(lblA, dSecB);
+      if (foundS) matchB = itemsB.find(it => it.label === foundS.label);
+    }
+    if (matchB) {
+      calcState.b.key = matchB.key;
+      renderItems('b', catA);
+      const valB = getValFromKey(yrB, matchB.key);
+      if (valB !== null) {
+        document.getElementById('cb-val').value = valB;
+        document.getElementById('cb-hint').textContent = '← emparejado automáticamente';
+      }
+    }
+  }
+
   calcRun();
 }
 
@@ -1367,17 +1429,6 @@ function renderCurrentView() {
     case 'gastos':      renderGastos(); renderTortas(); break;
     case 'secretarias': renderSecretarias(); break;
     case 'personal':    renderPersonal(); break;
-    case 'metodologia': renderMetodologia(); break;
-  }
-}
-
-function renderCurrentView() {
-  switch (activeView) {
-    case 'resumen':     renderResumen(); break;
-    case 'recursos':    renderRecursos(); renderTortas(); break;
-    case 'gastos':      renderGastos(); renderTortas(); break;
-    case 'secretarias': renderSecretarias(); break;
-    case 'personal':    renderPersonal(); break;
     case 'deuda':       renderDeuda(); break;
     case 'metodologia': renderMetodologia(); break;
   }
@@ -1387,83 +1438,116 @@ function renderCurrentView() {
    ║  DEUDA PÚBLICA                                       ║
    ╚══════════════════════════════════════════════════════╝ */
 function renderDeuda() {
-  const years = [2024, 2025, 2026].filter(y => DATA[y]);
+  const years = Object.keys(DATA).map(Number).filter(y => DATA[y]).sort();
 
   // Datos de deuda por año
-  const servicioDeuda = {
-    2024: DATA[2024]?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val || 0,
-    2025: DATA[2025]?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val || 0,
-    2026: DATA[2026]?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val || 0,
-  };
+  const servicioDeuda = {};
   const deudaFlotante = {
-    2023: 1666.68,  // inferido del servicio de deuda 2024
-    2024: DATA[2024]?.resumen?.deudaFlotante || 0,
-    2025: DATA[2025]?.resumen?.deudaFlotante || 0,
+    2023: 1666.68, // Flotante 2023 pagada durante 2024
   };
 
-  // KPIs
-  const df24 = deudaFlotante[2024];
-  const df25 = deudaFlotante[2025];
-  const varDf = df24 ? ((df25 - df24) / df24 * 100) : null;
-  const colDf = varDf > 0 ? '#b91c1c' : '#15803d';  // deuda: rojo si sube
+  years.forEach(y => {
+    servicioDeuda[y] = DATA[y]?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val
+                    || DATA[y]?.secretarias?.find(s => s.label.toLowerCase().includes('deuda'))?.val
+                    || 0;
+    if (DATA[y]?.resumen?.deudaFlotante) {
+      deudaFlotante[y] = DATA[y].resumen.deudaFlotante;
+    }
+  });
 
-  document.getElementById('kpi-deuda').innerHTML = `
-    <div class="kpi amber">
-      <div class="kpi-label">Deuda flotante 2023</div>
-      <div class="kpi-value">$${fmt(deudaFlotante[2023])} M</div>
-      <div class="kpi-sub">Pagada durante 2024</div>
-    </div>
-    <div class="kpi amber">
-      <div class="kpi-label">Deuda flotante 2024</div>
-      <div class="kpi-value">$${fmt(df24)} M</div>
-      <div class="kpi-sub">Pagada durante 2025</div>
-      <div class="kpi-delta warn">+${(((df24 - deudaFlotante[2023]) / deudaFlotante[2023]) * 100).toFixed(1)}% vs 2023</div>
-    </div>
-    <div class="kpi red">
-      <div class="kpi-label">Deuda flotante 2025</div>
-      <div class="kpi-value">$${fmt(df25)} M</div>
-      <div class="kpi-sub">Pagada en Q1 2026</div>
-      ${varDf !== null ? `<div class="kpi-delta down">+${varDf.toFixed(1)}% vs 2024</div>` : ''}
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Servicio deuda 2025</div>
-      <div class="kpi-value">$${fmt(servicioDeuda[2025])} M</div>
-      <div class="kpi-sub">${((servicioDeuda[2025] / (DATA[2025]?.gastos?.total || 1)) * 100).toFixed(1)}% del gasto total</div>
-      <div class="kpi-delta down">+${(((servicioDeuda[2025] - servicioDeuda[2024]) / servicioDeuda[2024]) * 100).toFixed(1)}% vs 2024</div>
-    </div>
-  `;
+  // KPIs de Servicio de la Deuda para los 4 años completos (2024 a 2027)
+  const kpiItems = [
+    {
+      año: 2024,
+      val: servicioDeuda[2024],
+      total: DATA[2024]?.gastos?.total || 1,
+      tipo: 'Ejecutado real',
+      nota: 'Amortizó deuda flotante 2023 ($1.667 M)',
+      cl: 'amber',
+      delta: null,
+    },
+    {
+      año: 2025,
+      val: servicioDeuda[2025],
+      total: DATA[2025]?.gastos?.total || 1,
+      tipo: 'Ejecutado real',
+      nota: 'Amortizó flotante 2024 ($5.540 M) + consolidada',
+      cl: 'red',
+      delta: `+${(((servicioDeuda[2025] - servicioDeuda[2024]) / servicioDeuda[2024]) * 100).toFixed(1)}% vs 2024`,
+      deltaCls: 'down',
+    },
+    {
+      año: 2026,
+      val: servicioDeuda[2026],
+      total: DATA[2026]?.gastos?.total || 1,
+      tipo: 'Presupuesto oficial',
+      nota: 'Amortización flotante ($6.110 M) + pciales.',
+      cl: 'amber',
+      delta: `+${(((servicioDeuda[2026] - servicioDeuda[2025]) / servicioDeuda[2025]) * 100).toFixed(1)}% vs 2025`,
+      deltaCls: 'warn',
+    },
+    {
+      año: 2027,
+      val: servicioDeuda[2027],
+      total: DATA[2027]?.gastos?.total || 1,
+      tipo: 'Presupuesto oficial',
+      nota: 'Amortización flotante ($8.246 M) + pciales.',
+      cl: 'red',
+      delta: `+${(((servicioDeuda[2027] - servicioDeuda[2026]) / servicioDeuda[2026]) * 100).toFixed(1)}% vs 2026`,
+      deltaCls: 'down',
+    },
+  ];
 
-  // Barras evolución servicio deuda
-  const maxS = Math.max(servicioDeuda[2024], servicioDeuda[2025], servicioDeuda[2026]);
-  document.getElementById('bars-deuda-evol').innerHTML = [
-    { año: 2024, val: servicioDeuda[2024] },
-    { año: 2025, val: servicioDeuda[2025] },
-    { año: 2026, val: servicioDeuda[2026], nota: 'Q1 real sin anualizar' },
-  ].map(r => `
+  document.getElementById('kpi-deuda').innerHTML = kpiItems.map(k => {
+    const pct = ((k.val / k.total) * 100).toFixed(1);
+    return `
+      <div class="kpi ${k.cl}">
+        <div class="kpi-label">Servicio Deuda ${k.año} (${k.tipo})</div>
+        <div class="kpi-value">$${fmt(k.val)} M</div>
+        <div class="kpi-sub">${pct}% del total · ${k.nota}</div>
+        ${k.delta ? `<div class="kpi-delta ${k.deltaCls}">${k.delta}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  // Barras evolución servicio deuda (los 4 años completos)
+  const maxS = Math.max(...Object.values(servicioDeuda).filter(v => v > 0));
+  const evolList = [
+    { año: 2024, val: servicioDeuda[2024], nota: 'Ejecutado real (Rendición 2024)' },
+    { año: 2025, val: servicioDeuda[2025], nota: 'Ejecutado real (Rendición 2025)' },
+    { año: 2026, val: servicioDeuda[2026], nota: 'Presupuesto oficial aprobado' },
+    { año: 2027, val: servicioDeuda[2027], nota: 'Presupuesto oficial aprobado' },
+  ].filter(r => r.val > 0);
+
+  document.getElementById('bars-deuda-evol').innerHTML = evolList.map(r => `
     <div style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
         <span style="font-weight:600;color:var(--ink)">${r.año}${r.nota ? `<span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.nota}</span>` : ''}</span>
         <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1)">$${fmt(r.val)} M</span>
       </div>
       <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
-        <div style="width:${r.val/maxS*100}%;height:100%;background:rgba(220,38,38,.70);border-radius:3px;transition:width .4s"></div>
+        <div style="width:${(r.val/maxS)*100}%;height:100%;background:rgba(220,38,38,.70);border-radius:3px;transition:width .4s"></div>
       </div>
     </div>`).join('');
 
-  // Barras deuda flotante
-  const maxF = Math.max(...Object.values(deudaFlotante));
-  document.getElementById('bars-deuda-flotante').innerHTML = [
-    { año: 2023, val: deudaFlotante[2023], nota: 'inferido' },
-    { año: 2024, val: deudaFlotante[2024] },
-    { año: 2025, val: deudaFlotante[2025] },
-  ].map(r => `
+  // Barras deuda flotante (stock pendiente al cierre o previsto para amortizar)
+  const flotanteList = [
+    { año: 2023, val: deudaFlotante[2023], nota: 'Cierre 2023 (pagada en 2024)' },
+    { año: 2024, val: deudaFlotante[2024], nota: 'Cierre 2024 (pagada en 2025)' },
+    { año: 2025, val: deudaFlotante[2025], nota: 'Cierre 2025 (pagada en 2026)' },
+    { año: 2026, val: deudaFlotante[2026], nota: 'Prevista a amortizar en Presupuesto 2026' },
+    { año: 2027, val: deudaFlotante[2027], nota: 'Prevista a amortizar en Presupuesto 2027' },
+  ].filter(r => r.val > 0);
+
+  const maxF = Math.max(...flotanteList.map(f => f.val));
+  document.getElementById('bars-deuda-flotante').innerHTML = flotanteList.map(r => `
     <div style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
         <span style="font-weight:600;color:var(--ink)">${r.año}${r.nota ? `<span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.nota}</span>` : ''}</span>
         <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(220,38,38,.85)">$${fmt(r.val)} M</span>
       </div>
       <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
-        <div style="width:${r.val/maxF*100}%;height:100%;background:rgba(220,38,38,.70);border-radius:3px;transition:width .4s"></div>
+        <div style="width:${(r.val/maxF)*100}%;height:100%;background:rgba(220,38,38,.70);border-radius:3px;transition:width .4s"></div>
       </div>
     </div>`).join('');
 }
@@ -1484,7 +1568,7 @@ function searchPrograms(query) {
 
   // Buscar en todos los años
   const hits = [];
-  [2024, 2025, 2026].forEach(yr => {
+  Object.keys(DATA).map(Number).sort().forEach(yr => {
     const d = DATA[yr];
     if (!d?.secretarias) return;
     d.secretarias.forEach(sec => {
@@ -1911,7 +1995,7 @@ function exportSecretarias() {
   headers.push('Notas');
 
   const rows = d.secretarias.map(s => {
-    const secCmp = dc ? dc.secretarias.find(c => c.label === s.label) : null;
+    const secCmp = dc ? findSecCmp(s.label, dc.secretarias) : null;
     const vn = (s.val && secCmp?.val) ? ((s.val - secCmp.val) / secCmp.val * 100).toFixed(1) : '';
     const vr = (vn !== '' && ipc) ? (((1+parseFloat(vn)/100)/(1+ipc)-1)*100).toFixed(1) : '';
     const row = [
