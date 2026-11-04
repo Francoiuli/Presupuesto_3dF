@@ -1010,8 +1010,8 @@ const DATA = {
         { label: 'Juzgado de Faltas',               val:   639.45 },
       ],
       componentes: [
-        { label: 'Retribuciones del cargo (perm. + temp.)', val: 41727.93 },
-        { label: 'Contribuciones patronales (IPS + Obra S.)', val: 6920.79 },
+        { label: 'Sueldos y salarios',                       val: 41727.93 },
+        { label: 'Contribuciones patronales (IPS + Obra S.)', val:  6920.79 },
         { label: 'Prestaciones sociales y asignaciones',    val:  1101.51 },
         { label: 'Beneficios y compensaciones',             val:     3.84 },
       ],
@@ -1143,13 +1143,13 @@ const DATA = {
     },
 
     secretarias: [
-      { label: 'Ambiente y Servicios Públicos', val: 71549.79, nota: 'Higiene Urbana ($53.015 M) + Alumbrado ($9.225 M) + Serv. Urbanos',
+      { label: 'Ambiente y Servicios Públicos', val: 71549.79, nota: 'Higiene Urbana ($53.015 M) + Alumbrado y Arbolado ($10.899 M) + Serv. Urbanos',
         programas: [
           { label: 'Higiene Urbana y Control de Microbasurales',   val: 53015.24 },
-          { label: 'Mantenimiento del Sistema Público de Alumbrado',val: 9225.27 },
-          { label: 'Fortalecimiento de los Servicios Urbanos',      val: 5564.11 },
-          { label: 'Administración General (Ambiente)',              val: 1391.02 },
-          { label: 'Fortalecimiento del Cementerio Municipal',      val:  680.28 },
+          { label: 'Mantenimiento Alumbrado y Arbolado Urbano',     val: 10899.14 },
+          { label: 'Fortalecimiento de los Servicios Urbanos',      val:  5564.11 },
+          { label: 'Administración General (Ambiente)',              val:  1391.02 },
+          { label: 'Fortalecimiento del Cementerio Municipal',      val:   680.28 },
         ]
       },
       { label: 'Capital Humano', val: 42488.22, nota: 'Educación, Infraestructura Escolar, SAE, Social, Niñez, Deporte',
@@ -1271,9 +1271,9 @@ const DATA = {
     ],
 
     personal: {
-      total: null,
-      permanente: null,
-      mensualizado: null,
+      total: 3970,
+      permanente: 2020,
+      mensualizado: 1950,
       gastoTotal: 69922.14,
       paritaria: null,
       porSecretaria: [
