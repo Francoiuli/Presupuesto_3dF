@@ -18,14 +18,15 @@
 function getComparisonIPC(yrA, yrB) {
   if (!yrB || yrB === 'none') {
     const d = DATA[parseInt(yrA)];
-    return { ipc: d?.ipc || 0.30, fuente: yrA >= 2026 ? 'REM 30%' : (yrA === 2025 ? 'INDEC 31,5%' : 'INDEC 117,8%') };
+    return { ipc: d?.ipc || 0.30, fuente: yrA === 2027 ? 'REM 30%' : (yrA === 2025 || yrA === 2026 ? 'INDEC 31,5%' : 'INDEC 117,8%') };
   }
   const a = Math.max(Number(yrA), Number(yrB));
   const b = Math.min(Number(yrA), Number(yrB));
   
   // 1 año de diferencia
   if (a === 2027 && b === 2026) return { ipc: 0.30, fuente: 'REM 30%' };
-  if (a === 2026 && b === 2025) return { ipc: 0.30, fuente: 'REM 30%' };
+  // Al comparar Presupuesto 2026 vs Ejecutado 2025, se mide contra la inflación INDEC 2025 (31,5%) que afectó la base
+  if (a === 2026 && b === 2025) return { ipc: 0.315, fuente: 'INDEC 31,5%' };
   if (a === 2025 && b === 2024) return { ipc: 0.315, fuente: 'INDEC 31,5%' };
   if (a === 2024 && b === 2023) return { ipc: 1.178, fuente: 'INDEC 117,8%' };
   
@@ -2450,8 +2451,8 @@ function renderMetas() {
       <td style="font-size:12px">${m.meta}</td>
       <td class="mono" style="text-align:right">${m.u26.toLocaleString('es-AR')} ${m.unidad}</td>
       <td class="mono-hi yr-col" style="text-align:right">${m.u27.toLocaleString('es-AR')} ${m.unidad}</td>
-      <td class="mono" style="text-align:right;color:var(--mist)">${cu26Str}</td>
-      <td class="mono-hi" style="text-align:right;background:rgba(13,148,136,.06);color:var(--navy);font-weight:700">${cu27Str}</td>
+      <td class="mono yr-cmp" style="text-align:right;font-weight:600;color:rgba(180,83,9,1)">${cu26Str}</td>
+      <td class="mono-hi yr-col" style="text-align:right;font-weight:700;color:rgba(13,148,136,1)">${cu27Str}</td>
       <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--ink2)">${vnStr}</td>
       <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${vrCol}">${vrStr}</td>
     </tr>`;
