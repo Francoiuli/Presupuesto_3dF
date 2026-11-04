@@ -1400,13 +1400,16 @@ function setYear(yr, btn) {
     }
   });
   const d = DATA[yr];
-  const statusTxt = d.status === 'confirmed' ? `<span style="color:var(--green)">Datos confirmados</span>` : d.status === 'partial' ? `<span style="color:var(--amber)">Datos parciales</span>` : `<span style="color:var(--mist)">Pendiente de carga</span>`;
+  let docType = yr >= 2026 ? (yr === 2027 ? 'Proyecto Presupuesto Oficial' : 'Presupuesto Aprobado Oficial') : 'Rendición de Cuentas (Definitivo)';
+  const statusTxt = `<span style="color:var(--green)">${docType}</span>`;
   document.getElementById('year-status').innerHTML = `Año activo: <strong style="color:var(--navy)">${yr}</strong> · ${statusTxt}`;
 
-  // Header chips
+  // Header chips (formato en Millones riguroso)
   if (d.resumen) {
-    document.getElementById('chip-ejecutado').textContent = `$${(d.resumen.ejecutado/1000).toFixed(0)}B`;
-    document.getElementById('chip-resultado').textContent = `$${fmt(d.resumen.resultadoArt44)} M`;
+    document.getElementById('chip-ejecutado').textContent = `$${d.resumen.ejecutado.toLocaleString('es-AR',{maximumFractionDigits:0})} M`;
+    document.getElementById('chip-resultado').textContent = d.resumen.resultadoArt44 != null && d.resumen.resultadoArt44 !== 0
+      ? `$${fmt(d.resumen.resultadoArt44)} M`
+      : 'Equilibrado';
   } else {
     document.getElementById('chip-ejecutado').textContent = '—';
     document.getElementById('chip-resultado').textContent = '—';
@@ -1430,6 +1433,8 @@ function renderCurrentView() {
     case 'secretarias': renderSecretarias(); break;
     case 'personal':    renderPersonal(); break;
     case 'deuda':       renderDeuda(); break;
+    case 'metas':       renderMetas(); break;
+    case 'ciudadana':   calcABL(); break;
     case 'metodologia': renderMetodologia(); break;
   }
 }
@@ -1438,118 +1443,155 @@ function renderCurrentView() {
    ║  DEUDA PÚBLICA                                       ║
    ╚══════════════════════════════════════════════════════╝ */
 function renderDeuda() {
-  const years = Object.keys(DATA).map(Number).filter(y => DATA[y]).sort();
+  const d = DATA[activeYear];
+  const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
+  const ipc = d?.ipc || 0;
+  const showCmp = !!dc;
 
-  // Datos de deuda por año
+  const subTit = document.querySelector('#v-deuda .sh-n');
+  if (subTit) {
+    subTit.textContent = showCmp
+      ? `Evolución del servicio de la deuda y deuda flotante · ${activeYear} vs ${cmpYear}`
+      : `Evolución del servicio de la deuda y deuda flotante · Año activo: ${activeYear}`;
+  }
+
+  const years = [2024, 2025, 2026, 2027].filter(y => DATA[y]);
   const servicioDeuda = {};
-  const deudaFlotante = {
-    2023: 1666.68, // Flotante 2023 pagada durante 2024
-  };
+  const deudaFlotante = { 2023: 1666.68 };
+  const deudaConsolidada = {};
 
   years.forEach(y => {
-    servicioDeuda[y] = DATA[y]?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val
-                    || DATA[y]?.secretarias?.find(s => s.label.toLowerCase().includes('deuda'))?.val
+    const dy = DATA[y];
+    servicioDeuda[y] = dy?.gastos?.porObjeto?.find(o => o.label.toLowerCase().includes('deuda'))?.val
+                    || dy?.secretarias?.find(s => s.label.toLowerCase().includes('deuda'))?.val
                     || 0;
-    if (DATA[y]?.resumen?.deudaFlotante) {
-      deudaFlotante[y] = DATA[y].resumen.deudaFlotante;
+    if (dy?.resumen?.deudaFlotante) {
+      deudaFlotante[y] = dy.resumen.deudaFlotante;
     }
+    const secDeuda = dy?.secretarias?.find(s => s.label.toLowerCase().includes('deuda'));
+    const progCons = secDeuda?.programas?.find(p => p.label.toLowerCase().includes('consolidada'));
+    deudaConsolidada[y] = progCons?.val || (y === 2026 ? 17.13 : y === 2027 ? 1.38 : y === 2025 ? 27.28 : 0);
   });
 
-  // KPIs de Servicio de la Deuda para los 4 años completos (2024 a 2027)
-  const kpiItems = [
+  const sActivo = servicioDeuda[activeYear] || 0;
+  const sComp   = showCmp ? (servicioDeuda[parseInt(cmpYear)] || 0) : (servicioDeuda[activeYear - 1] || 0);
+  const refYear = showCmp ? cmpYear : (activeYear > 2024 ? activeYear - 1 : null);
+
+  const dfActiva = deudaFlotante[activeYear] || 0;
+  const dfComp   = showCmp ? (deudaFlotante[parseInt(cmpYear)] || 0) : (deudaFlotante[activeYear - 1] || 0);
+  const dcActiva = deudaConsolidada[activeYear] || 0;
+  const totGasto = d?.gastos?.total || 1;
+  const pctServ  = ((sActivo / totGasto) * 100).toFixed(1);
+
+  const vnServ = sComp > 0 ? ((sActivo - sComp) / sComp * 100) : null;
+  const vrServ = (vnServ !== null && ipc) ? ((1 + vnServ/100) / (1 + ipc) - 1) * 100 : null;
+  const colServ = (vrServ ?? vnServ) > 0 ? 'down' : 'up';
+
+  const vnFlot = dfComp > 0 ? ((dfActiva - dfComp) / dfComp * 100) : null;
+  const colFlot = vnFlot > 0 ? 'down' : 'up';
+
+  const kpis = [
     {
-      año: 2024,
-      val: servicioDeuda[2024],
-      total: DATA[2024]?.gastos?.total || 1,
-      tipo: 'Ejecutado real',
-      nota: 'Amortizó deuda flotante 2023 ($1.667 M)',
-      cl: 'amber',
-      delta: null,
-    },
-    {
-      año: 2025,
-      val: servicioDeuda[2025],
-      total: DATA[2025]?.gastos?.total || 1,
-      tipo: 'Ejecutado real',
-      nota: 'Amortizó flotante 2024 ($5.540 M) + consolidada',
       cl: 'red',
-      delta: `+${(((servicioDeuda[2025] - servicioDeuda[2024]) / servicioDeuda[2024]) * 100).toFixed(1)}% vs 2024`,
-      deltaCls: 'down',
+      label: `Servicio de Deuda ${activeYear}`,
+      val: `$${fmt(sActivo)} M`,
+      sub: `${pctServ}% del gasto total · ${activeYear >= 2026 ? 'Presupuestado' : 'Ejecutado'}`,
+      delta: refYear && vnServ !== null
+        ? `<div class="kpi-delta ${colServ}">vs ${refYear}: ${vnServ > 0 ? '+' : ''}${vnServ.toFixed(1)}% nom${vrServ !== null ? ' · ' + (vrServ > 0 ? '+' : '') + vrServ.toFixed(1) + '% real' : ''}</div>`
+        : '',
     },
     {
-      año: 2026,
-      val: servicioDeuda[2026],
-      total: DATA[2026]?.gastos?.total || 1,
-      tipo: 'Presupuesto oficial',
-      nota: 'Amortización flotante ($6.110 M) + pciales.',
       cl: 'amber',
-      delta: `+${(((servicioDeuda[2026] - servicioDeuda[2025]) / servicioDeuda[2025]) * 100).toFixed(1)}% vs 2025`,
-      deltaCls: 'warn',
+      label: `Deuda Flotante ${activeYear}`,
+      val: `$${fmt(dfActiva)} M`,
+      sub: activeYear >= 2026 ? `Amortización prevista en presupuesto ${activeYear}` : `Pasivo impago al 31/12/${activeYear}`,
+      delta: refYear && vnFlot !== null
+        ? `<div class="kpi-delta ${colFlot}">vs ${refYear}: ${vnFlot > 0 ? '+' : ''}${vnFlot.toFixed(1)}%</div>`
+        : '',
     },
     {
-      año: 2027,
-      val: servicioDeuda[2027],
-      total: DATA[2027]?.gastos?.total || 1,
-      tipo: 'Presupuesto oficial',
-      nota: 'Amortización flotante ($8.246 M) + pciales.',
-      cl: 'red',
-      delta: `+${(((servicioDeuda[2027] - servicioDeuda[2026]) / servicioDeuda[2026]) * 100).toFixed(1)}% vs 2026`,
-      deltaCls: 'down',
+      cl: 'blue',
+      label: `Deuda Consolidada ${activeYear}`,
+      val: `$${fmt(dcActiva)} M`,
+      sub: dcActiva > 0 ? 'Préstamos y convenios provinciales' : 'Sin pasivo consolidado significativo',
+      delta: showCmp && deudaConsolidada[parseInt(cmpYear)]
+        ? `<div class="kpi-delta warn">vs ${cmpYear}: $${fmt(deudaConsolidada[parseInt(cmpYear)])} M</div>`
+        : '',
+    },
+    {
+      cl: '',
+      label: `Deuda Flotante Previa (${activeYear - 1})`,
+      val: deudaFlotante[activeYear - 1] ? `$${fmt(deudaFlotante[activeYear - 1])} M` : '—',
+      sub: `Pasivo arrastrado al inicio de ${activeYear}`,
+      delta: activeYear === 2026
+        ? '<div class="kpi-delta down">+51.5% acumulado al 31/12/2025</div>'
+        : activeYear === 2027
+        ? '<div class="kpi-delta warn">Absorbida en presupuesto 2027</div>'
+        : '',
     },
   ];
 
-  document.getElementById('kpi-deuda').innerHTML = kpiItems.map(k => {
-    const pct = ((k.val / k.total) * 100).toFixed(1);
+  document.getElementById('kpi-deuda').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cl}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      ${k.delta || ''}
+    </div>
+  `).join('');
+
+  const maxS = Math.max(...Object.values(servicioDeuda).filter(v => v > 0));
+  const evolList = [
+    { año: 2024, val: servicioDeuda[2024], tipo: 'Ejecutado (Rendición 2024)' },
+    { año: 2025, val: servicioDeuda[2025], tipo: 'Ejecutado (Rendición 2025)' },
+    { año: 2026, val: servicioDeuda[2026], tipo: 'Presupuesto Oficial 2026' },
+    { año: 2027, val: servicioDeuda[2027], tipo: 'Presupuesto Oficial 2027' },
+  ].filter(r => r.val > 0);
+
+  document.getElementById('bars-deuda-evol').innerHTML = evolList.map(r => {
+    const isAct = r.año === activeYear;
     return `
-      <div class="kpi ${k.cl}">
-        <div class="kpi-label">Servicio Deuda ${k.año} (${k.tipo})</div>
-        <div class="kpi-value">$${fmt(k.val)} M</div>
-        <div class="kpi-sub">${pct}% del total · ${k.nota}</div>
-        ${k.delta ? `<div class="kpi-delta ${k.deltaCls}">${k.delta}</div>` : ''}
+      <div style="margin-bottom:12px;padding:6px 8px;border-radius:4px;${isAct ? 'background:rgba(29,78,216,.08);border:1px solid rgba(29,78,216,.25)' : ''}">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="font-weight:600;color:${isAct ? 'var(--navy)' : 'var(--ink)'}">
+            ${r.año} ${isAct ? '★ (Año activo)' : ''}
+            <span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.tipo}</span>
+          </span>
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:${isAct ? 'var(--navy)' : 'rgba(13,148,136,1)'}">$${fmt(r.val)} M</span>
+        </div>
+        <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
+          <div style="width:${(r.val/maxS)*100}%;height:100%;background:${isAct ? 'var(--navy)' : 'rgba(220,38,38,.70)'};border-radius:3px;transition:width .4s"></div>
+        </div>
       </div>
     `;
   }).join('');
 
-  // Barras evolución servicio deuda (los 4 años completos)
-  const maxS = Math.max(...Object.values(servicioDeuda).filter(v => v > 0));
-  const evolList = [
-    { año: 2024, val: servicioDeuda[2024], nota: 'Ejecutado real (Rendición 2024)' },
-    { año: 2025, val: servicioDeuda[2025], nota: 'Ejecutado real (Rendición 2025)' },
-    { año: 2026, val: servicioDeuda[2026], nota: 'Presupuesto oficial aprobado' },
-    { año: 2027, val: servicioDeuda[2027], nota: 'Presupuesto oficial aprobado' },
-  ].filter(r => r.val > 0);
-
-  document.getElementById('bars-deuda-evol').innerHTML = evolList.map(r => `
-    <div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-        <span style="font-weight:600;color:var(--ink)">${r.año}${r.nota ? `<span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.nota}</span>` : ''}</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1)">$${fmt(r.val)} M</span>
-      </div>
-      <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
-        <div style="width:${(r.val/maxS)*100}%;height:100%;background:rgba(220,38,38,.70);border-radius:3px;transition:width .4s"></div>
-      </div>
-    </div>`).join('');
-
-  // Barras deuda flotante (stock pendiente al cierre o previsto para amortizar)
   const flotanteList = [
-    { año: 2023, val: deudaFlotante[2023], nota: 'Cierre 2023 (pagada en 2024)' },
-    { año: 2024, val: deudaFlotante[2024], nota: 'Cierre 2024 (pagada en 2025)' },
-    { año: 2025, val: deudaFlotante[2025], nota: 'Cierre 2025 (pagada en 2026)' },
-    { año: 2026, val: deudaFlotante[2026], nota: 'Prevista a amortizar en Presupuesto 2026' },
-    { año: 2027, val: deudaFlotante[2027], nota: 'Prevista a amortizar en Presupuesto 2027' },
+    { año: 2023, val: deudaFlotante[2023], tipo: 'Cierre 2023 (pagada en 2024)' },
+    { año: 2024, val: deudaFlotante[2024], tipo: 'Cierre 2024 (pagada en 2025)' },
+    { año: 2025, val: deudaFlotante[2025], tipo: 'Cierre 2025 (pagada en 2026)' },
+    { año: 2026, val: deudaFlotante[2026], tipo: 'Prevista en Presupuesto 2026' },
+    { año: 2027, val: deudaFlotante[2027], tipo: 'Prevista en Presupuesto 2027' },
   ].filter(r => r.val > 0);
 
   const maxF = Math.max(...flotanteList.map(f => f.val));
-  document.getElementById('bars-deuda-flotante').innerHTML = flotanteList.map(r => `
-    <div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-        <span style="font-weight:600;color:var(--ink)">${r.año}${r.nota ? `<span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.nota}</span>` : ''}</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(220,38,38,.85)">$${fmt(r.val)} M</span>
+  document.getElementById('bars-deuda-flotante').innerHTML = flotanteList.map(r => {
+    const isAct = r.año === activeYear;
+    return `
+      <div style="margin-bottom:12px;padding:6px 8px;border-radius:4px;${isAct ? 'background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.25)' : ''}">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="font-weight:600;color:${isAct ? 'var(--amber)' : 'var(--ink)'}">
+            ${r.año} ${isAct ? '★ (Año activo)' : ''}
+            <span style="font-size:10px;color:var(--mist);font-weight:400"> · ${r.tipo}</span>
+          </span>
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(220,38,38,.85)">$${fmt(r.val)} M</span>
+        </div>
+        <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
+          <div style="width:${(r.val/maxF)*100}%;height:100%;background:${isAct ? 'var(--amber)' : 'rgba(220,38,38,.70)'};border-radius:3px;transition:width .4s"></div>
+        </div>
       </div>
-      <div style="background:var(--bg2);border-radius:3px;height:14px;overflow:hidden">
-        <div style="width:${(r.val/maxF)*100}%;height:100%;background:rgba(220,38,38,.70);border-radius:3px;transition:width .4s"></div>
-      </div>
-    </div>`).join('');
+    `;
+  }).join('');
 }
 
 /* ╔══════════════════════════════════════════════════════╗
@@ -2050,4 +2092,200 @@ function exportPersonal() {
   }
 
   xlsxDownload(wb, `3F_Personal_${activeYear}.xlsx`);
+}
+/* ╔══════════════════════════════════════════════════════╗
+   ║  METAS FÍSICAS (FORMULARIO 5 RAFAM)                  ║
+   ╚══════════════════════════════════════════════════════╝ */
+const METAS_DATA = [
+  { area: 'Salud', prog: 'Atención Primaria de la Salud (APS)', meta: 'Consultas médicas atendidas', u26: 100000, u27: 130000, unidad: 'consultas', p27: 7911.21 },
+  { area: 'Salud', prog: 'Hospitales y Complejo Hospitalario', meta: 'Consultas atendidas', u26: 60000, u27: 60000, unidad: 'consultas', p27: 2837.01 },
+  { area: 'Salud', prog: 'Centro Especialidades Médicas (CEMAR)', meta: 'Consultas médicas especializadas', u26: 40000, u27: 40000, unidad: 'consultas', p27: 2078.99 },
+  { area: 'Ambiente', prog: 'Higiene Urbana (CEAMSE)', meta: 'Residuos enviados a disposición final', u26: 132000, u27: 132000, unidad: 'toneladas', p27: 53015.24 },
+  { area: 'Seguridad', prog: 'Video Vigilancia Urbana (Ojos en Alerta)', meta: 'Cámaras activas en mantenimiento', u26: 1524, u27: 1524, unidad: 'cámaras', p27: 3055.00 },
+  { area: 'Obras Púb.', prog: 'Bacheo y Repavimentación', meta: 'Superficie de bacheo mejorada', u26: 16000, u27: 16000, unidad: 'm² mejorados', p27: 8076.07 },
+  { area: 'Obras Púb.', prog: 'Desarrollo Urbano', meta: 'Metros urbanos solicitados / aprobados', u26: 9000, u27: 9000, unidad: 'm²', p27: 2270.09 },
+  { area: 'Capital Humano', prog: 'Servicio Alimentario Escolar (SAE)', meta: 'Cupos alimentarios escolares', u26: 33689, u27: 33689, unidad: 'cupos diarios', p27: 6543.29 },
+  { area: 'Capital Humano', prog: 'Primera Infancia y Jardines de Infantes', meta: 'Jardines municipales asistidos', u26: 27, u27: 27, unidad: 'jardines', p27: 5097.23 },
+  { area: 'Capital Humano', prog: 'Infraestructura Educativa', meta: 'Obras e intervenciones en escuelas', u26: 15, u27: 15, unidad: 'obras escolares', p27: 9735.67 },
+  { area: 'Capital Humano', prog: 'Fortalecimiento Escuelas Municipales', meta: 'Establecimientos educativos alcanzados', u26: 130, u27: 130, unidad: 'escuelas', p27: 1678.28 },
+  { area: 'Capital Humano', prog: 'Emergencia Social y Asistencia', meta: 'Personas asistidas en situación crítica', u26: 1440, u27: 1440, unidad: 'personas', p27: 4665.30 },
+  { area: 'Capital Humano', prog: 'Economía Social y Popular', meta: 'Participantes activos en cursos y talleres', u26: 1000, u27: 1000, unidad: 'participantes', p27: 2087.54 },
+];
+
+function renderMetas() {
+  const kpiEl = document.getElementById('kpi-metas');
+  const tbEl  = document.getElementById('tbody-metas');
+  if (!kpiEl || !tbEl) return;
+
+  kpiEl.innerHTML = `
+    <div class="kpi teal">
+      <div class="kpi-label">Consultas Salud 2027</div>
+      <div class="kpi-value">230.000</div>
+      <div class="kpi-sub">APS (130k) + Hospitales (60k) + CEMAR (40k)</div>
+      <div class="kpi-delta up">+30.000 consultas vs 2026</div>
+    </div>
+    <div class="kpi amber">
+      <div class="kpi-label">Higiene Urbana (CEAMSE)</div>
+      <div class="kpi-value">132.000 tn</div>
+      <div class="kpi-sub">$53.015 M presupuestados · $401.630 / tonelada</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">Cámaras de Vigilancia</div>
+      <div class="kpi-value">1.524</div>
+      <div class="kpi-sub">$3.055 M presupuestados en mantenimiento</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Comedores Escolares (SAE)</div>
+      <div class="kpi-value">33.689 cupos</div>
+      <div class="kpi-sub">27 jardines y 15 obras edilicias escolares</div>
+    </div>
+  `;
+
+  tbEl.innerHTML = METAS_DATA.map(m => {
+    const varFis = ((m.u27 - m.u26) / m.u26 * 100);
+    const varTxt = varFis !== 0 ? (varFis > 0 ? '+' : '') + varFis.toFixed(1) + '%' : '0,0% (mismo volumen)';
+    const costoUnit = m.p27 && m.u27 ? (m.p27 * 1000000 / m.u27) : null;
+    let cuStr = '—';
+    if (costoUnit) {
+      cuStr = costoUnit >= 1000000
+        ? '$' + (costoUnit/1000000).toFixed(1) + ' M / ' + m.unidad
+        : '$' + Math.round(costoUnit).toLocaleString('es-AR') + ' / ' + m.unidad;
+    }
+    return `<tr>
+      <td style="font-weight:600;color:var(--ink)">${m.prog}<br><span style="font-size:10px;color:var(--mist);font-weight:400">${m.area}</span></td>
+      <td>${m.meta}</td>
+      <td class="mono" style="text-align:right">${m.u26.toLocaleString('es-AR')} ${m.unidad}</td>
+      <td class="mono-hi yr-col" style="text-align:right">${m.u27.toLocaleString('es-AR')} ${m.unidad}</td>
+      <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:${varFis>0?'var(--green)':'var(--mist)'}">${varTxt}</td>
+      <td class="mono" style="text-align:right">$${fmt(m.p27)} M</td>
+      <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--navy)">${cuStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  CALCULADORA CIUDADANA ABL                           ║
+   ╚══════════════════════════════════════════════════════╝ */
+const ABL_WEIGHTS_2027 = [
+  { area: 'Higiene Urbana y Recolección', pct: 40.3, color: 'var(--red)', desc: 'Barrido, recolección y CEAMSE ($53.015 M)' },
+  { area: 'Educación, SAE y Capital Humano', pct: 18.0, color: 'var(--teal)', desc: 'Escuelas, comedores SAE, niñez y cultura ($42.488 M)' },
+  { area: 'Obras Públicas y Bacheo', pct: 17.7, color: 'var(--orange)', desc: 'Bacheo, Centro Cívico Caseros y pavimentos ($41.868 M)' },
+  { area: 'Salud y Hospitales Municipales', pct: 7.9, color: 'var(--green)', desc: 'Centros CAPS, CEMAR y SAME ($18.736 M)' },
+  { area: 'Seguridad y Ojos en Alerta', pct: 7.7, color: 'var(--blue)', desc: 'Patrullaje, cámaras y prevención vial ($18.116 M)' },
+  { area: 'Servicio de la Deuda', pct: 3.5, color: 'var(--violet)', desc: 'Amortización de compromisos financieros ($8.247 M)' },
+  { area: 'Administración, Finanzas y HCD', pct: 4.9, color: 'var(--mist)', desc: 'Funcionamiento del Estado comunal y concejo' },
+];
+
+function setABL(val, btn) {
+  document.getElementById('abl-input').value = val;
+  document.querySelectorAll('#v-ciudadana .inf-pill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  calcABL();
+}
+
+function calcABL() {
+  const inputEl = document.getElementById('abl-input');
+  const resEl   = document.getElementById('abl-breakdown');
+  const titEl   = document.getElementById('abl-result-title');
+  if (!inputEl || !resEl) return;
+
+  const monto = parseFloat(inputEl.value) || 0;
+  if (titEl) titEl.textContent = `Desglose de tus $${monto.toLocaleString('es-AR')} mensuales (Presupuesto 2027)`;
+
+  resEl.innerHTML = ABL_WEIGHTS_2027.map(item => {
+    const pesos = (monto * (item.pct / 100));
+    return `
+      <div style="background:var(--card2);padding:9px 12px;border-radius:var(--r);border:1px solid var(--borde)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+          <span style="font-size:12px;font-weight:600;color:var(--ink)">${item.area}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--navy)">$${Math.round(pesos).toLocaleString('es-AR')}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mist);margin-bottom:4px">
+          <span>${item.desc}</span>
+          <span>${item.pct}% de la boleta</span>
+        </div>
+        <div style="background:var(--bg2);height:6px;border-radius:2px;overflow:hidden">
+          <div style="width:${item.pct}%;height:100%;background:${item.color};border-radius:2px"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  FICHA IMPRIMIBLE DE BLOQUE (DICTAMEN A4)           ║
+   ╚══════════════════════════════════════════════════════╝ */
+function printDictamen() {
+  const d26 = DATA[2026];
+  const d27 = DATA[2027];
+  const today = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' });
+
+  const secRows = d27.secretarias.map(s27 => {
+    const s26 = d26.secretarias.find(s => s.label === s27.label);
+    const v26 = s26 ? s26.val : 0;
+    const vn = v26 > 0 ? ((s27.val - v26) / v26 * 100).toFixed(1) : '—';
+    const vr = v26 > 0 ? (((1 + (s27.val - v26)/v26) / (1 + 0.303) - 1) * 100).toFixed(1) : '—';
+    return `<tr>
+      <td style="padding:4px 6px;border:1px solid #ccc">${s27.label}</td>
+      <td style="padding:4px 6px;border:1px solid #ccc;text-align:right">$${fmt(v26)} M</td>
+      <td style="padding:4px 6px;border:1px solid #ccc;text-align:right;font-weight:bold">$${fmt(s27.val)} M</td>
+      <td style="padding:4px 6px;border:1px solid #ccc;text-align:right">${vn > 0 ? '+' : ''}${vn}%</td>
+      <td style="padding:4px 6px;border:1px solid #ccc;text-align:right;font-weight:bold;color:${parseFloat(vr)>0?'#15803d':'#b91c1c'}">${vr > 0 ? '+' : ''}${vr}%</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Dictamen de Minoría · Presupuesto 2027 · Tres de Febrero</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; color: #111; margin: 1.5cm }
+    h1 { font-size: 14pt; color: #1e3a5f; margin-bottom: 2pt }
+    h2 { font-size: 11pt; color: #1e3a5f; margin-top: 10pt; margin-bottom: 4pt; border-bottom: 1px solid #1e3a5f; padding-bottom: 2pt }
+    .meta { font-size: 8.5pt; color: #64748b; margin-bottom: 10pt }
+    table { width: 100%; border-collapse: collapse; font-size: 9pt; margin-top: 4pt }
+    th { background: #1e3a5f; color: #fff; padding: 4px 6px; border: 1px solid #ccc; text-align: left }
+    .box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4pt; padding: 6pt 8pt; margin-bottom: 8pt; font-size: 9pt }
+    @media print { @page { margin: 1.2cm } }
+  </style></head><body>
+  <h1>INFORME TÉCNICO DE BLOQUE · PRESUPUESTO 2027</h1>
+  <div class="meta">Municipalidad de Tres de Febrero · Elaboración Opositora HCD · Fecha: ${today} · Deflactado con REM 2026 (30,3%)</div>
+
+  <div class="box">
+    <strong>SÍNTESIS MACRO:</strong> Presupuesto 2027: <strong>$236.336,49 M</strong> vs Presupuesto 2026: <strong>$189.429,89 M</strong> (+24,8% nominal / -4,2% real frente a inflación REM 30,3%).
+    El 64,2% de los recursos son de origen municipal ($151.653 M) y solo el 0,55% nacional ($1.301 M).
+  </div>
+
+  <h2>1. ALERTAS POLÍTICAS PARA EL DEBATE EN EL RECINTO</h2>
+  <div style="font-size:9pt;line-height:1.5">
+    • <strong>Tarifazo Residencial:</strong> La Tasa de Servicios Generales (TSG) sube +45,7% ($54.236 M vs $37.229 M), mientras la Tasa Comercial (TISH) casi se congela con +3,3% ($42.020 M vs $40.659 M).<br>
+    • <strong>Concentración en Centro Cívico:</strong> Se presupuestan $11.330 M para el Centro Cívico Caseros (27% de toda la obra pública comunal), mientras Bacheo cae en términos reales a $8.076 M (-0,8% nom / -23,9% real).<br>
+    • <strong>Publicidad:</strong> Secretaría General salta +90,2% ($8.574 M) absorbiendo Comunicación y Prensa ($2.700 M).<br>
+    • <strong>Dependencia de Caja Previa:</strong> Se usan $22.085 M de saldos de caja/bancos anteriores para balancear el presupuesto.
+  </div>
+
+  <h2>2. COMPARATIVA DE GASTO POR SECRETARÍA (2026 vs. 2027)</h2>
+  <table>
+    <thead><tr>
+      <th>Secretaría / Área</th>
+      <th style="text-align:right">Presup. 2026</th>
+      <th style="text-align:right">Presup. 2027</th>
+      <th style="text-align:right">Var. Nom</th>
+      <th style="text-align:right">Var. Real (REM 30,3%)</th>
+    </tr></thead>
+    <tbody>${secRows}</tbody>
+  </table>
+
+  <h2>3. METAS FÍSICAS RELEVANTES (FORMULARIO 5)</h2>
+  <div style="font-size:8.5pt;line-height:1.4">
+    • <strong>Higiene Urbana:</strong> 132.000 toneladas de residuos a CEAMSE ($53.015 M presupuestados).<br>
+    • <strong>Salud:</strong> 130.000 consultas en Atención Primaria + 60.000 en Complejo Hospitalario + 40.000 en CEMAR.<br>
+    • <strong>Seguridad:</strong> Mantenimiento de 1.524 cámaras activas en sistema Ojos en Alerta.<br>
+    • <strong>Escuelas y SAE:</strong> 33.689 cupos diarios de SAE y 15 obras escolares programadas.
+  </div>
+  </body></html>`;
+
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 400);
 }
