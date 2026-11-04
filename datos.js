@@ -1307,17 +1307,29 @@ const DATA = {
 
 // Equivalencias de nombres de secretarías entre años
 const SEC_EQUIV = {
-  'Educación y Cultura':         'Capital Humano',
-  'Secretaría de Deporte':       'Capital Humano',
-  'Jefatura de Gabinete':        'Coordinación de Gabinete',
-  'Jefatura de Gabinete (*)':    'Coordinación de Gabinete',
-  'Des. Humano y Hábitat':       'Capital Humano',
-  'Desarrollo Humano y Hábitat': 'Capital Humano',
-  'Licencias de Conducir / Atención al Vecino': 'Atención al Vecino',
-  'Atención al Vecino':          'Coordinación de Gabinete',
-  'Des. Territorial y Movilidad':'Obras Públicas y Des. Urbano',
-  'Control Municipal':            'Trabajo y Producción',
-  'Finanzas y Eficiencia del Estado': 'Finanzas y Efic. del Estado',
+  // Capital Humano
+  'Educación y Cultura':                        'Capital Humano',
+  'Secretaría de Deporte':                      'Capital Humano',
+  'Des. Humano y Hábitat':                      'Capital Humano',
+  'Desarrollo Humano y Hábitat':                'Capital Humano',
+  'Educación y Desarrollo Humano':              'Capital Humano',
+
+  // Coordinación / Jefatura de Gabinete
+  'Jefatura de Gabinete':                       'Secretaría de Coordinación',
+  'Jefatura de Gabinete (*)':                   'Secretaría de Coordinación',
+  'Coordinación de Gabinete':                   'Secretaría de Coordinación',
+  'Atención al Vecino':                         'Secretaría de Coordinación',
+
+  // Obras Públicas
+  'Obras Públicas':                             'Obras Públicas y Des. Urbano',
+  'Des. Territorial y Movilidad':               'Obras Públicas y Des. Urbano',
+
+  // Trabajo
+  'Control Municipal':                          'Trabajo y Producción',
+
+  // Finanzas
+  'Finanzas y Efic. del Estado':                'Finanzas y Eficiencia del Estado',
+  'Finanzas y Eficiencia del Estado':           'Finanzas y Eficiencia del Estado',
 };
 
 
