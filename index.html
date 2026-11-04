@@ -623,7 +623,8 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <button class="nav-btn" onclick="setView('personal',this)">Personal</button>
     <button class="nav-btn" onclick="setView('deuda',this)">Deuda</button>
     <button class="nav-btn" onclick="setView('calc',this)">Calculadora de variación real</button>
-        <button class="nav-btn" onclick="setView('ciudadana',this)">Calculadora ABL</button>
+        <button class="nav-btn" onclick="setView('metas',this)">Metas y Costo Unitario</button>
+    <button class="nav-btn" onclick="setView('ciudadana',this)">Calculadora ABL</button>
     <button class="nav-btn" onclick="setView('metodologia',this)">Metodología</button>
   </div>
 </nav>
@@ -1064,6 +1065,37 @@ footer a:hover { color: rgba(94,234,212,.85) }
         <strong style="color:var(--teal-d)">Compromiso Social y Educativo (Metas Físicas)</strong><br>
         El Servicio Alimentario Escolar (SAE) garantiza 33.689 cupos ($6.543 M), se prevén 15 obras escolares ($9.736 M) y la atención de 230.000 consultas en centros de salud y hospitales municipales.
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     METAS FÍSICAS Y COSTO UNITARIO (FORMULARIO 5)
+═══════════════════════════════════════ -->
+<div class="wrap" id="v-metas">
+  <div class="sh">
+    <span class="sh-t">Metas físicas y Costo Unitario (Formulario 5 RAFAM)</span>
+    <span class="sh-n">Comparativa de volumen programado y costo por unidad de servicio: Presupuesto 2026 vs. Presupuesto 2027</span>
+  </div>
+  <div class="kpi-grid" id="kpi-metas"></div>
+  <div class="card" style="margin-top:1.25rem">
+    <div class="card-title">Cuadro Comparativo de Rendimiento y Costo Unitario (2026 vs. 2027)</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="min-width:180px">Área / Programa</th>
+            <th>Indicador / Meta física</th>
+            <th style="text-align:right">Volumen 2026</th>
+            <th style="text-align:right">Volumen 2027</th>
+            <th style="text-align:right">Costo unitario 2026</th>
+            <th style="text-align:right;background:rgba(13,148,136,.12)">Costo unitario 2027</th>
+            <th style="text-align:right">Var. nominal</th>
+            <th style="text-align:right">Var. real (REM 30,3%)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-metas"></tbody>
+      </table>
     </div>
   </div>
 </div>
