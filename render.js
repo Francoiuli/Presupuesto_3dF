@@ -893,8 +893,17 @@ function renderPersonal() {
     </div>
   `;
 
-  // ── Planta por secretaría ──
+  // ── Gasto en personal o Planta por secretaría ──
   const secEl = document.getElementById('bars-planta-sec');
+  const cardTitleSec = document.querySelector('.card-grid.g2 > .card:first-child .card-title');
+  const isMoneyData = (p.porSecretaria && p.porSecretaria[0] && p.porSecretaria[0].val > 1000);
+
+  if (cardTitleSec) {
+    cardTitleSec.textContent = isMoneyData
+      ? `Gasto en personal por secretaría ($M) · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`
+      : `Planta de personal por secretaría (cargos) · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
+  }
+
   if (p.porSecretaria && p.porSecretaria.length) {
     const totalPlanta = p.porSecretaria.reduce((s,x)=>s+(x.val||0),0);
     const allVals = [...p.porSecretaria.map(s=>s.val||0), ...(pc?.porSecretaria?.map(s=>s.val||0)||[])];
@@ -902,19 +911,22 @@ function renderPersonal() {
     const legHTML = showCmp ? `<div style="display:flex;gap:1.5rem;margin-bottom:.875rem;font-size:12px;font-weight:600">
       <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(13,148,136,.80)"></span>${activeYear}</span>
       <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--mist);font-weight:400">% = de la planta total · var. = solo nominal (cant. personas)</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--mist);font-weight:400">${isMoneyData ? '% del gasto de personal · var. nom + real (REM 30,3%)' : '% de la planta total · cant. cargos'}</span>
     </div>` : '';
     secEl.innerHTML = legHTML + p.porSecretaria.map(s => {
       const sc = pc?.porSecretaria?.find(c=>c.label===s.label);
       const pct = ((s.val||0)/totalPlanta*100).toFixed(1);
+      const valStrA = isMoneyData ? '$' + fmt(s.val) + ' M' : s.val;
+      const valStrC = sc ? (isMoneyData ? '$' + fmt(sc.val) + ' M' : sc.val) : '';
+      const varHTML = sc ? (isMoneyData ? vNomReal(s.val, sc.val) : vNom(s.val, sc.val)) : '';
       return `<div style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
           <span style="font-size:12px;font-weight:500;color:var(--ink)">${s.label}</span>
           <div style="display:flex;gap:.75rem;align-items:baseline;flex-shrink:0">
-            ${sc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.85)">${sc.val}</span>` : ''}
-            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1);font-size:12px">${s.val}</span>
+            ${sc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.85)">${valStrC}</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1);font-size:12px">${valStrA}</span>
             <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
-            ${sc ? (vNom(s.val, sc.val)||'') : ''}
+            ${varHTML || ''}
           </div>
         </div>
         <div style="height:11px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
@@ -1433,7 +1445,6 @@ function renderCurrentView() {
     case 'secretarias': renderSecretarias(); break;
     case 'personal':    renderPersonal(); break;
     case 'deuda':       renderDeuda(); break;
-    case 'metas':       renderMetas(); break;
     case 'ciudadana':   calcABL(); break;
     case 'metodologia': renderMetodologia(); break;
   }
@@ -2093,75 +2104,6 @@ function exportPersonal() {
 
   xlsxDownload(wb, `3F_Personal_${activeYear}.xlsx`);
 }
-/* ╔══════════════════════════════════════════════════════╗
-   ║  METAS FÍSICAS (FORMULARIO 5 RAFAM)                  ║
-   ╚══════════════════════════════════════════════════════╝ */
-const METAS_DATA = [
-  { area: 'Salud', prog: 'Atención Primaria de la Salud (APS)', meta: 'Consultas médicas atendidas', u26: 100000, u27: 130000, unidad: 'consultas', p27: 7911.21 },
-  { area: 'Salud', prog: 'Hospitales y Complejo Hospitalario', meta: 'Consultas atendidas', u26: 60000, u27: 60000, unidad: 'consultas', p27: 2837.01 },
-  { area: 'Salud', prog: 'Centro Especialidades Médicas (CEMAR)', meta: 'Consultas médicas especializadas', u26: 40000, u27: 40000, unidad: 'consultas', p27: 2078.99 },
-  { area: 'Ambiente', prog: 'Higiene Urbana (CEAMSE)', meta: 'Residuos enviados a disposición final', u26: 132000, u27: 132000, unidad: 'toneladas', p27: 53015.24 },
-  { area: 'Seguridad', prog: 'Video Vigilancia Urbana (Ojos en Alerta)', meta: 'Cámaras activas en mantenimiento', u26: 1524, u27: 1524, unidad: 'cámaras', p27: 3055.00 },
-  { area: 'Obras Púb.', prog: 'Bacheo y Repavimentación', meta: 'Superficie de bacheo mejorada', u26: 16000, u27: 16000, unidad: 'm² mejorados', p27: 8076.07 },
-  { area: 'Obras Púb.', prog: 'Desarrollo Urbano', meta: 'Metros urbanos solicitados / aprobados', u26: 9000, u27: 9000, unidad: 'm²', p27: 2270.09 },
-  { area: 'Capital Humano', prog: 'Servicio Alimentario Escolar (SAE)', meta: 'Cupos alimentarios escolares', u26: 33689, u27: 33689, unidad: 'cupos diarios', p27: 6543.29 },
-  { area: 'Capital Humano', prog: 'Primera Infancia y Jardines de Infantes', meta: 'Jardines municipales asistidos', u26: 27, u27: 27, unidad: 'jardines', p27: 5097.23 },
-  { area: 'Capital Humano', prog: 'Infraestructura Educativa', meta: 'Obras e intervenciones en escuelas', u26: 15, u27: 15, unidad: 'obras escolares', p27: 9735.67 },
-  { area: 'Capital Humano', prog: 'Fortalecimiento Escuelas Municipales', meta: 'Establecimientos educativos alcanzados', u26: 130, u27: 130, unidad: 'escuelas', p27: 1678.28 },
-  { area: 'Capital Humano', prog: 'Emergencia Social y Asistencia', meta: 'Personas asistidas en situación crítica', u26: 1440, u27: 1440, unidad: 'personas', p27: 4665.30 },
-  { area: 'Capital Humano', prog: 'Economía Social y Popular', meta: 'Participantes activos en cursos y talleres', u26: 1000, u27: 1000, unidad: 'participantes', p27: 2087.54 },
-];
-
-function renderMetas() {
-  const kpiEl = document.getElementById('kpi-metas');
-  const tbEl  = document.getElementById('tbody-metas');
-  if (!kpiEl || !tbEl) return;
-
-  kpiEl.innerHTML = `
-    <div class="kpi teal">
-      <div class="kpi-label">Consultas Salud 2027</div>
-      <div class="kpi-value">230.000</div>
-      <div class="kpi-sub">APS (130k) + Hospitales (60k) + CEMAR (40k)</div>
-      <div class="kpi-delta up">+30.000 consultas vs 2026</div>
-    </div>
-    <div class="kpi amber">
-      <div class="kpi-label">Higiene Urbana (CEAMSE)</div>
-      <div class="kpi-value">132.000 tn</div>
-      <div class="kpi-sub">$53.015 M presupuestados · $401.630 / tonelada</div>
-    </div>
-    <div class="kpi blue">
-      <div class="kpi-label">Cámaras de Vigilancia</div>
-      <div class="kpi-value">1.524</div>
-      <div class="kpi-sub">$3.055 M presupuestados en mantenimiento</div>
-    </div>
-    <div class="kpi green">
-      <div class="kpi-label">Comedores Escolares (SAE)</div>
-      <div class="kpi-value">33.689 cupos</div>
-      <div class="kpi-sub">27 jardines y 15 obras edilicias escolares</div>
-    </div>
-  `;
-
-  tbEl.innerHTML = METAS_DATA.map(m => {
-    const varFis = ((m.u27 - m.u26) / m.u26 * 100);
-    const varTxt = varFis !== 0 ? (varFis > 0 ? '+' : '') + varFis.toFixed(1) + '%' : '0,0% (mismo volumen)';
-    const costoUnit = m.p27 && m.u27 ? (m.p27 * 1000000 / m.u27) : null;
-    let cuStr = '—';
-    if (costoUnit) {
-      cuStr = costoUnit >= 1000000
-        ? '$' + (costoUnit/1000000).toFixed(1) + ' M / ' + m.unidad
-        : '$' + Math.round(costoUnit).toLocaleString('es-AR') + ' / ' + m.unidad;
-    }
-    return `<tr>
-      <td style="font-weight:600;color:var(--ink)">${m.prog}<br><span style="font-size:10px;color:var(--mist);font-weight:400">${m.area}</span></td>
-      <td>${m.meta}</td>
-      <td class="mono" style="text-align:right">${m.u26.toLocaleString('es-AR')} ${m.unidad}</td>
-      <td class="mono-hi yr-col" style="text-align:right">${m.u27.toLocaleString('es-AR')} ${m.unidad}</td>
-      <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:${varFis>0?'var(--green)':'var(--mist)'}">${varTxt}</td>
-      <td class="mono" style="text-align:right">$${fmt(m.p27)} M</td>
-      <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--navy)">${cuStr}</td>
-    </tr>`;
-  }).join('');
-}
 
 /* ╔══════════════════════════════════════════════════════╗
    ║  CALCULADORA CIUDADANA ABL                           ║
@@ -2274,13 +2216,6 @@ function printDictamen() {
     <tbody>${secRows}</tbody>
   </table>
 
-  <h2>3. METAS FÍSICAS RELEVANTES (FORMULARIO 5)</h2>
-  <div style="font-size:8.5pt;line-height:1.4">
-    • <strong>Higiene Urbana:</strong> 132.000 toneladas de residuos a CEAMSE ($53.015 M presupuestados).<br>
-    • <strong>Salud:</strong> 130.000 consultas en Atención Primaria + 60.000 en Complejo Hospitalario + 40.000 en CEMAR.<br>
-    • <strong>Seguridad:</strong> Mantenimiento de 1.524 cámaras activas en sistema Ojos en Alerta.<br>
-    • <strong>Escuelas y SAE:</strong> 33.689 cupos diarios de SAE y 15 obras escolares programadas.
-  </div>
   </body></html>`;
 
   const win = window.open('', '_blank', 'width=900,height=700');
