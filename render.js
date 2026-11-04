@@ -14,6 +14,32 @@
    HELPERS COMUNES
 ───────────────────────────────────────────── */
 
+// Obtiene la inflación acumulada real o estimada entre cualquier par de años
+function getComparisonIPC(yrA, yrB) {
+  if (!yrB || yrB === 'none') {
+    const d = DATA[parseInt(yrA)];
+    return { ipc: d?.ipc || 0.30, fuente: yrA >= 2026 ? 'REM 30%' : (yrA === 2025 ? 'INDEC 31,5%' : 'INDEC 117,8%') };
+  }
+  const a = Math.max(Number(yrA), Number(yrB));
+  const b = Math.min(Number(yrA), Number(yrB));
+  
+  // 1 año de diferencia
+  if (a === 2027 && b === 2026) return { ipc: 0.30, fuente: 'REM 30%' };
+  if (a === 2026 && b === 2025) return { ipc: 0.30, fuente: 'REM 30%' };
+  if (a === 2025 && b === 2024) return { ipc: 0.315, fuente: 'INDEC 31,5%' };
+  if (a === 2024 && b === 2023) return { ipc: 1.178, fuente: 'INDEC 117,8%' };
+  
+  // 2 años acumulados
+  if (a === 2027 && b === 2025) return { ipc: 0.69, fuente: 'Acum. ~69%' };
+  if (a === 2026 && b === 2024) return { ipc: 0.71, fuente: 'Acum. 71,0%' };
+  
+  // 3 años acumulados
+  if (a === 2027 && b === 2024) return { ipc: 1.222, fuente: 'Acum. ~122%' };
+
+  return { ipc: 0.30, fuente: 'REM 30%' };
+}
+
+
 // Variación nominal y real con color semáforo
 function calcVar(va, vb, ipc) {
   if (va == null || vb == null || !vb) return null;
@@ -222,7 +248,8 @@ function renderRecursos() {
   const d   = DATA[activeYear];
   const dc  = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
   const rc  = dc?.recursos;
-  const ipc = d.ipc || 0;  // inflación del año activo
+  const cmpInfo = getComparisonIPC(activeYear, cmpYear);
+  const ipc = cmpInfo.ipc;
   const isPending = d.status === 'pending' || !d.recursos;
   document.getElementById('rec-pending').style.display = isPending ? 'flex' : 'none';
   document.getElementById('rec-content').style.display = isPending ? 'none' : 'block';
@@ -369,7 +396,8 @@ function renderGastos() {
 
   const g  = d.gastos;
   const gc = dc?.gastos;
-  const ipc = d.ipc || 0;  // inflación del año activo
+  const cmpInfo = getComparisonIPC(activeYear, cmpYear);
+  const ipc = cmpInfo.ipc;
 
   document.getElementById('gas-alerta').innerHTML = `<strong>Dato clave:</strong> ${g.alertaPrincipal}`;
   document.getElementById('gas-alerta').className = 'alert warn';
@@ -680,7 +708,8 @@ function renderSecretarias() {
   const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
   const secActivo = d.secretarias.filter(s => s.val > 0 || s.nueva);
   const totalActivo = secActivo.reduce((s,i) => s + (i.val || 0), 0);
-  const ipc = d.ipc || 0;  // inflación del año activo
+  const cmpInfo = getComparisonIPC(activeYear, cmpYear);
+  const ipc = cmpInfo.ipc;
   const showCmp = !!dc?.secretarias?.length;
 
   document.getElementById('sec-titulo').textContent = `Por secretaría · ${activeYear}`;
@@ -696,7 +725,7 @@ function renderSecretarias() {
   if (showCmp) {
     document.getElementById('th-cmp-sec').textContent = `${cmpYear} ($M)`;
     document.getElementById('th-vn-sec').textContent = 'Var. nom.';
-    document.getElementById('th-vr-sec').textContent = 'Var. real';
+    document.getElementById('th-vr-sec').innerHTML = 'Var. real<br><span style="font-size:9px;font-weight:400;opacity:.85">(' + cmpInfo.fuente + ')</span>';
   }
 
   const maxVal = Math.max(
@@ -764,7 +793,7 @@ function renderSecretarias() {
           <span>Programa</span>
           <span>Ejecución${showCmp ? ' comparativa' : ''}</span>
           <span style="text-align:right">${activeYear} ($M)</span>
-          <span style="text-align:right">${showCmp ? cmpYear+' · var.' : ''}</span>
+          <span style="text-align:right">${showCmp ? cmpYear+' · Var. Nom y Real' : ''}</span>
         </div>
         ${s.programas.filter(p => p.val > 0).map(p => {
           const pc = findProgCmp(p.label, cmpProgs);
@@ -825,7 +854,15 @@ function renderSecretarias() {
         ${sc ? `<div style="position:absolute;top:0;left:0;width:${(sc.val||0)/maxB*100}%;height:100%;background:rgba(217,119,6,.5);border-radius:2px"></div>` : ''}
         <div style="position:absolute;top:0;left:0;width:${(s.val||0)/maxB*100}%;height:100%;background:rgba(13,148,136,.7);border-radius:2px"></div>
       </div>
-      ${sc ? `<div style="font-size:9px;color:var(--mist);text-align:right;font-family:'JetBrains Mono',monospace">$${fmt(sc.val)}M</div>` : ''}
+      ${sc ? (() => {
+        const vn = ((s.val - sc.val)/sc.val*100);
+        const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+        const col = (vr??vn) > 2 ? '#15803d' : (vr??vn) > -5 ? '#b45309' : '#b91c1c';
+        return `<div style="display:flex;justify-content:space-between;font-size:9.5px;font-family:'JetBrains Mono',monospace;margin-top:1px">
+          <span style="color:rgba(180,83,9,.85)">${cmpYear}: $${fmt(sc.val)}M</span>
+          <span style="font-weight:700;color:${col}">${vr!==null ? (vr>0?'+':'')+vr.toFixed(1)+'%r' : (vn>0?'+':'')+vn.toFixed(1)+'%n'}</span>
+        </div>`;
+      })() : ''}
     </div>`;
   }).join('');
 }
@@ -837,7 +874,8 @@ function renderPersonal() {
   const d   = DATA[activeYear];
   const p   = d.personal;
   const pc  = cmpYear !== 'none' ? DATA[parseInt(cmpYear)]?.personal : null;
-  const ipc = d.ipc || 0;
+  const cmpInfo = getComparisonIPC(activeYear, cmpYear);
+  const ipc = cmpInfo.ipc;
   const showCmp = !!pc;
   document.getElementById('pers-titulo').textContent = `Planta de personal · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
 
@@ -849,13 +887,16 @@ function renderPersonal() {
     return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${vn>0?'+':''}${vn.toFixed(1)}%</span>`;
   };
 
-  // Variación nominal + real (para montos $)
+  // Variación nominal + real con semáforo nítido (para montos $)
   const vNomReal = (va, vb) => {
     if (!va || !vb) return null;
     const vn = (va - vb) / vb * 100;
     const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
     const col = (vr??vn) > 2 ? '#15803d' : (vr??vn) > -5 ? '#b45309' : '#b91c1c';
-    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${vn>0?'+':''}${vn.toFixed(1)}% nom${vr!==null?' · '+(vr>0?'+':'')+vr.toFixed(1)+'% real':''}</span>`;
+    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">
+      ${vn>0?'+':''}${vn.toFixed(1)}% nom
+      ${vr !== null ? `<br><span style="font-size:10px;font-weight:700;color:${col}">${vr>0?'+':''}${vr.toFixed(1)}% real</span>` : ''}
+    </span>`;
   };
 
   // ── TABLA RESUMEN ──
@@ -1445,6 +1486,7 @@ function renderCurrentView() {
     case 'secretarias': renderSecretarias(); break;
     case 'personal':    renderPersonal(); break;
     case 'deuda':       renderDeuda(); break;
+    case 'metas':       renderMetas(); break;
     case 'ciudadana':   calcABL(); break;
     case 'metodologia': renderMetodologia(); break;
   }
@@ -1838,7 +1880,8 @@ function printComparativa() {
   const gc = dc?.gastos;
   const res = d.recursos;
   const resc = dc?.recursos;
-  const ipc = d.ipc || 0;
+  const cmpInfo = getComparisonIPC(activeYear, cmpYear);
+  const ipc = cmpInfo.ipc;
   const today = new Date().toLocaleDateString('es-AR', {day:'2-digit',month:'long',year:'numeric'});
 
   const pct  = (v, t) => t ? (v/t*100).toFixed(1)+'%' : '—';
@@ -2040,7 +2083,8 @@ function exportSecretarias() {
   const d  = DATA[activeYear];
   const dc = cmpYear !== 'none' ? DATA[parseInt(cmpYear)] : null;
   const wb = XLSX.utils.book_new();
-  const ipc = d.ipc || 0;
+  const cmpInfo = getComparisonIPC(activeYear, cmpYear);
+  const ipc = cmpInfo.ipc;
   const totalActivo = d.secretarias.reduce((s,i) => s + (i.val||0), 0);
 
   const headers = ['Secretaría / Área', `${activeYear} ($M)`, '% del total'];
@@ -2223,4 +2267,193 @@ function printDictamen() {
   win.document.close();
   win.focus();
   setTimeout(() => win.print(), 400);
+}
+
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  METAS FÍSICAS Y COSTO UNITARIO (FORMULARIO 5)       ║
+   ╚══════════════════════════════════════════════════════╝ */
+const METAS_COMPARADAS = [
+  {
+    area: 'Ambiente',
+    prog: 'Higiene Urbana y Control Microbasurales',
+    meta: 'Residuos enviados a CEAMSE',
+    u26: 132000,
+    u27: 132000,
+    unidad: 'toneladas',
+    p26: 42067.38,
+    p27: 53015.24,
+  },
+  {
+    area: 'Obras Púb.',
+    prog: 'Bacheo y Repavimentación',
+    meta: 'Superficie de bacheo mejorada',
+    u26: 16000,
+    u27: 16000,
+    unidad: 'm² mejorados',
+    p26: 8142.37,
+    p27: 8076.07,
+  },
+  {
+    area: 'Seguridad',
+    prog: 'Video Vigilancia Urbana (Ojos en Alerta)',
+    meta: 'Cámaras activas en mantenimiento',
+    u26: 1524,
+    u27: 1524,
+    unidad: 'cámaras',
+    p26: 2613.39,
+    p27: 3055.00,
+  },
+  {
+    area: 'Salud',
+    prog: 'Atención Primaria de la Salud (APS)',
+    meta: 'Consultas médicas en CAPS',
+    u26: 100000,
+    u27: 130000,
+    unidad: 'consultas',
+    p26: 5895.46,
+    p27: 7911.21,
+  },
+  {
+    area: 'Salud',
+    prog: 'Hospitales y Complejo Hospitalario',
+    meta: 'Consultas médicas hospitalarias',
+    u26: 60000,
+    u27: 60000,
+    unidad: 'consultas',
+    p26: 2725.43,
+    p27: 2837.01,
+  },
+  {
+    area: 'Salud',
+    prog: 'Centro Especialidades Médicas (CEMAR)',
+    meta: 'Consultas médicas especializadas',
+    u26: 40000,
+    u27: 40000,
+    unidad: 'consultas',
+    p26: 1542.73,
+    p27: 2078.99,
+  },
+  {
+    area: 'Capital Humano',
+    prog: 'Servicio Alimentario Escolar (SAE)',
+    meta: 'Cupos alimentarios en comedores',
+    u26: 33689,
+    u27: 33689,
+    unidad: 'cupos/año',
+    p26: 5254.25,
+    p27: 6543.29,
+  },
+  {
+    area: 'Capital Humano',
+    prog: 'Primera Infancia y Jardines de Infantes',
+    meta: 'Jardines municipales asistidos',
+    u26: 27,
+    u27: 27,
+    unidad: 'jardines',
+    p26: 3030.16,
+    p27: 5097.23,
+  },
+  {
+    area: 'Capital Humano',
+    prog: 'Infraestructura Educativa',
+    meta: 'Obras e intervenciones en escuelas',
+    u26: 15,
+    u27: 15,
+    unidad: 'obras escolares',
+    p26: 6784.28,
+    p27: 9735.67,
+  },
+  {
+    area: 'Capital Humano',
+    prog: 'Fortalecimiento Escuelas Municipales',
+    meta: 'Establecimientos educativos alcanzados',
+    u26: 130,
+    u27: 130,
+    unidad: 'escuelas',
+    p26: 769.72,
+    p27: 1678.28,
+  },
+  {
+    area: 'Capital Humano',
+    prog: 'Emergencia Social y Asistencia',
+    meta: 'Personas asistidas en situación crítica',
+    u26: 1440,
+    u27: 1440,
+    unidad: 'personas',
+    p26: 3568.87,
+    p27: 4665.30,
+  },
+];
+
+function fmtUnitCost(cu, unidad) {
+  if (cu == null) return '—';
+  if (cu >= 1000000) {
+    return '$' + (cu / 1000000).toFixed(1) + ' M';
+  }
+  return '$' + Math.round(cu).toLocaleString('es-AR');
+}
+
+function renderMetas() {
+  const kpiEl = document.getElementById('kpi-metas');
+  const tbEl  = document.getElementById('tbody-metas');
+  if (!kpiEl || !tbEl) return;
+
+  const rem = 0.303; // REM 30,3%
+
+  // KPIs destacados de rendimiento
+  kpiEl.innerHTML = `
+    <div class="kpi amber">
+      <div class="kpi-label">Higiene Urbana (CEAMSE)</div>
+      <div class="kpi-value">$401.631 / tn</div>
+      <div class="kpi-sub">132.000 tn programadas · $53.015 M totales</div>
+      <div class="kpi-delta warn">+26.0% vs $318.692 en 2026 (-3.3% real)</div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-label">Bacheo y Repavimentación</div>
+      <div class="kpi-value">$504.754 / m²</div>
+      <div class="kpi-sub">16.000 m² a intervenir · $8.076 M totales</div>
+      <div class="kpi-delta down">-0.8% nominal vs 2026 (-23.9% real)</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">Video Vigilancia (Cámaras)</div>
+      <div class="kpi-value">$2.004.593 / cám</div>
+      <div class="kpi-sub">1.524 cámaras en mantenimiento · $3.055 M</div>
+      <div class="kpi-delta warn">+16.9% vs $1.714.823 en 2026 (-10.3% real)</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Consultas Médicas (APS)</div>
+      <div class="kpi-value">$60.855 / cons.</div>
+      <div class="kpi-sub">130.000 consultas (+30.000 vs 2026) · $7.911 M</div>
+      <div class="kpi-delta up">+3.2% vs $58.955 en 2026 (-20.8% real)</div>
+    </div>
+  `;
+
+  tbEl.innerHTML = METAS_COMPARADAS.map(m => {
+    const cu26 = (m.p26 * 1000000) / m.u26;
+    const cu27 = (m.p27 * 1000000) / m.u27;
+    const vn = ((cu27 - cu26) / cu26) * 100;
+    const vr = (((1 + vn/100) / (1 + rem)) - 1) * 100;
+
+    const cu26Str = fmtUnitCost(cu26, m.unidad);
+    const cu27Str = fmtUnitCost(cu27, m.unidad);
+
+    const vnStr = (vn > 0 ? '+' : '') + vn.toFixed(1) + '%';
+    const vrStr = (vr > 0 ? '+' : '') + vr.toFixed(1) + '%';
+    const vrCol = vr > 2 ? 'var(--green)' : vr > -10 ? 'var(--amber)' : 'var(--red)';
+
+    return `<tr>
+      <td style="font-weight:600;color:var(--ink)">
+        ${m.prog}
+        <br><span style="font-size:10px;color:var(--mist);font-weight:400">${m.area}</span>
+      </td>
+      <td style="font-size:12px">${m.meta}</td>
+      <td class="mono" style="text-align:right">${m.u26.toLocaleString('es-AR')} ${m.unidad}</td>
+      <td class="mono-hi yr-col" style="text-align:right">${m.u27.toLocaleString('es-AR')} ${m.unidad}</td>
+      <td class="mono" style="text-align:right;color:var(--mist)">${cu26Str}</td>
+      <td class="mono-hi" style="text-align:right;background:rgba(13,148,136,.06);color:var(--navy);font-weight:700">${cu27Str}</td>
+      <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--ink2)">${vnStr}</td>
+      <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${vrCol}">${vrStr}</td>
+    </tr>`;
+  }).join('');
 }
