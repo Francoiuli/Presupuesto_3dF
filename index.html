@@ -622,7 +622,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <button class="nav-btn" onclick="setView('secretarias',this)">Por secretaría</button>
     <button class="nav-btn" onclick="setView('personal',this)">Personal</button>
     <button class="nav-btn" onclick="setView('deuda',this)">Deuda</button>
-    <button class="nav-btn" onclick="setView('calc',this)">Calculadora 2027</button>
+    <button class="nav-btn" onclick="setView('calc',this)">Calculadora de variación real</button>
     <button class="nav-btn" onclick="setView('metodologia',this)">Metodología</button>
   </div>
 </nav>
@@ -636,7 +636,7 @@ footer a:hover { color: rgba(94,234,212,.85) }
     <button class="year-btn on" onclick="setYear(2024,this)">2024</button>
     <button class="year-btn" onclick="setYear(2025,this)">2025</button>
     <button class="year-btn pending" onclick="setYear(2026,this)">2026</button>
-    <button class="year-btn pending" onclick="setYear(2027,this)">2027</button>
+    <button class="year-btn" onclick="setYear(2027,this)">2027</button>
     <div class="year-sep"></div>
     <span class="compare-label">Comparar con</span>
     <select class="compare-select" id="cmp-select" onchange="setCmp(this.value)">
@@ -1111,6 +1111,10 @@ footer a:hover { color: rgba(94,234,212,.85) }
   <div class="card">
     <div class="card-title">Fuentes oficiales utilizadas</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.5rem;font-size:12px;color:var(--ink2)">
+      <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
+        <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2027 ✓ RAFAM oficial</span><br>
+        Presupuesto de Gastos por Fuente, Objeto, Estructura Programática, Finalidad y Función, Carácter Económico y Cálculo de Recursos por Rubro, Procedencia y Carácter Económico (impresos 02/11/2026). Crédito original aprobado.
+      </div>
       <div style="border:1px solid var(--borde);border-radius:var(--r);padding:.625rem .875rem">
         <span class="badge badge-ok" style="margin-bottom:.3rem;display:inline-block">2024 ✓ RAFAM firmado</span><br>
         Estado Ejecución Recursos · Estado Ejecución Gastos por Objeto · Situación Económico-Financiera · Resultado Art. 44 · Memoria Contaduría · Ejecución por Categoría Programática — firmados 28/02/2025
