@@ -878,102 +878,173 @@ function renderPersonal() {
   const cmpInfo = getComparisonIPC(activeYear, cmpYear);
   const ipc = cmpInfo.ipc;
   const showCmp = !!pc;
-  document.getElementById('pers-titulo').textContent = `Planta de personal · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
+  document.getElementById('pers-titulo').textContent = `Planta y gasto en personal · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
 
-  // Variación solo nominal (para cantidades de personas)
+  // Variación solo nominal (para cantidades de cargos)
   const vNom = (va, vb) => {
-    if (!va || !vb) return null;
+    if (va === null || va === undefined || vb === null || vb === undefined || vb === 0) return '—';
     const vn = (va - vb) / vb * 100;
-    const col = vn > 2 ? '#15803d' : vn > -5 ? '#b45309' : '#b91c1c';
-    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${vn>0?'+':''}${vn.toFixed(1)}%</span>`;
+    const col = Math.abs(vn) < 0.1 ? 'var(--mist)' : (vn > 2 ? '#15803d' : vn > -5 ? '#b45309' : '#b91c1c');
+    const txt = Math.abs(vn) < 0.1 ? '0,0% (sin cambios)' : `${vn>0?'+':''}${vn.toFixed(1)}%`;
+    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${txt}</span>`;
   };
 
-  // Variación nominal + real con semáforo nítido (para montos $)
-  const vNomReal = (va, vb) => {
+  // Variación nominal + real con badge compacto en línea
+  const vNomReal = (va, vb, compact = false) => {
     if (!va || !vb) return null;
     const vn = (va - vb) / vb * 100;
     const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
     const col = (vr??vn) > 2 ? '#15803d' : (vr??vn) > -5 ? '#b45309' : '#b91c1c';
+    const bg  = (vr??vn) > 2 ? 'rgba(21,128,61,.09)' : (vr??vn) > -5 ? 'rgba(180,83,9,.09)' : 'rgba(185,28,28,.09)';
+    if (compact) {
+      return `<span style="display:inline-flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:${col};background:${bg};padding:2px 6px;border-radius:4px;white-space:nowrap">
+        <span>${vn>0?'+':''}${vn.toFixed(1)}% nom</span>
+        ${vr !== null ? `<span style="opacity:.4">|</span><span>${vr>0?'+':''}${vr.toFixed(1)}% real</span>` : ''}
+      </span>`;
+    }
     return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">
       ${vn>0?'+':''}${vn.toFixed(1)}% nom
-      ${vr !== null ? `<br><span style="font-size:10px;font-weight:700;color:${col}">${vr>0?'+':''}${vr.toFixed(1)}% real</span>` : ''}
+      ${vr !== null ? `<br><span style="font-size:10.5px;font-weight:700;color:${col}">${vr>0?'+':''}${vr.toFixed(1)}% real (${cmpInfo.fuente})</span>` : ''}
     </span>`;
+  };
+
+  // Equivalencia inteligente de componentes entre años (2024/2025 vs 2026/2027)
+  const findCompCmp = (label, cmpList) => {
+    if (!cmpList || !cmpList.length) return null;
+    let found = cmpList.find(x => x.label === label);
+    if (found) return found;
+    const l = label.toLowerCase();
+    if (l.includes('retribuciones del cargo') || l.includes('retribuciones (perm')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('retribuciones'));
+    }
+    if (l.includes('contribuciones patronales')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('contribuciones patronales'));
+    }
+    if (l.includes('horas extras')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('horas extras'));
+    }
+    if (l.includes('sueldo anual complementario') || l === 'sac') {
+      return cmpList.find(x => x.label.toLowerCase().includes('sac') || x.label.toLowerCase().includes('sueldo anual'));
+    }
+    if (l.includes('bonificaciones que no hacen') || l.includes('otras bonificaciones')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('bonificaciones'));
+    }
+    if (l.includes('complementos') || l.includes('extraordinaria')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('extraordinaria') || x.label.toLowerCase().includes('complementos'));
+    }
+    return null;
+  };
+
+  // Equivalencia de secretarías en personal
+  const findPersSecCmp = (label, cmpList) => {
+    if (!cmpList || !cmpList.length) return null;
+    let found = cmpList.find(x => x.label === label);
+    if (found) return found;
+    const eq = SEC_EQUIV[label];
+    if (eq) { found = cmpList.find(x => x.label === eq); if (found) return found; }
+    const l = label.toLowerCase();
+    if (l.includes('educación y cultura')) return cmpList.find(x => x.label.toLowerCase().includes('educación') || x.label.toLowerCase().includes('capital humano'));
+    if (l.includes('finanzas')) return cmpList.find(x => x.label.toLowerCase().includes('finanzas') || x.label.toLowerCase().includes('hacienda'));
+    if (l.includes('general')) return cmpList.find(x => x.label.toLowerCase().includes('general'));
+    if (l.includes('faltas')) return cmpList.find(x => x.label.toLowerCase().includes('faltas'));
+    if (l.includes('gabinete') || l.includes('coordinación')) return cmpList.find(x => x.label.toLowerCase().includes('gabinete') || x.label.toLowerCase().includes('gobierno') || x.label.toLowerCase().includes('coordinación'));
+    const norm = s => s.toLowerCase().replace(/secretaría de |sec\. de |h\.c\.d\./g, m => m === 'h.c.d.' ? 'hcd' : '').trim();
+    return cmpList.find(x => norm(x.label) === norm(label)) || null;
   };
 
   // ── TABLA RESUMEN ──
   const rows = [
-    { label: 'Total empleados',     vA: p.total,        vC: pc?.total,        fmt: fmtInt, isMoney: false },
-    { label: 'Planta permanente',   vA: p.permanente,   vC: pc?.permanente,   fmt: fmtInt, isMoney: false },
-    { label: 'Planta mensualizada', vA: p.mensualizado, vC: pc?.mensualizado, fmt: fmtInt, isMoney: false },
-    { label: 'Gasto total personal',vA: p.gastoTotal,   vC: pc?.gastoTotal,   fmt: v=>`$${fmt(v)} M`, isMoney: true },
-    { label: 'Paritaria acumulada', vA: p.paritaria,    vC: pc?.paritaria,    fmt: v=>`${v}%`, isMoney: false },
-  ].filter(r => r.vA);
+    { label: 'Total cargos aprobados / planta', vA: p.total,        vC: pc?.total,        fmt: fmtInt, isMoney: false },
+    { label: 'Planta permanente',               vA: p.permanente,   vC: pc?.permanente,   fmt: fmtInt, isMoney: false },
+    { label: 'Planta temporaria / mensualizada',vA: p.mensualizado, vC: pc?.mensualizado, fmt: fmtInt, isMoney: false },
+    { label: 'Masa salarial total presupuestada',vA: p.gastoTotal,  vC: pc?.gastoTotal,   fmt: v=>`$${fmt(v)} M`, isMoney: true },
+    { label: 'Paritaria acumulada informada',   vA: p.paritaria,    vC: pc?.paritaria,    fmt: v=>`${v}%`, isMoney: false },
+  ].filter(r => r.vA !== null && r.vA !== undefined);
 
   document.getElementById('kpi-personal').innerHTML = `
     <div style="grid-column:1/-1">
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead>
-          <tr>
-            <th style="text-align:left;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600;letter-spacing:.03em">Concepto</th>
-            <th style="text-align:right;padding:8px 12px;background:rgba(13,148,136,.85);color:#fff;font-weight:700">${activeYear}</th>
-            ${showCmp ? `<th style="text-align:right;padding:8px 12px;background:rgba(180,83,9,.80);color:#fff;font-weight:700">${cmpYear}</th>
-            <th style="text-align:right;padding:8px 12px;background:var(--navy);color:#fff;font-weight:600">Variación</th>` : ''}
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map((r,i) => {
-            const varHTML = showCmp && r.vC ? (r.isMoney ? vNomReal(r.vA, r.vC) : vNom(r.vA, r.vC)) : '';
-            return `<tr style="border-bottom:1px solid var(--borde);${i%2===1?'background:var(--card2)':''}">
-              <td style="padding:9px 12px;font-weight:600;color:var(--ink)">${r.label}</td>
-              <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1)">${r.fmt(r.vA)}</td>
-              ${showCmp ? `<td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;color:rgba(180,83,9,.85)">${r.vC ? r.fmt(r.vC) : '—'}</td>
-              <td style="padding:9px 12px;text-align:right">${varHTML||'—'}</td>` : ''}
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;margin:0">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:10px 14px;background:var(--navy);color:#fff;font-weight:600">Concepto</th>
+              <th class="yr-col" style="text-align:right;padding:10px 14px">${activeYear}</th>
+              ${showCmp ? `<th class="yr-cmp" style="text-align:right;padding:10px 14px">${cmpYear}</th>
+              <th style="text-align:right;padding:10px 14px;background:var(--navy);color:#fff;font-weight:600">Variación (${cmpInfo.fuente})</th>` : ''}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((r,i) => {
+              const varHTML = showCmp && (r.vC !== null && r.vC !== undefined) ? (r.isMoney ? vNomReal(r.vA, r.vC, false) : vNom(r.vA, r.vC)) : '—';
+              return `<tr style="border-bottom:1px solid var(--borde);${i%2===1?'background:var(--card2)':''}">
+                <td style="padding:10px 14px;font-weight:600;color:var(--ink)">${r.label}</td>
+                <td style="padding:10px 14px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:#0f766e">${r.fmt(r.vA)}</td>
+                ${showCmp ? `<td style="padding:10px 14px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:#b45309">${r.vC !== null && r.vC !== undefined ? r.fmt(r.vC) : '—'}</td>
+                <td style="padding:10px 14px;text-align:right">${varHTML}</td>` : ''}
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 
   // ── Gasto en personal o Planta por secretaría ──
   const secEl = document.getElementById('bars-planta-sec');
-  const cardTitleSec = document.querySelector('.card-grid.g2 > .card:first-child .card-title');
-  const isMoneyData = (p.porSecretaria && p.porSecretaria[0] && p.porSecretaria[0].val > 1000);
+  const cardTitleSec = document.querySelector('#v-personal .card-grid.g2 > .card:first-child .card-title');
+  const isMoneyDataA = !!(p.porSecretaria && p.porSecretaria[0] && p.porSecretaria[0].val > 1000);
+  const isMoneyDataC = !!(pc?.porSecretaria && pc.porSecretaria[0] && pc.porSecretaria[0].val > 1000);
+  // Solo comparar barras si ambos años están en la misma unidad ($M vs $M, o cargos vs cargos)
+  const canCompareSec = showCmp && (isMoneyDataA === isMoneyDataC);
 
   if (cardTitleSec) {
-    cardTitleSec.textContent = isMoneyData
-      ? `Gasto en personal por secretaría ($M) · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`
-      : `Planta de personal por secretaría (cargos) · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
+    cardTitleSec.textContent = isMoneyDataA
+      ? `Gasto salarial por secretaría ($M) · ${activeYear}${canCompareSec ? ' vs ' + cmpYear : ''}`
+      : `Planta de personal por secretaría (cargos) · ${activeYear}${canCompareSec ? ' vs ' + cmpYear : ''}`;
   }
 
   if (p.porSecretaria && p.porSecretaria.length) {
     const totalPlanta = p.porSecretaria.reduce((s,x)=>s+(x.val||0),0);
-    const allVals = [...p.porSecretaria.map(s=>s.val||0), ...(pc?.porSecretaria?.map(s=>s.val||0)||[])];
+    const allVals = [
+      ...p.porSecretaria.map(s=>s.val||0),
+      ...(canCompareSec ? (pc?.porSecretaria?.map(s=>s.val||0)||[]) : [])
+    ];
     const maxS = Math.max(...allVals, 1);
-    const legHTML = showCmp ? `<div style="display:flex;gap:1.5rem;margin-bottom:.875rem;font-size:12px;font-weight:600">
-      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(13,148,136,.80)"></span>${activeYear}</span>
-      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--mist);font-weight:400">${isMoneyData ? '% del gasto de personal · var. nom + real (REM 30,3%)' : '% de la planta total · cant. cargos'}</span>
+
+    const mismatchBanner = (showCmp && !canCompareSec)
+      ? `<div style="margin-bottom:.75rem;padding:6px 10px;background:rgba(180,83,9,.08);border-left:3px solid #b45309;border-radius:4px;font-size:11px;color:var(--ink2)">
+          Nota: ${activeYear} informa masa salarial ($M) y ${cmpYear} informa cantidad de cargos físicos. Se muestra el desglose individual de ${activeYear}.
+        </div>`
+      : '';
+
+    const legHTML = canCompareSec ? `<div style="display:flex;align-items:center;gap:1rem;margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:1px solid var(--borde);font-size:11.5px;font-weight:600;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px;color:#0f766e"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0d9488"></span>${activeYear}</span>
+      <span style="display:flex;align-items:center;gap:5px;color:#b45309"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
+      <span style="margin-left:auto;font-size:10.5px;color:var(--mist);font-weight:500">${isMoneyDataA ? `Deflactor: ${cmpInfo.fuente}` : 'Comparativa de cargos'}</span>
     </div>` : '';
-    secEl.innerHTML = legHTML + p.porSecretaria.map(s => {
-      const sc = pc?.porSecretaria?.find(c=>c.label===s.label);
+
+    secEl.innerHTML = mismatchBanner + legHTML + p.porSecretaria.map(s => {
+      const sc = canCompareSec ? findPersSecCmp(s.label, pc?.porSecretaria) : null;
       const pct = ((s.val||0)/totalPlanta*100).toFixed(1);
-      const valStrA = isMoneyData ? '$' + fmt(s.val) + ' M' : s.val;
-      const valStrC = sc ? (isMoneyData ? '$' + fmt(sc.val) + ' M' : sc.val) : '';
-      const varHTML = sc ? (isMoneyData ? vNomReal(s.val, sc.val) : vNom(s.val, sc.val)) : '';
-      return `<div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
-          <span style="font-size:12px;font-weight:500;color:var(--ink)">${s.label}</span>
-          <div style="display:flex;gap:.75rem;align-items:baseline;flex-shrink:0">
-            ${sc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.85)">${valStrC}</span>` : ''}
-            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1);font-size:12px">${valStrA}</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
-            ${varHTML || ''}
+      const valStrA = isMoneyDataA ? '$' + fmt(s.val) + ' M' : fmtInt(s.val) + ' cargos';
+      const valStrC = sc ? (isMoneyDataC ? '$' + fmt(sc.val) + ' M' : fmtInt(sc.val) + ' cargos') : '';
+      const varBadge = sc ? (isMoneyDataA ? vNomReal(s.val, sc.val, true) : vNom(s.val, sc.val)) : '';
+      return `<div style="margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed rgba(0,0,0,.06)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:.5rem;flex-wrap:wrap">
+          <span style="font-size:12.5px;font-weight:600;color:var(--ink)">${s.label} <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mist);font-weight:400">(${pct}%)</span></span>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-left:auto">
+            ${sc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#b45309" title="${cmpYear}">${valStrC}</span><span style="color:var(--mist);font-size:10px">→</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#0f766e;font-size:12px" title="${activeYear}">${valStrA}</span>
+            ${varBadge || ''}
           </div>
         </div>
-        <div style="height:11px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
-          ${sc ? `<div style="position:absolute;top:0;left:0;width:${(sc.val||0)/maxS*100}%;height:100%;background:rgba(180,83,9,.55);border-radius:3px"></div>` : ''}
-          <div style="position:absolute;top:0;left:0;width:${(s.val||0)/maxS*100}%;height:100%;background:rgba(13,148,136,.80);border-radius:3px"></div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="height:7px;background:var(--bg2);border-radius:3px;overflow:hidden">
+            <div style="width:${(s.val||0)/maxS*100}%;height:100%;background:#0d9488;border-radius:3px"></div>
+          </div>
+          ${sc ? `<div style="height:5px;background:var(--bg2);border-radius:3px;overflow:hidden">
+            <div style="width:${(sc.val||0)/maxS*100}%;height:100%;background:rgba(180,83,9,.60);border-radius:3px"></div>
+          </div>` : ''}
         </div>
       </div>`;
     }).join('');
@@ -981,45 +1052,47 @@ function renderPersonal() {
     secEl.innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>';
   }
 
-  // ── Componentes del gasto ──
-  document.querySelector('.card.v5 .card-title').textContent =
-    `Gasto en personal por componente · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
+  // ── Componentes del gasto (Objeto 1.0.0.0) ──
+  const compTitleEl = document.querySelector('#v-personal .card.v5 .card-title');
+  if (compTitleEl) {
+    compTitleEl.textContent = `Gasto en personal por componente ($M) · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
+  }
   if (p.componentes && p.componentes.length) {
     const totalComp = p.componentes.reduce((s,c)=>s+(c.val||0),0);
     const allC = [...p.componentes.map(c=>c.val||0), ...(pc?.componentes?.map(c=>c.val||0)||[])];
     const maxC = Math.max(...allC, 1);
-    const legCompHTML = showCmp ? `<div style="display:flex;gap:1.5rem;margin-bottom:.875rem;font-size:12px;font-weight:600">
-      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(13,148,136,.80)"></span>${activeYear}</span>
-      <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--mist);font-weight:400">var. nominal + real</span>
+    const legCompHTML = showCmp ? `<div style="display:flex;align-items:center;gap:1rem;margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:1px solid var(--borde);font-size:11.5px;font-weight:600;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px;color:#0f766e"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0d9488"></span>${activeYear}</span>
+      <span style="display:flex;align-items:center;gap:5px;color:#b45309"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
+      <span style="margin-left:auto;font-size:10.5px;color:var(--mist);font-weight:500">Deflactor: ${cmpInfo.fuente}</span>
     </div>` : '';
+
     document.getElementById('bars-componentes').innerHTML = legCompHTML + p.componentes.map(c => {
-      const cc = pc?.componentes?.find(x=>x.label===c.label);
+      const cc = showCmp ? findCompCmp(c.label, pc?.componentes) : null;
       const pct = ((c.val||0)/totalComp*100).toFixed(1);
-      return `<div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:.5rem">
-          <span style="font-size:12px;font-weight:500;color:var(--ink)">${c.label}</span>
-          <div style="display:flex;gap:.75rem;align-items:baseline;flex-shrink:0">
-            ${cc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(180,83,9,.85)">$${fmt(cc.val)}M</span>` : ''}
-            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(13,148,136,1);font-size:12px">$${fmt(c.val)}M</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mist)">${pct}%</span>
-            ${cc ? (vNomReal(c.val, cc.val)||'') : ''}
+      const varBadge = cc ? vNomReal(c.val, cc.val, true) : '';
+      return `<div style="margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed rgba(0,0,0,.06)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:.5rem;flex-wrap:wrap">
+          <span style="font-size:12.5px;font-weight:600;color:var(--ink)">${c.label} <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mist);font-weight:400">(${pct}%)</span></span>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-left:auto">
+            ${cc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#b45309" title="${cmpYear}">$${fmt(cc.val)} M</span><span style="color:var(--mist);font-size:10px">→</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#0f766e;font-size:12px" title="${activeYear}">$${fmt(c.val)} M</span>
+            ${varBadge || ''}
           </div>
         </div>
-        <div style="height:11px;background:var(--bg2);border-radius:3px;overflow:hidden;position:relative">
-          ${cc ? `<div style="position:absolute;top:0;left:0;width:${(cc.val||0)/maxC*100}%;height:100%;background:rgba(180,83,9,.55);border-radius:3px"></div>` : ''}
-          <div style="position:absolute;top:0;left:0;width:${(c.val||0)/maxC*100}%;height:100%;background:rgba(13,148,136,.80);border-radius:3px"></div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="height:7px;background:var(--bg2);border-radius:3px;overflow:hidden">
+            <div style="width:${(c.val||0)/maxC*100}%;height:100%;background:#0d9488;border-radius:3px"></div>
+          </div>
+          ${cc ? `<div style="height:5px;background:var(--bg2);border-radius:3px;overflow:hidden">
+            <div style="width:${(cc.val||0)/maxC*100}%;height:100%;background:rgba(180,83,9,.60);border-radius:3px"></div>
+          </div>` : ''}
         </div>
       </div>`;
     }).join('');
-  } else {
-    document.getElementById('bars-componentes').innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>';
   }
 }
 
-/* ╔══════════════════════════════════════════════════════╗
-   ║  RENDER — METODOLOGÍA                                ║
-   ╚══════════════════════════════════════════════════════╝ */
 function renderMetodologia() {
   const statusMap = { confirmed:'✅ Confirmado', pending:'⏳ Pendiente', partial:'🔶 Parcial' };
   const colorMap  = { confirmed:'var(--green)', pending:'var(--mist)', partial:'var(--amber)' };
