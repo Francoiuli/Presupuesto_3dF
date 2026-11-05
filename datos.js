@@ -863,12 +863,17 @@ const DATA = {
 
     secretarias: [
       { label: 'Ambiente y Servicios Públicos', val: 56529.89, nota: 'Higiene Urbana ($42.067 M) + Alumbrado y Arbolado ($8.839 M) + Serv. Urbanos',
-        programas: [
-          { label: 'Higiene Urbana y Control de Microbasurales',   val: 42067.38 },
-          { label: 'Mantenimiento Alumbrado y Arbolado Urbano',     val:  8838.76 },
-          { label: 'Fortalecimiento de los Servicios Urbanos',      val:  4383.07 },
-          { label: 'Fortalecimiento del Cementerio Municipal',      val:   626.45 },
-          { label: 'Administración General (Ambiente)',              val:   614.22 },
+                programas: [
+          { label: 'Higiene Urbana y Control de Microbasurales', val: 42067.38 },
+          { label: 'Mantenimiento del Sistema Público de Alumbrado', val: 7227.17 },
+          { label: 'Planificación y Coordinación (Servicios Urbanos)', val: 2018.80 },
+          { label: 'Fortalecimiento de los Espacios Públicos', val: 1953.40 },
+          { label: 'Arbolado Público', val: 1514.48 },
+          { label: 'Fortalecimiento del Cementerio Municipal', val: 626.45 },
+          { label: 'Administración General (Ambiente)', val: 614.22 },
+          { label: 'Mantenimiento e Infraestructura del Sistema Pluvial', val: 318.52 },
+          { label: 'Planificación y Coordinación (Alumbrado)', val: 97.12 },
+          { label: 'Centro Educativo Ambiental', val: 92.35 }
         ]
       },
       { label: 'Capital Humano', val: 37035.82, nota: 'Educación, Infraestructura Escolar, SAE, MESA, Social, Niñez, Deporte (en ordenanza: Educ. y Des. Humano)',
@@ -1149,12 +1154,17 @@ const DATA = {
 
     secretarias: [
       { label: 'Ambiente y Servicios Públicos', val: 71549.79, nota: 'Higiene Urbana ($53.015 M) + Alumbrado y Arbolado ($10.899 M) + Serv. Urbanos',
-        programas: [
-          { label: 'Higiene Urbana y Control de Microbasurales',   val: 53015.24 },
-          { label: 'Mantenimiento Alumbrado y Arbolado Urbano',     val: 10899.14 },
-          { label: 'Fortalecimiento de los Servicios Urbanos',      val:  5564.11 },
-          { label: 'Administración General (Ambiente)',              val:  1391.02 },
-          { label: 'Fortalecimiento del Cementerio Municipal',      val:   680.28 },
+                programas: [
+          { label: 'Higiene Urbana y Control de Microbasurales', val: 53015.24 },
+          { label: 'Mantenimiento del Sistema Público de Alumbrado', val: 9225.27 },
+          { label: 'Planificación y Coordinación (Servicios Urbanos)', val: 2736.59 },
+          { label: 'Fortalecimiento de los Espacios Públicos', val: 2372.26 },
+          { label: 'Arbolado Público', val: 1532.01 },
+          { label: 'Administración General (Ambiente)', val: 1391.02 },
+          { label: 'Fortalecimiento del Cementerio Municipal', val: 680.28 },
+          { label: 'Mantenimiento e Infraestructura del Sistema Pluvial', val: 328.38 },
+          { label: 'Planificación y Coordinación (Alumbrado)', val: 141.85 },
+          { label: 'Centro Educativo Ambiental', val: 126.89 }
         ]
       },
       { label: 'Capital Humano', val: 42488.22, nota: 'Educación, Infraestructura Escolar, SAE, Social, Niñez, Deporte',
@@ -1177,6 +1187,8 @@ const DATA = {
           { label: 'Integración socio urbana Barrio Ejército de los Andes', val: 46.60 },
           { label: 'Familias Solidarias',                            val:   12.96 },
           { label: 'Red Secundaria Cloacal LOMA HERMOSA - OC70094',  val:    7.96 },
+          { label: 'Red de Agua Potable y Cloaca - B° Maldonado',    val:    0.00 },
+          { label: 'Red Cloacal, Pluvial, Vial, Peatonal y Espacio Público - Churruca', val: 0.00 },
         ]
       },
       { label: 'Obras Públicas y Des. Urbano', val: 41867.50, nota: 'Obras Viales, Centro Cívico Caseros, Bacheo, Serv. Generales',
@@ -1345,6 +1357,16 @@ const SEC_EQUIV = {
 
 // Equivalencias de programas entre años (label 2024 → label 2025 o viceversa)
 const PROG_EQUIV = {
+  // Pluviales y Drenaje
+  'Mantenimiento Sistema Pluvial': 'Mantenimiento e Infraestructura del Sistema Pluvial',
+  'Mantenimiento Infr. Sistema Pluvial': 'Mantenimiento e Infraestructura del Sistema Pluvial',
+  'Mantenimiento e Infraestructura del Sistema Pluvial': 'Mantenimiento e Infraestructura del Sistema Pluvial',
+  'Arbolado Público': 'Arbolado Público',
+  'Mantenimiento Arbolado Público': 'Arbolado Público',
+  'Mantenimiento del Sistema Público de Alumbrado': 'Mantenimiento del Sistema Público de Alumbrado',
+  'Mantenimiento Sistema Alumbrado': 'Mantenimiento del Sistema Público de Alumbrado',
+  'Mantenimiento Integral Sistema Alumbrado': 'Mantenimiento del Sistema Público de Alumbrado',
+
   // HCD
   'Actividades Centrales HCD': 'Formación y Sanción de Ordenanzas (HCD)',
   'Formación y Sanción de las Ordenanzas': 'Formación y Sanción de Ordenanzas (HCD)',
