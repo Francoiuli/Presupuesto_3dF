@@ -796,7 +796,7 @@ function renderSecretarias() {
           <span style="text-align:right">${activeYear} ($M)</span>
           <span style="text-align:right">${showCmp ? cmpYear+' · Var. Nom y Real' : ''}</span>
         </div>
-        ${s.programas.filter(p => p.val > 0).map(p => {
+        ${s.programas.filter(p => p.val > 0 || (showCmp && findProgCmp(p.label, cmpProgs)?.val > 0)).map(p => {
           const pc = findProgCmp(p.label, cmpProgs);
           const pvn = (pc?.val) ? ((p.val - pc.val)/pc.val*100) : null;
           const pvr = (pvn !== null && ipc) ? ((1+pvn/100)/(1+ipc)-1)*100 : null;
