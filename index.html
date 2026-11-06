@@ -1373,6 +1373,299 @@ function renderDeuda() {
     `;
   }).join('');
 }
+
+// ── ACTUALIZACIÓN PERSONAL 2027 (Opción 2: Sin informar / Falta Anexo RRHH) y Comparativa 9 Componentes ──
+if (typeof DATA !== 'undefined') {
+  if (DATA[2027] && DATA[2027].personal) {
+    DATA[2027].personal.total = null;
+    DATA[2027].personal.permanente = null;
+    DATA[2027].personal.mensualizado = null;
+    DATA[2027].personal.componentes = [
+      { label: 'Retribuciones del cargo (perm. + temp.)',  val: 38010.19 },
+      { label: 'Bonificaciones que no hacen al cargo',     val: 11188.13 },
+      { label: 'Contribuciones patronales (IPS + Obra S.)',val:  8181.96 },
+      { label: 'Horas extras',                              val:  6383.94 },
+      { label: 'Complementos y bonif. extraordinarias',    val:  2155.50 },
+      { label: 'Sueldo anual complementario (SAC)',        val:  1894.28 },
+      { label: 'Asignaciones familiares',                  val:  1464.37 },
+      { label: 'Personal subvencionado DIPREGEP',          val:   606.33 },
+      { label: 'Asistencia social, beneficios y otros',    val:    37.43 }
+    ];
+  }
+  if (DATA[2026] && DATA[2026].personal) {
+    DATA[2026].personal.componentes = [
+      { label: 'Retribuciones del cargo (perm. + temp.)',  val: 24506.53 },
+      { label: 'Bonificaciones que no hacen al cargo',     val:  9897.62 },
+      { label: 'Contribuciones patronales (IPS + Obra S.)',val:  6920.79 },
+      { label: 'Horas extras',                              val:  4399.47 },
+      { label: 'Sueldo anual complementario (SAC)',        val:  1321.74 },
+      { label: 'Complementos y bonif. extraordinarias',    val:  1225.96 },
+      { label: 'Asignaciones familiares',                  val:  1101.51 },
+      { label: 'Personal subvencionado DIPREGEP',          val:   376.61 },
+      { label: 'Asistencia social, beneficios y otros',    val:     3.84 }
+    ];
+  }
+}
+
+function renderPersonal() {
+  const d   = DATA[activeYear];
+  const p   = d.personal;
+  const pc  = cmpYear !== 'none' ? DATA[parseInt(cmpYear)]?.personal : null;
+  const cmpInfo = typeof getComparisonIPC === 'function'
+    ? getComparisonIPC(activeYear, cmpYear)
+    : { ipc: d?.ipc || 0.30, fuente: activeYear === 2027 ? 'REM 30%' : 'INDEC 31,5%' };
+  const ipc = cmpInfo.ipc;
+  const showCmp = !!pc;
+  document.getElementById('pers-titulo').textContent = `Planta y gasto en personal · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
+
+  // Actualizar chip superior si estamos en 2027
+  const chipPlanta = document.getElementById('chip-planta');
+  if (chipPlanta && activeYear === 2027 && !p.total) {
+    chipPlanta.textContent = 'Sin informar';
+  }
+
+  // Variación solo nominal (para cantidades de cargos)
+  const vNom = (va, vb, yrA, yrB) => {
+    if ((yrA === 2027 && !va) || (yrB == 2027 && !vb)) {
+      return `<span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;color:#b45309">S/D (falta Anexo 2027)</span>`;
+    }
+    if (va === null || va === undefined || vb === null || vb === undefined || vb === 0) return '—';
+    const vn = (va - vb) / vb * 100;
+    const col = Math.abs(vn) < 0.1 ? 'var(--mist)' : (vn > 2 ? '#15803d' : vn > -5 ? '#b45309' : '#b91c1c');
+    const txt = Math.abs(vn) < 0.1 ? '0,0% (sin cambios)' : `${vn>0?'+':''}${vn.toFixed(1)}%`;
+    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">${txt}</span>`;
+  };
+
+  // Variación nominal + real con badge compacto en línea
+  const vNomReal = (va, vb, compact = false) => {
+    if (!va || !vb) return null;
+    const vn = (va - vb) / vb * 100;
+    const vr = ipc ? ((1+vn/100)/(1+ipc)-1)*100 : null;
+    const col = (vr??vn) > 2 ? '#15803d' : (vr??vn) > -5 ? '#b45309' : '#b91c1c';
+    const bg  = (vr??vn) > 2 ? 'rgba(21,128,61,.09)' : (vr??vn) > -5 ? 'rgba(180,83,9,.09)' : 'rgba(185,28,28,.09)';
+    if (compact) {
+      return `<span style="display:inline-flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:${col};background:${bg};padding:2px 6px;border-radius:4px;white-space:nowrap">
+        <span>${vn>0?'+':''}${vn.toFixed(1)}% nom</span>
+        ${vr !== null ? `<span style="opacity:.4">|</span><span>${vr>0?'+':''}${vr.toFixed(1)}% real</span>` : ''}
+      </span>`;
+    }
+    return `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${col}">
+      ${vn>0?'+':''}${vn.toFixed(1)}% nom
+      ${vr !== null ? `<br><span style="font-size:10.5px;font-weight:700;color:${col}">${vr>0?'+':''}${vr.toFixed(1)}% real (${cmpInfo.fuente})</span>` : ''}
+    </span>`;
+  };
+
+  const findCompCmp = (label, cmpList) => {
+    if (!cmpList || !cmpList.length) return null;
+    let found = cmpList.find(x => x.label === label);
+    if (found) return found;
+    const l = label.toLowerCase();
+    if (l.includes('retribuciones del cargo') || l.includes('retribuciones (perm')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('retribuciones'));
+    }
+    if (l.includes('contribuciones patronales')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('contribuciones patronales'));
+    }
+    if (l.includes('horas extras')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('horas extras'));
+    }
+    if (l.includes('sueldo anual complementario') || l === 'sac') {
+      return cmpList.find(x => x.label.toLowerCase().includes('sac') || x.label.toLowerCase().includes('sueldo anual'));
+    }
+    if (l.includes('bonificaciones que no hacen') || l.includes('otras bonificaciones')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('bonificaciones'));
+    }
+    if (l.includes('complementos') || l.includes('extraordinaria')) {
+      return cmpList.find(x => x.label.toLowerCase().includes('extraordinaria') || x.label.toLowerCase().includes('complementos'));
+    }
+    return null;
+  };
+
+  const findPersSecCmp = (label, cmpList) => {
+    if (!cmpList || !cmpList.length) return null;
+    let found = cmpList.find(x => x.label === label);
+    if (found) return found;
+    const eq = typeof SEC_EQUIV !== 'undefined' ? SEC_EQUIV[label] : null;
+    if (eq) { found = cmpList.find(x => x.label === eq); if (found) return found; }
+    const l = label.toLowerCase();
+    if (l.includes('educación y cultura')) return cmpList.find(x => x.label.toLowerCase().includes('educación') || x.label.toLowerCase().includes('capital humano'));
+    if (l.includes('finanzas')) return cmpList.find(x => x.label.toLowerCase().includes('finanzas') || x.label.toLowerCase().includes('hacienda'));
+    if (l.includes('general')) return cmpList.find(x => x.label.toLowerCase().includes('general'));
+    if (l.includes('faltas')) return cmpList.find(x => x.label.toLowerCase().includes('faltas'));
+    if (l.includes('gabinete') || l.includes('coordinación')) return cmpList.find(x => x.label.toLowerCase().includes('gabinete') || x.label.toLowerCase().includes('gobierno') || x.label.toLowerCase().includes('coordinación'));
+    const norm = s => s.toLowerCase().replace(/secretaría de |sec\. de |h\.c\.d\./g, m => m === 'h.c.d.' ? 'hcd' : '').trim();
+    return cmpList.find(x => norm(x.label) === norm(label)) || null;
+  };
+
+  const sinInformarBadge = `<span style="display:inline-block;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#b91c1c;background:#fee2e2;border:1px solid rgba(185,28,28,.25);padding:2px 8px;border-radius:4px">Sin informar (falta Anexo RRHH)</span>`;
+
+  const fmtCell = (val, yr, fmtFn, isCargo) => {
+    if (val !== null && val !== undefined) return fmtFn(val);
+    if (isCargo && Number(yr) === 2027) return sinInformarBadge;
+    return '—';
+  };
+
+  // ── TABLA RESUMEN ──
+  const rows = [
+    { label: 'Total empleados / cargos',        vA: p.total,        vC: pc?.total,        fmt: fmtInt, isMoney: false, isCargo: true },
+    { label: 'Planta permanente',               vA: p.permanente,   vC: pc?.permanente,   fmt: fmtInt, isMoney: false, isCargo: true },
+    { label: 'Planta temporaria / mensualizada',vA: p.mensualizado, vC: pc?.mensualizado, fmt: fmtInt, isMoney: false, isCargo: true },
+    { label: 'Masa salarial total presupuestada',vA: p.gastoTotal,  vC: pc?.gastoTotal,   fmt: v=>`$${fmt(v)} M`, isMoney: true, isCargo: false },
+    { label: 'Paritaria acumulada informada',   vA: p.paritaria,    vC: pc?.paritaria,    fmt: v=>`${v}%`, isMoney: false, isCargo: false },
+  ].filter(r => r.isCargo || (r.vA !== null && r.vA !== undefined) || (showCmp && r.vC !== null && r.vC !== undefined));
+
+  const alertaOcultamiento2027 = (activeYear === 2027 || Number(cmpYear) === 2027)
+    ? `<div class="alert warn" style="margin-bottom:1rem;border-left-color:var(--red);background:var(--red-l);color:#991b1b">
+        <strong style="color:#7f1d1d">⚠️ Falta de información sobre Planta de Personal 2027:</strong> El Departamento Ejecutivo presupuestó <strong>$69.922,14 millones</strong> en sueldos (+40,5% nominal vs. 2026), pero en los anexos remitidos no adjuntó el Cuadro de Recursos Humanos con la cantidad de empleados de planta permanente, temporaria ni funcionarios por secretaría.
+      </div>`
+    : '';
+
+  document.getElementById('kpi-personal').innerHTML = `
+    <div style="grid-column:1/-1">
+      ${alertaOcultamiento2027}
+      <div class="card" style="padding:0;overflow:hidden">
+        <table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;margin:0">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:10px 14px;background:var(--navy);color:#fff;font-weight:600">Concepto</th>
+              <th class="yr-col" style="text-align:right;padding:10px 14px">${activeYear}</th>
+              ${showCmp ? `<th class="yr-cmp" style="text-align:right;padding:10px 14px">${cmpYear}</th>
+              <th style="text-align:right;padding:10px 14px;background:var(--navy);color:#fff;font-weight:600">Variación (${cmpInfo.fuente})</th>` : ''}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((r,i) => {
+              const varHTML = showCmp
+                ? (r.isMoney ? (vNomReal(r.vA, r.vC, false) || '—') : vNom(r.vA, r.vC, activeYear, cmpYear))
+                : '—';
+              return `<tr style="border-bottom:1px solid var(--borde);${i%2===1?'background:var(--card2)':''}">
+                <td style="padding:10px 14px;font-weight:600;color:var(--ink)">${r.label}</td>
+                <td style="padding:10px 14px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:#0f766e">${fmtCell(r.vA, activeYear, r.fmt, r.isCargo)}</td>
+                ${showCmp ? `<td style="padding:10px 14px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:#b45309">${fmtCell(r.vC, cmpYear, r.fmt, r.isCargo)}</td>
+                <td style="padding:10px 14px;text-align:right">${varHTML}</td>` : ''}
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // ── Gasto en personal o Planta por secretaría ──
+  const secEl = document.getElementById('bars-planta-sec');
+  const cardTitleSec = document.querySelector('#v-personal .card-grid.g2 > .card:first-child .card-title');
+  const isMoneyDataA = !!(p.porSecretaria && p.porSecretaria[0] && p.porSecretaria[0].val > 1000);
+  const isMoneyDataC = !!(pc?.porSecretaria && pc.porSecretaria[0] && pc.porSecretaria[0].val > 1000);
+  const canCompareSec = showCmp && (isMoneyDataA === isMoneyDataC);
+
+  if (cardTitleSec) {
+    cardTitleSec.textContent = isMoneyDataA
+      ? `Gasto salarial por secretaría ($M) · ${activeYear}${canCompareSec ? ' vs ' + cmpYear : ''}`
+      : `Planta de personal por secretaría (cargos) · ${activeYear}${canCompareSec ? ' vs ' + cmpYear : ''}`;
+  }
+
+  if (p.porSecretaria && p.porSecretaria.length) {
+    const totalPlanta = p.porSecretaria.reduce((s,x)=>s+(x.val||0),0);
+    const allVals = [
+      ...p.porSecretaria.map(s=>s.val||0),
+      ...(canCompareSec ? (pc?.porSecretaria?.map(s=>s.val||0)||[]) : [])
+    ];
+    const maxS = Math.max(...allVals, 1);
+
+    const mismatchBanner = (showCmp && !canCompareSec)
+      ? `<div style="margin-bottom:.75rem;padding:6px 10px;background:rgba(180,83,9,.08);border-left:3px solid #b45309;border-radius:4px;font-size:11px;color:var(--ink2)">
+          Nota: ${activeYear} informa masa salarial ($M) y ${cmpYear} informa cantidad de cargos físicos. Se muestra el desglose individual de ${activeYear}.
+        </div>`
+      : '';
+
+    const legHTML = canCompareSec ? `<div style="display:flex;align-items:center;gap:1rem;margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:1px solid var(--borde);font-size:11.5px;font-weight:600;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px;color:#0f766e"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0d9488"></span>${activeYear}</span>
+      <span style="display:flex;align-items:center;gap:5px;color:#b45309"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
+      <span style="margin-left:auto;font-size:10.5px;color:var(--mist);font-weight:500">${isMoneyDataA ? `Deflactor: ${cmpInfo.fuente}` : 'Comparativa de cargos'}</span>
+    </div>` : '';
+
+    secEl.innerHTML = mismatchBanner + legHTML + p.porSecretaria.map(s => {
+      const sc = canCompareSec ? findPersSecCmp(s.label, pc?.porSecretaria) : null;
+      const pct = ((s.val||0)/totalPlanta*100).toFixed(1);
+      const valStrA = isMoneyDataA ? '$' + fmt(s.val) + ' M' : fmtInt(s.val) + ' cargos';
+      const valStrC = sc ? (isMoneyDataC ? '$' + fmt(sc.val) + ' M' : fmtInt(sc.val) + ' cargos') : '';
+      const varBadge = sc ? (isMoneyDataA ? vNomReal(s.val, sc.val, true) : vNom(s.val, sc.val, activeYear, cmpYear)) : '';
+      return `<div style="margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed rgba(0,0,0,.06)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:.5rem;flex-wrap:wrap">
+          <span style="font-size:12.5px;font-weight:600;color:var(--ink)">${s.label} <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mist);font-weight:400">(${pct}%)</span></span>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-left:auto">
+            ${sc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#b45309" title="${cmpYear}">${valStrC}</span><span style="color:var(--mist);font-size:10px">→</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#0f766e;font-size:12px" title="${activeYear}">${valStrA}</span>
+            ${varBadge || ''}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="height:7px;background:var(--bg2);border-radius:3px;overflow:hidden">
+            <div style="width:${(s.val||0)/maxS*100}%;height:100%;background:#0d9488;border-radius:3px"></div>
+          </div>
+          ${sc ? `<div style="height:5px;background:var(--bg2);border-radius:3px;overflow:hidden">
+            <div style="width:${(sc.val||0)/maxS*100}%;height:100%;background:rgba(180,83,9,.60);border-radius:3px"></div>
+          </div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    secEl.innerHTML = '<p style="color:var(--mist);font-size:12px;font-style:italic">Sin datos para este año.</p>';
+  }
+
+  // ── Componentes del gasto (Objeto 1.0.0.0) ──
+  const compTitleEl = document.querySelector('#v-personal .card.v5 .card-title');
+  if (compTitleEl) {
+    compTitleEl.textContent = `Gasto en personal por componente ($M) · ${activeYear}${showCmp ? ' vs ' + cmpYear : ''}`;
+  }
+  if (p.componentes && p.componentes.length) {
+    const totalComp = p.componentes.reduce((s,c)=>s+(c.val||0),0);
+    const allC = [...p.componentes.map(c=>c.val||0), ...(pc?.componentes?.map(c=>c.val||0)||[])];
+    const maxC = Math.max(...allC, 1);
+    const legCompHTML = showCmp ? `<div style="display:flex;align-items:center;gap:1rem;margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:1px solid var(--borde);font-size:11.5px;font-weight:600;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px;color:#0f766e"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0d9488"></span>${activeYear}</span>
+      <span style="display:flex;align-items:center;gap:5px;color:#b45309"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(180,83,9,.65)"></span>${cmpYear}</span>
+      <span style="margin-left:auto;font-size:10.5px;color:var(--mist);font-weight:500">Deflactor: ${cmpInfo.fuente}</span>
+    </div>` : '';
+
+    document.getElementById('bars-componentes').innerHTML = legCompHTML + p.componentes.map(c => {
+      const cc = showCmp ? findCompCmp(c.label, pc?.componentes) : null;
+      const pct = ((c.val||0)/totalComp*100).toFixed(1);
+      const varBadge = cc ? vNomReal(c.val, cc.val, true) : '';
+      return `<div style="margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed rgba(0,0,0,.06)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:.5rem;flex-wrap:wrap">
+          <span style="font-size:12.5px;font-weight:600;color:var(--ink)">${c.label} <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mist);font-weight:400">(${pct}%)</span></span>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-left:auto">
+            ${cc ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#b45309" title="${cmpYear}">$${fmt(cc.val)} M</span><span style="color:var(--mist);font-size:10px">→</span>` : ''}
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#0f766e;font-size:12px" title="${activeYear}">$${fmt(c.val)} M</span>
+            ${varBadge || ''}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="height:7px;background:var(--bg2);border-radius:3px;overflow:hidden">
+            <div style="width:${(c.val||0)/maxC*100}%;height:100%;background:#0d9488;border-radius:3px"></div>
+          </div>
+          ${cc ? `<div style="height:5px;background:var(--bg2);border-radius:3px;overflow:hidden">
+            <div style="width:${(cc.val||0)/maxC*100}%;height:100%;background:rgba(180,83,9,.60);border-radius:3px"></div>
+          </div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+
+if (typeof setYear === 'function') {
+  const _origSetYear = setYear;
+  setYear = function(yr, btn) {
+    _origSetYear(yr, btn);
+    if (Number(yr) === 2027) {
+      const cp = document.getElementById('chip-planta');
+      if (cp) cp.textContent = 'Sin informar';
+    }
+  };
+}
+
 </script>
 </body>
 </html>
